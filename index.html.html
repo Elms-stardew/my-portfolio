@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>林小晚 - 个人展示网站</title>
+    <title>王瑜娜 - 个人展示网站</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -32,6 +32,44 @@
             --light-gray: #1b2d42;
             --card-bg: #152238;
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 同步状态指示器 */
+        .sync-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: var(--accent-light);
+        }
+        .sync-indicator::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .sync-indicator.connected::before {
+            background: #22c55e;
+            box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+        }
+        .sync-indicator.local-only::before {
+            background: #f59e0b;
+            box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+        }
+        .sync-indicator.error::before {
+            background: #ef4444;
+            box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+        }
+        .sync-indicator.syncing::before {
+            background: #3b82f6;
+            box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
 
         * {
@@ -106,6 +144,23 @@
 
         [data-theme="dark"] .theme-toggle {
             background: #e8edf2;
+        }
+
+        .theme-toggle-mobile {
+            width: 100%;
+            padding: 10px 0;
+            border: 1.5px solid var(--light-gray);
+            border-radius: 10px;
+            background: var(--card-bg);
+            color: var(--primary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle-mobile:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         .nav-link {
@@ -915,26 +970,30 @@
         .experience-list {
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 20px;
         }
 
+        /* 扁平化经历卡片 */
         .exp-card {
             background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 30px;
-            box-shadow: var(--shadow);
+            padding: 25px 0;
+            border-bottom: 1px solid var(--light-gray);
             transition: var(--transition);
         }
 
+        .exp-card:last-child {
+            border-bottom: none;
+        }
+
         .exp-card:hover {
-            transform: translateY(-3px);
+            padding-left: 10px;
         }
 
         .exp-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .exp-time {
@@ -943,7 +1002,7 @@
         }
 
         .exp-title {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             margin-bottom: 10px;
         }
 
@@ -1003,15 +1062,20 @@
         }
 
         .exp-detail li::before {
-            content: '•';
+            content: '';
             position: absolute;
             left: 0;
-            color: var(--accent);
+            top: 8px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
         }
 
         .exp-actions {
             display: flex;
             justify-content: flex-end;
+            gap: 10px;
             margin-top: 15px;
         }
 
@@ -1029,6 +1093,117 @@
         .exp-toggle:hover {
             background: var(--accent);
             color: white;
+        }
+
+        .exp-detail-btn {
+            background: none;
+            border: 1px solid var(--light-gray);
+            color: var(--gray);
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+
+        .exp-detail-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* 经历详情页 */
+        .exp-detail-page {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .exp-detail-header {
+            padding: 30px 0 40px;
+            border-bottom: 1px solid var(--light-gray);
+            margin-bottom: 40px;
+        }
+
+        .exp-detail-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 8px 0;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .exp-detail-back:hover {
+            opacity: 0.7;
+        }
+
+        .exp-detail-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .exp-detail-time {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .exp-detail-title {
+            font-size: 1.8rem;
+            line-height: 1.4;
+        }
+
+        .exp-detail-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .exp-detail-section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .exp-detail-section:last-of-type {
+            border-bottom: none;
+        }
+
+        .exp-detail-section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .exp-detail-section-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .exp-detail-section-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .exp-detail-text {
+            font-size: 1rem;
+            line-height: 1.9;
+            color: var(--gray);
+            white-space: pre-wrap;
+        }
+
+        .exp-detail-text li {
+            margin-bottom: 12px;
+            line-height: 1.7;
         }
 
         /* 页面三：个人动态 */
@@ -1473,6 +1648,807 @@
             font-family: 'Noto Serif SC', serif;
             font-size: 1.8rem;
             color: var(--gray);
+        }
+
+        /* 你和我的距离还差多少 - 问答游戏 */
+        .quiz-page {
+            min-height: calc(100vh - 70px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, var(--bg) 0%, rgba(43, 125, 186, 0.08) 100%);
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .quiz-header h1 {
+            font-size: 2.8rem;
+            background: linear-gradient(135deg, var(--accent-deep) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .quiz-header p {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        /* 骰子容器 */
+        .dice-container {
+            perspective: 600px;
+            margin-bottom: 40px;
+        }
+
+        .dice {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .dice.rolling {
+            animation: diceRoll 1.5s ease-out;
+        }
+
+        @keyframes diceRoll {
+            0% { transform: rotateX(0deg) rotateY(0deg); }
+            20% { transform: rotateX(720deg) rotateY(540deg); }
+            40% { transform: rotateX(1080deg) rotateY(900deg); }
+            60% { transform: rotateX(1440deg) rotateY(1260deg); }
+            80% { transform: rotateX(1800deg) rotateY(1620deg); }
+            100% { transform: rotateX(var(--final-x)) rotateY(var(--final-y)); }
+        }
+
+        .dice-face {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            border: 3px solid var(--accent);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 20px rgba(43, 125, 186, 0.1);
+        }
+
+        .dice-face.front { transform: rotateY(0deg) translateZ(60px); }
+        .dice-face.back { transform: rotateY(180deg) translateZ(60px); }
+        .dice-face.right { transform: rotateY(90deg) translateZ(60px); }
+        .dice-face.left { transform: rotateY(-90deg) translateZ(60px); }
+        .dice-face.top { transform: rotateX(90deg) translateZ(60px); }
+        .dice-face.bottom { transform: rotateX(-90deg) translateZ(60px); }
+
+        .dice-dot {
+            width: 22px;
+            height: 22px;
+            background: var(--accent-deep);
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(27, 79, 114, 0.3);
+        }
+
+        .dice-face.one { justify-content: center; align-items: center; }
+        .dice-face.two { justify-content: space-between; padding: 20px; }
+        .dice-face.two .dice-dot:first-child { align-self: flex-start; }
+        .dice-face.two .dice-dot:last-child { align-self: flex-end; }
+        .dice-face.three { justify-content: space-between; padding: 20px; }
+        .dice-face.three .dice-dot:first-child { align-self: flex-start; }
+        .dice-face.three .dice-dot:nth-child(2) { align-self: center; justify-self: center; }
+        .dice-face.three .dice-dot:last-child { align-self: flex-end; }
+        .dice-face.four { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
+        .dice-face.five { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; }
+        .dice-face.five .dice-dot:nth-child(2) { grid-column: 1 / 2; grid-row: 1 / 2; }
+        .dice-face.five .dice-dot:nth-child(3) { grid-column: 2 / 3; grid-row: 1 / 2; }
+        .dice-face.five .dice-dot:nth-child(4) { grid-column: 1 / 2; grid-row: 2 / 3; }
+        .dice-face.five .dice-dot:nth-child(5) { grid-column: 2 / 3; grid-row: 2 / 3; }
+        .dice-face.six { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 18px; }
+
+        .roll-hint {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-top: 15px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .dice-result {
+            font-size: 1.4rem;
+            color: var(--accent-deep);
+            margin-top: 20px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .dice-result.show {
+            opacity: 1;
+        }
+
+        /* 题目卡片 */
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(13, 27, 42, 0.12);
+            display: none;
+            animation: slideUp 0.5s ease;
+        }
+
+        .question-card.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-progress {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--light-gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent) 0%, #48a9a6 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--gray);
+            white-space: nowrap;
+        }
+
+        .question-type-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .question-type-badge.choice { background: rgba(43, 125, 186, 0.15); color: var(--accent); }
+        .question-type-badge.judge { background: rgba(72, 169, 166, 0.15); color: #48a9a6; }
+        .question-type-badge.fill { background: rgba(212, 160, 23, 0.15); color: #d4a017; }
+        .question-type-badge.essay { background: rgba(180, 80, 140, 0.15); color: #b4508c; }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        /* 选择题选项 */
+        .question-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            padding: 16px 24px;
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            background: var(--bg);
+            font-size: 1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .option-btn:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            transform: translateX(5px);
+        }
+
+        .option-btn.selected {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .option-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        /* 判断题 */
+        .judge-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .judge-btn {
+            flex: 1;
+            max-width: 200px;
+            padding: 25px;
+            border: 2px solid var(--light-gray);
+            border-radius: 16px;
+            background: var(--bg);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .judge-btn:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            transform: scale(1.05);
+        }
+
+        .judge-btn .icon {
+            font-size: 2.5rem;
+        }
+
+        .judge-btn.correct { border-color: #27ae60; background: rgba(39, 174, 96, 0.1); }
+        .judge-btn.wrong { border-color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
+
+        /* 填空题 */
+        .fill-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--bg);
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .fill-input:focus {
+            border-color: var(--accent);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--accent-deep) 0%, var(--accent) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 25px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(43, 125, 186, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 答对反馈 */
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(13, 27, 42, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .success-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .success-content {
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .success-overlay.show .success-content {
+            transform: scale(1);
+        }
+
+        .success-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--accent);
+            margin-bottom: 20px;
+            animation: successPulse 1s ease infinite;
+        }
+
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        /* 留言板状态指示小圆片 */
+        .msg-action-icon {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gray);
+            transition: all 0.3s ease;
+        }
+
+        .msg-action-btn.active-down .msg-action-icon {
+            background: #e74c3c;
+        }
+
+        .msg-action-btn.active-question .msg-action-icon {
+            background: #f39c12;
+        }
+
+        .msg-action-btn:hover .msg-action-icon {
+            background: var(--accent);
+        }
+
+        .success-text {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 2rem;
+            color: white;
+            text-shadow: 0 2px 20px rgba(72, 169, 166, 0.5);
+        }
+
+        .success-sub {
+            color: rgba(255,255,255,0.7);
+            margin-top: 10px;
+            font-size: 1rem;
+        }
+
+        /* 答错 - 世界已被章鱼毁灭 */
+        .octopus-apocalypse {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, #0d1b2a 0%, #1b4f72 50%, #0d1b2a 100%);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+            overflow: hidden;
+        }
+
+        .octopus-apocalypse.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .apocalypse-octopus {
+            font-size: 8rem;
+            animation: octopusAttack 2s ease infinite;
+            margin-bottom: 30px;
+        }
+
+        @keyframes octopusAttack {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(5deg); }
+            50% { transform: translateY(10px) rotate(-5deg); }
+            75% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        .apocalypse-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 3rem;
+            color: #e74c3c;
+            text-shadow: 0 0 30px rgba(231, 76, 60, 0.8);
+            animation: glitch 0.5s ease infinite;
+            text-align: center;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { text-shadow: 0 0 30px rgba(231, 76, 60, 0.8); }
+            92% { text-shadow: -3px 0 #48a9a6, 3px 0 #e74c3c; }
+            94% { text-shadow: 3px 0 #48a9a6, -3px 0 #e74c3c; }
+        }
+
+        .apocalypse-sub {
+            color: rgba(255,255,255,0.6);
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+
+        .apocalypse-tentacles {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .tentacle {
+            width: 40px;
+            height: 120px;
+            background: linear-gradient(180deg, #2b7dba 0%, #1b4f72 100%);
+            border-radius: 20px 20px 40px 40px;
+            animation: tentacleWave 1.5s ease-in-out infinite;
+            transform-origin: top center;
+        }
+
+        .tentacle:nth-child(1) { animation-delay: 0s; }
+        .tentacle:nth-child(2) { animation-delay: 0.2s; height: 140px; }
+        .tentacle:nth-child(3) { animation-delay: 0.4s; height: 100px; }
+        .tentacle:nth-child(4) { animation-delay: 0.1s; }
+        .tentacle:nth-child(5) { animation-delay: 0.3s; height: 130px; }
+
+        @keyframes tentacleWave {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
+        }
+
+        .restart-btn {
+            margin-top: 40px;
+            padding: 15px 40px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 30px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .restart-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.5);
+            transform: scale(1.05);
+        }
+
+        /* 游戏结束 */
+        .game-result {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .result-score {
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-deep) 0%, #48a9a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .result-label {
+            color: var(--gray);
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        .result-message {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .result-emoji {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-bottom: 30px;
+            animation: resultPulse 1.5s ease infinite;
+        }
+
+        .result-emoji.trophy {
+            background: linear-gradient(135deg, #d4a017, #b8860b);
+            box-shadow: 0 4px 20px rgba(212, 160, 23, 0.5);
+        }
+
+        .result-emoji.star {
+            background: linear-gradient(135deg, var(--accent), #48a9a6);
+            box-shadow: 0 4px 20px rgba(43, 125, 186, 0.5);
+        }
+
+        .result-emoji.happy {
+            background: linear-gradient(135deg, #48a9a6, #2ecc71);
+            box-shadow: 0 4px 20px rgba(72, 169, 166, 0.5);
+        }
+
+        .result-emoji.think {
+            background: linear-gradient(135deg, #5dade2, #3498db);
+            box-shadow: 0 4px 20px rgba(93, 173, 226, 0.5);
+        }
+
+        .result-emoji.octopus {
+            background: linear-gradient(135deg, var(--accent-deep), #1b4f72);
+            box-shadow: 0 4px 20px rgba(27, 79, 114, 0.5);
+        }
+
+        @keyframes resultPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .play-again-btn {
+            padding: 15px 50px;
+            background: linear-gradient(135deg, var(--accent-deep) 0%, var(--accent) 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .play-again-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(43, 125, 186, 0.3);
+        }
+
+        .exp-detail-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+            padding-bottom: 60px;
+        }
+
+        .exp-detail-ppt-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--accent-deep), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(43, 125, 186, 0.3);
+        }
+
+        .exp-detail-ppt-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(43, 125, 186, 0.4);
+        }
+
+        /* PPT放映全屏界面 */
+        .ppt-presentation {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary);
+            z-index: 3000;
+        }
+
+        .ppt-presentation.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ppt-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .ppt-close:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+        }
+
+        .ppt-slides {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .ppt-slide {
+            min-width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .ppt-slide.active {
+            opacity: 1;
+        }
+
+        .ppt-slide-type {
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .ppt-slide-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 2.5rem;
+            color: #fff;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .ppt-slide-content {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.85);
+            line-height: 2;
+            max-width: 900px;
+            text-align: left;
+            white-space: pre-wrap;
+        }
+
+        .ppt-slide-content li {
+            margin-bottom: 12px;
+        }
+
+        .ppt-slide-image {
+            max-width: 80%;
+            max-height: 60vh;
+            border-radius: 16px;
+            object-fit: contain;
+            margin-top: 20px;
+        }
+
+        .ppt-nav {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .ppt-arrow {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .ppt-arrow:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+        }
+
+        .ppt-indicator {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.95rem;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .quiz-header h1 { font-size: 2rem; }
+            .dice { width: 100px; height: 100px; }
+            .dice-face { width: 100px; height: 100px; }
+            .dice-face.front { transform: rotateY(0deg) translateZ(50px); }
+            .dice-face.back { transform: rotateY(180deg) translateZ(50px); }
+            .dice-face.right { transform: rotateY(90deg) translateZ(50px); }
+            .dice-face.left { transform: rotateY(-90deg) translateZ(50px); }
+            .dice-face.top { transform: rotateX(90deg) translateZ(50px); }
+            .dice-face.bottom { transform: rotateX(-90deg) translateZ(50px); }
+            .question-card { padding: 25px; }
+            .question-text { font-size: 1.1rem; }
+            .apocalypse-title { font-size: 2rem; padding: 0 20px; }
+            .apocalypse-octopus { font-size: 5rem; }
+            .result-score { font-size: 3rem; }
+
+            /* 经历详情页移动端 */
+            .exp-detail-section {
+                padding: 20px;
+            }
+            .exp-detail-title {
+                font-size: 1.5rem;
+            }
+            .exp-detail-text {
+                font-size: 0.95rem;
+            }
+            .ppt-slide {
+                padding: 30px 20px;
+            }
+            .ppt-slide-title {
+                font-size: 1.5rem;
+            }
+            .ppt-slide-content {
+                font-size: 1rem;
+            }
+            .ppt-arrow {
+                width: 40px;
+                height: 40px;
+            }
         }
 
         /* 页面六：管理后台 */
@@ -2771,12 +3747,13 @@
 <body>
     <!-- 导航栏 -->
     <nav class="navbar">
-        <a class="navbar-brand" onclick="showPage('home')">林小晚</a>
+        <a class="navbar-brand" onclick="showPage('home')">王瑜娜</a>
         <div class="nav-links">
             <span class="nav-link active" onclick="showPage('home')">首页</span>
             <span class="nav-link" onclick="showPage('experience')">经历分区</span>
             <span class="nav-link" onclick="showPage('dynamics')">个人动态</span>
             <span class="nav-link" onclick="showPage('guestbook')">留言板</span>
+            <span class="nav-link" onclick="showPage('quiz')">你和我的距离还差多少</span>
             <span class="nav-link" onclick="showPage('contact')">联系我</span>
             <span class="nav-link" onclick="showPage('admin')" style="color: var(--accent); font-size: 0.85rem;">管理后台</span>
             <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()"></button>
@@ -2794,8 +3771,12 @@
         <span class="nav-link" onclick="showPage('experience'); toggleMobileNav();">经历分区</span>
         <span class="nav-link" onclick="showPage('dynamics'); toggleMobileNav();">个人动态</span>
         <span class="nav-link" onclick="showPage('guestbook'); toggleMobileNav();">留言板</span>
+        <span class="nav-link" onclick="showPage('quiz'); toggleMobileNav();">你和我的距离还差多少</span>
         <span class="nav-link" onclick="showPage('contact'); toggleMobileNav();">联系我</span>
         <span class="nav-link" onclick="showPage('admin'); toggleMobileNav();" style="color: var(--accent);">管理后台</span>
+        <div style="padding: 12px 20px; border-top: 1px solid var(--light-gray); margin-top: 10px;">
+            <button class="theme-toggle-mobile" onclick="toggleTheme()">日间 / 夜间</button>
+        </div>
     </div>
 
     <!-- 浮动导航 -->
@@ -2816,12 +3797,12 @@
                     <div class="hero-slide-overlay"></div>
                     <div class="hero-slide-content">
                         <div class="hero-slide-type">关于我</div>
-                        <h1 class="hero-slide-title">林小晚</h1>
-                        <p class="hero-slide-desc">产品运营 · 饭桶认证</p>
+                        <h1 class="hero-slide-title">王瑜娜</h1>
+                        <p class="hero-slide-desc">一支努力看世界的小话筒</p>
                         <div class="hero-slide-tags">
                             <span class="hero-slide-tag">产品运营</span>
-                            <span class="hero-slide-tag">用户运营</span>
-                            <span class="hero-slide-tag">饭桶</span>
+                            <span class="hero-slide-tag">金融科技</span>
+                            <span class="hero-slide-tag">播音主持</span>
                         </div>
                     </div>
                 </div>
@@ -2867,7 +3848,7 @@
                 <button class="tag-modal-close" id="tagModalClose">×</button>
             </div>
             <div class="tag-modal-body">
-                <label class="tag-popup-label">🟡 亲友印象</label>
+                <label class="tag-popup-label">亲友印象</label>
                 <input type="text" class="tag-popup-input" id="tagPopupInput" placeholder="写下你对TA的印象..." maxlength="10">
                 <p class="tag-popup-hint">最多10个字</p>
             </div>
@@ -2916,6 +3897,45 @@
             <div class="tab-content" id="exp-project">
                 <div class="experience-list" id="projectList"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- 经历详情页 -->
+    <div class="page" id="page-exp-detail">
+        <div class="exp-detail-page">
+            <div class="exp-detail-header">
+                <button class="exp-detail-back" onclick="goBackToExpList()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    返回经历列表
+                </button>
+                <div class="exp-detail-meta" id="expDetailMeta"></div>
+            </div>
+            <div class="exp-detail-content" id="expDetailContent">
+                <!-- 动态内容 -->
+            </div>
+            <div class="exp-detail-actions">
+                <button class="exp-detail-ppt-btn" id="expDetailPptBtn" onclick="openExpPpt()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                    演示模式
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PPT放映全屏界面 -->
+    <div class="ppt-presentation" id="pptPresentation">
+        <div class="ppt-close" onclick="closeExpPpt()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <div class="ppt-slides" id="pptSlides"></div>
+        <div class="ppt-nav">
+            <button class="ppt-arrow ppt-arrow-left" onclick="pptSlide(-1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <div class="ppt-indicator" id="pptIndicator">1 / 3</div>
+            <button class="ppt-arrow ppt-arrow-right" onclick="pptSlide(1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
         </div>
     </div>
 
@@ -2968,9 +3988,97 @@
                 <!-- JS 动态渲染 -->
             </div>
             <div class="contact-footer">
-                <p>期待和你聊聊 ☕</p>
+                <p>期待和你聊聊</p>
             </div>
         </div>
+    </div>
+
+    <!-- 你和我的距离还差多少 - 问答游戏 -->
+    <div class="page" id="page-quiz">
+        <div class="quiz-page">
+            <div class="quiz-header">
+                <h1>你和我的距离还差多少</h1>
+                <p>测一测你有多了解王瑜娜？</p>
+            </div>
+            
+            <!-- 骰子区域 -->
+            <div class="dice-container" id="diceContainer">
+                <div class="dice" id="dice" onclick="rollDice()">
+                    <div class="dice-face front one"><div class="dice-dot"></div></div>
+                    <div class="dice-face back six">
+                        <div class="dice-dot"></div><div class="dice-dot"></div>
+                        <div class="dice-dot"></div><div class="dice-dot"></div>
+                        <div class="dice-dot"></div><div class="dice-dot"></div>
+                    </div>
+                    <div class="dice-face right three">
+                        <div class="dice-dot"></div>
+                        <div class="dice-dot"></div>
+                        <div class="dice-dot"></div>
+                    </div>
+                    <div class="dice-face left four">
+                        <div class="dice-dot"></div><div class="dice-dot"></div>
+                        <div class="dice-dot"></div><div class="dice-dot"></div>
+                    </div>
+                    <div class="dice-face top two">
+                        <div class="dice-dot"></div>
+                        <div class="dice-dot"></div>
+                    </div>
+                    <div class="dice-face bottom five">
+                        <div class="dice-dot"></div><div class="dice-dot"></div>
+                        <div class="dice-dot"></div><div class="dice-dot"></div>
+                        <div class="dice-dot"></div>
+                    </div>
+                </div>
+                <p class="roll-hint" id="rollHint">点击骰子开始答题</p>
+                <p class="dice-result" id="diceResult"></p>
+            </div>
+            
+            <!-- 答题卡片 -->
+            <div class="question-card" id="questionCard">
+                <div class="question-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <span class="progress-text" id="progressText">0/0</span>
+                </div>
+                <div id="questionContent"></div>
+            </div>
+            
+            <!-- 游戏结束 -->
+            <div class="question-card" id="gameResult">
+                <div class="game-result">
+                    <div class="result-emoji" id="resultEmoji"></div>
+                    <div class="result-score" id="resultScore">0/0</div>
+                    <div class="result-label">答对题数</div>
+                    <div class="result-message" id="resultMessage">太棒了！</div>
+                    <button class="play-again-btn" onclick="resetQuiz()">再玩一次</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 答对提示 -->
+    <div class="success-overlay" id="successOverlay" onclick="closeSuccessOverlay()">
+        <div class="success-content">
+            <div class="success-icon"></div>
+            <div class="success-text">我们的友谊坚不可摧</div>
+            <div class="success-sub">点击任意处继续</div>
+        </div>
+    </div>
+
+    <!-- 答错 - 世界已被章鱼毁灭 -->
+    <div class="octopus-apocalypse" id="octopusApocalypse">
+        <div class="apocalypse-octopus">🐙</div>
+        <div class="apocalypse-title">世界已被章鱼毁灭</div>
+        <div class="apocalypse-sub">你答错了，世界被神秘章鱼接管...</div>
+        <div class="apocalypse-tentacles">
+            <div class="tentacle"></div>
+            <div class="tentacle"></div>
+            <div class="tentacle"></div>
+            <div class="tentacle"></div>
+            <div class="tentacle"></div>
+        </div>
+        <button class="restart-btn" onclick="restartFromApocalypse()">重新开始</button>
     </div>
 
     <!-- 页面六：管理后台 -->
@@ -3045,23 +4153,31 @@
                     <div class="admin-section active" id="section-overview">
                         <div class="admin-header">
                             <h2>数据概览</h2>
-                            <p>了解你的网站数据</p>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <span class="sync-indicator local-only" id="syncStatusIndicator">
+                                    <span id="syncStatusText">仅本地</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div id="supabaseTableHint" style="display: none; margin: 15px 20px; padding: 15px; background: #fef3c7; border-radius: 8px; font-size: 0.85rem; color: #92400e;">
+                            💡 提示：云端同步功能需要创建数据表。请在 Supabase Dashboard 中执行以下 SQL：<br>
+                            <code style="display: block; margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; font-family: monospace; font-size: 0.8rem;">CREATE TABLE site_data (id TEXT PRIMARY KEY, data JSONB, updated_at TIMESTAMPTZ DEFAULT NOW());</code>
                         </div>
                         <div class="stats-grid">
                             <div class="stat-card">
-                                <h3>1,258</h3>
+                                <h3>86</h3>
                                 <p>总访客数</p>
                             </div>
                             <div class="stat-card">
-                                <h3>42</h3>
+                                <h3>5</h3>
                                 <p>今日访客</p>
                             </div>
                             <div class="stat-card">
-                                <h3>18</h3>
+                                <h3>4</h3>
                                 <p>留言数</p>
                             </div>
                             <div class="stat-card">
-                                <h3>8</h3>
+                                <h3>0</h3>
                                 <p>动态数</p>
                             </div>
                         </div>
@@ -3089,11 +4205,11 @@
                                 <h3 style="font-size: 1.1rem; margin-bottom: 20px;">基本信息</h3>
                                 <div class="form-group">
                                     <label>姓名</label>
-                                    <input type="text" id="profileName" value="林小晚" placeholder="输入姓名">
+                                    <input type="text" id="profileName" value="王瑜娜" placeholder="输入姓名">
                                 </div>
                                 <div class="form-group">
                                     <label>副标题/标签</label>
-                                    <input type="text" id="profileSubtitle" value="产品运营 · 饭桶认证" placeholder="例如：产品经理 · 饭桶认证">
+                                    <input type="text" id="profileSubtitle" value="一支努力看世界的小话筒" placeholder="例如：产品经理 · 饭桶认证">
                                 </div>
                             </div>
                             
@@ -3245,7 +4361,7 @@
                                 </thead>
                                 <tbody id="uploadedFilesList">
                                     <tr>
-                                        <td>林小晚_简历.pdf</td>
+                                        <td>王瑜娜_简历.pdf</td>
                                         <td>PDF</td>
                                         <td>245 KB</td>
                                         <td>2025-05-20</td>
@@ -3268,11 +4384,11 @@
                         <div class="settings-form">
                             <div class="form-group">
                                 <label>网站标题</label>
-                                <input type="text" value="林小晚 - 个人展示网站">
+                                <input type="text" value="王瑜娜 - 个人展示网站">
                             </div>
                             <div class="form-group">
                                 <label>网站副标题</label>
-                                <input type="text" value="产品运营 · 饭桶认证">
+                                <input type="text" value="一支努力看世界的小话筒">
                             </div>
                             <div class="form-group">
                                 <label>主题色</label>
@@ -3320,17 +4436,129 @@
     </div>
 
     <script>
-        // 数据持久化配置
+        // ========== Supabase 云端同步配置 ==========
+        const SUPABASE_URL = 'https://lupounvytpgctmmzztnl.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_D2srvxeNBCoMDgzYA7g90g_SMwpGHSn';
+        let supabaseClient = null;
+        let supabaseConnected = false;
+        let supabaseTableExists = false;
+
+        function initSupabase() {
+            try {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('Supabase连接成功');
+                return true;
+            } catch (e) {
+                console.log('Supabase连接失败，使用本地存储', e);
+                return false;
+            }
+        }
+
+        async function checkSupabaseTable() {
+            if (!supabaseClient) return false;
+            try {
+                const { error } = await supabaseClient
+                    .from('site_data')
+                    .select('id')
+                    .limit(1);
+                if (error && error.code === '42P01') {
+                    console.log('Supabase表不存在，需要创建');
+                    supabaseTableExists = false;
+                    return false;
+                }
+                supabaseTableExists = true;
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // 云端同步函数
+        async function saveToCloud(key, data) {
+            // 先保存到localStorage（本地备份）
+            localStorage.setItem(key, JSON.stringify(data));
+            
+            // 再同步到Supabase
+            if (supabaseClient && supabaseTableExists) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('site_data')
+                        .upsert({ 
+                            id: key, 
+                            data: data, 
+                            updated_at: new Date().toISOString() 
+                        }, { onConflict: 'id' });
+                    if (error) {
+                        console.log('云端同步失败:', error.message);
+                        updateSyncStatus('local-only');
+                    } else {
+                        updateSyncStatus('connected');
+                    }
+                } catch (e) {
+                    console.log('云端同步异常:', e);
+                    updateSyncStatus('error');
+                }
+            }
+        }
+
+        async function loadFromCloud(key) {
+            // 先尝试Supabase
+            if (supabaseClient && supabaseTableExists) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('site_data')
+                        .select('data')
+                        .eq('id', key)
+                        .single();
+                    if (data && !error) {
+                        // 同步到localStorage
+                        localStorage.setItem(key, JSON.stringify(data.data));
+                        updateSyncStatus('connected');
+                        return data.data;
+                    }
+                } catch (e) {
+                    console.log('云端读取失败，使用本地:', e);
+                }
+            }
+            // 降级到localStorage
+            const local = localStorage.getItem(key);
+            if (local) {
+                try { return JSON.parse(local); } catch (e) {}
+            }
+            return null;
+        }
+
+        function updateSyncStatus(status) {
+            if (status === 'connected' && !supabaseConnected) {
+                supabaseConnected = true;
+            } else if (status !== 'connected') {
+                supabaseConnected = false;
+            }
+            const indicator = document.getElementById('syncStatusIndicator');
+            const text = document.getElementById('syncStatusText');
+            if (indicator && text) {
+                indicator.className = 'sync-indicator ' + status;
+                const statusMap = {
+                    'connected': '已连接',
+                    'local-only': '仅本地',
+                    'error': '连接失败',
+                    'syncing': '同步中...'
+                };
+                text.textContent = statusMap[status] || '未知状态';
+            }
+        }
+
+        // ========== 数据持久化配置 ==========
         const STORAGE_KEY = 'xiaowan_site_data';
         
         // 用户信息持久化数据
         let siteProfileData = {
-            name: '林小晚',
-            subtitle: '产品运营 · 饭桶认证',
+            name: '王瑜娜',
+            subtitle: '一支努力看世界的小话筒',
             avatar: null
         };
 
-        // 数据持久化函数
+        // 数据持久化函数（支持云端同步）
         function saveToStorage() {
             const data = {
                 heroSlideData,
@@ -3347,18 +4575,13 @@
                 },
                 isLoggedIn
             };
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-            } catch(e) {
-                console.warn('localStorage save failed:', e);
-            }
+            // 异步保存到云端，不阻塞UI
+            saveToCloud(STORAGE_KEY, data).catch(() => {});
         }
 
         function loadFromStorage() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                if (!raw) return false;
-                const data = JSON.parse(raw);
+            const data = loadFromCloud(STORAGE_KEY);
+            if (data) {
                 if (data.heroSlideData) heroSlideData = data.heroSlideData;
                 if (data.tagCloudData) tagCloudData = data.tagCloudData;
                 if (data.timelineData) timelineData = data.timelineData;
@@ -3379,13 +4602,12 @@
                 }
                 
                 // 应用姓名到导航栏
-                document.querySelector('.navbar-brand').textContent = siteProfileData.name;
+                const brand = document.querySelector('.navbar-brand');
+                if (brand) brand.textContent = siteProfileData.name;
                 
                 return true;
-            } catch(e) {
-                console.warn('localStorage load failed:', e);
-                return false;
             }
+            return false;
         }
 
         // 辅助函数：压缩头像图片
@@ -3418,64 +4640,63 @@
         // 数据
         // 联系人数据
         let contactData = [
-            { icon: '📧', name: '邮箱', value: 'linxiaowan@email.com' },
-            { icon: '💬', name: '微信', value: 'xiaowan_eat' },
-            { icon: '🔗', name: 'LinkedIn', value: 'linkedin.com/in/xiaowan' }
+            { icon: 'mail', name: '邮箱', value: 'Elms_broadcast2029@outlook.com' },
+            { icon: 'phone', name: '电话', value: '15520761416' },
         ];
         
         // 联系人图标映射
         const contactIcons = [
-            { emoji: '📧', label: '邮箱', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' },
-            { emoji: '💬', label: '微信', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>' },
-            { emoji: '🔗', label: '链接', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>' },
-            { emoji: '📱', label: '电话', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>' },
-            { emoji: '🎮', label: 'QQ', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.5 12.5l2 2 3-3"/></svg>' },
-            { emoji: '🎵', label: '网易云', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' },
-            { emoji: '📸', label: '小红书', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>' },
-            { emoji: '💼', label: '简历', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>' }
+            { icon: 'mail', label: '邮箱', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' },
+            { icon: 'wechat', label: '微信', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>' },
+            { icon: 'link', label: '链接', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>' },
+            { icon: 'phone', label: '电话', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>' },
+            { icon: 'qq', label: 'QQ', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.5 12.5l2 2 3-3"/></svg>' },
+            { icon: 'music', label: '网易云', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>' },
+            { icon: 'xiaohongshu', label: '小红书', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>' },
+            { icon: 'resume', label: '简历', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>' }
         ];
         
         let tagCloudData = [
-            { text: '饭桶', source: 'owner', size: 'size-xl' },
+            { text: '话筒', source: 'owner', size: 'size-xl' },
             { text: '产品思维', source: 'owner', size: 'size-lg' },
-            { text: '数据敏感', source: 'owner', size: 'size-md' },
-            { text: '竞赛狂人', source: 'owner', size: 'size-md' },
-            { text: '志愿者', source: 'owner', size: 'size-sm' },
-            { text: '同理心强', source: 'owner', size: 'size-md' },
-            { text: '快速学习', source: 'owner', size: 'size-md' },
-            { text: 'PPT狂魔', source: 'owner', size: 'size-sm' },
-            { text: '用户视角', source: 'owner', size: 'size-lg' },
-            { text: '靠谱', source: 'friend', size: 'size-lg' },
-            { text: '干饭第一名', source: 'friend', size: 'size-xl' },
-            { text: '卷王', source: 'friend', size: 'size-md' },
-            { text: '话多但有用', source: 'friend', size: 'size-md' },
-            { text: '永远在赶DDL', source: 'friend', size: 'size-sm' },
-            { text: '人形点评APP', source: 'friend', size: 'size-md' },
-            { text: '暖', source: 'friend', size: 'size-sm' },
-            { text: '脑洞大', source: 'friend', size: 'size-md' },
-            { text: '好吃的雷达', source: 'friend', size: 'size-lg' },
+            { text: '用户运营', source: 'owner', size: 'size-lg' },
+            { text: '金融科技', source: 'owner', size: 'size-md' },
+            { text: '市场营销', source: 'owner', size: 'size-lg' },
+            { text: '数据分析', source: 'owner', size: 'size-md' },
+            { text: '出海运营', source: 'owner', size: 'size-md' },
+            { text: '社交裂变', source: 'owner', size: 'size-md' },
+            { text: 'ESG', source: 'owner', size: 'size-sm' },
+            { text: '品牌营销', source: 'owner', size: 'size-md' },
+            { text: '播音主持', source: 'owner', size: 'size-md' },
+            { text: 'SQL', source: 'owner', size: 'size-sm' },
+            { text: 'Python', source: 'owner', size: 'size-sm' },
+            { text: '快学习者', source: 'friend', size: 'size-md' },
+            { text: '表达力强', source: 'friend', size: 'size-md' },
+            { text: '靠谱', source: 'friend', size: 'size-sm' },
         ];
 
         const experienceCards = [
-            { type: 'internship', title: 'XX科技 产品运营实习', time: '2025.06 - 2025.09', summary: '负责用户增长策略，DAU提升15%' },
-            { type: 'competition', title: '全国大学生产品创新大赛 金奖', time: '2025.03', summary: '带队5人完成从0到1产品方案' },
-            { type: 'volunteer', title: '社区公益课堂 志愿讲师', time: '2024.09 - 2024.12', summary: '为30+儿童提供编程启蒙课' },
-            { type: 'internship', title: 'YY互联网 产品经理实习', time: '2024.06 - 2024.09', summary: '主导需求评审12场，推动3个功能上线' },
-            { type: 'project', title: '校园二手交易小程序', time: '2024.01 - 2024.05', summary: '独立完成产品设计与开发' },
-            { type: 'competition', title: '互联网+创新创业大赛 银奖', time: '2024.03', summary: '商业计划书获评委高度认可' },
-            { type: 'volunteer', title: '乡村振兴调研志愿者', time: '2023.07', summary: '走访3个村庄，完成调研报告' },
-            { type: 'competition', title: '校级产品策划大赛 一等奖', time: '2023.03', summary: '首次参赛即获最佳方案奖' }
+            { type: 'internship', title: '语言家多语信息 · 海外项目实习生', time: '2026.05 - 2026.08', summary: '负责出海星链ToB新媒体运营与白皮书编制，月均曝光提升35%' },
+            { type: 'competition', title: '汇丰中国未来商业领袖挑战赛', time: '2026.01 - 2026.03', summary: '深度参与跨境金融方案，助力结算成本降30%、对冲成功率升35%' },
+            { type: 'competition', title: '欧莱雅BRANDSTORM 2026', time: '2025.12 - 2026.03', summary: '人宠共融香氛笔从0到1全案开发' },
+            { type: 'competition', title: '毕马威ESG案例分析大赛', time: '2025.10 - 2025.11', summary: '搭建三维六级供应商分级体系，设计绿电拼团运输模式' },
+            { type: 'internship', title: '聪明核桃教育 · 用户运营实习生', time: '2026.02 - 2026.05', summary: '统筹线下宣讲全流程，助力整体业绩增长67%' },
+            { type: 'project', title: 'Elm 瑜光同行 公众号', time: '持续运营', summary: '独立撰写行业深度公众号文章，聚焦VLA、光模块、API等赛道' },
+            { type: 'competition', title: '工行杯金融科技创新大赛', time: '2025.09 - 2025.11', summary: '设计校园碳普惠平台，获浙江省级二等奖、全国优秀奖' },
+            { type: 'competition', title: 'LVMH Beauty校园创意挑战赛', time: '2025.07 - 2025.08', summary: '搭建三阶闭环营销体系，打造"一周花园"沉浸式展区' }
         ];
 
         let timelineData = [
-            { time: '2025.06-2025.09', title: 'XX科技 产品运营实习', type: 'internship', desc: '负责用户增长策略，DAU提升15%', detail: '负责用户增长策略制定与执行，通过A/B测试优化获客方案，最终实现DAU提升15%的成绩。积累了从0到1的项目经验，学会了如何用数据驱动决策。' },
-            { time: '2025.03', title: '全国大学生产品创新大赛 金奖', type: 'competition', desc: '带队5人完成从0到1产品方案', detail: '作为队长带领团队5人，从市场调研到产品设计全程主导，最终获得金奖。这个项目让我深刻理解了团队协作的力量。' },
-            { time: '2024.09-2024.12', title: '社区公益课堂 志愿讲师', type: 'volunteer', desc: '为30+儿童提供编程启蒙课', detail: '作为志愿者讲师，为社区30多名儿童提供编程启蒙教育。教授Scratch图形化编程，激发孩子们对科技的兴趣。' },
-            { time: '2024.06-2024.09', title: 'YY互联网 产品经理实习', type: 'internship', desc: '主导需求评审12场，推动3个功能上线', detail: '在导师指导下独立负责3个功能的完整生命周期：从需求调研到PRD撰写，从需求评审到上线跟进。累计主导12场需求评审会议。' },
-            { time: '2024.03', title: '互联网+创新创业大赛 银奖', type: 'competition', desc: '商业计划书获评委高度认可', detail: '作为核心成员参与商业计划书的撰写，负责市场分析和盈利模式部分。商业逻辑得到评委一致认可。' },
-            { time: '2023.09-2024.01', title: '用户行为研究课题', type: 'project', desc: '独立完成问卷设计与数据分析', detail: '作为课题负责人，独立设计调研问卷并完成数据分析。形成8000字研究报告，发表在校刊上。' },
-            { time: '2023.07', title: '乡村振兴调研志愿者', type: 'volunteer', desc: '走访3个村庄，完成调研报告', detail: '暑期社会实践中担任调研志愿者，走访3个村庄完成乡村振兴调研报告，为当地发展提供建议。' },
-            { time: '2023.03', title: '校级产品策划大赛 一等奖', type: 'competition', desc: '首次参赛即获最佳方案奖', detail: '第一次参加产品类比赛就获得一等奖，极大增强了我的信心。也是从那时起，我坚定了从事产品工作的决心。' }
+            { time: '2026.05 - 2026.08', type: 'internship', title: '语言家多语信息 · 海外项目实习生', desc: '负责出海星链ToB新媒体运营与白皮书编制，月均曝光提升35%，累计接待200+企业客户', side: 'left' },
+            { time: '2026.03 - 2026.04', type: 'competition', title: '第五届中国未来金融分析师大赛', desc: '聚焦智能康复辅具产业深度行研，构建资本梯度适配规律', side: 'right' },
+            { time: '2026.02 - 2026.05', type: 'internship', title: '聪明核桃教育 · 用户运营实习生', desc: '统筹线下宣讲全流程，助力整体业绩增长67%', side: 'left' },
+            { time: '2026.01 - 2026.03', type: 'competition', title: '第二届汇丰中国未来商业领袖挑战赛', desc: '深度参与跨境金融方案落地，助力结算成本降30%、对冲成功率升35%', side: 'right' },
+            { time: '2026.01 - 2026.02', type: 'competition', title: '北大光华案例大赛 · 金融分析组', desc: '搭建五维研究框架，深度拆解标杆案例，设计多维度量化指标库', side: 'left' },
+            { time: '2025.12 - 2026.03', type: 'competition', title: '欧莱雅BRANDSTORM 2026', desc: '人宠共融香氛笔从0到1全案开发，输出完整商业落地体系', side: 'right' },
+            { time: '2025.10 - 2025.11', type: 'competition', title: '毕马威ESG案例分析大赛', desc: '搭建三维六级供应商分级体系，设计绿电拼团运输模式', side: 'left' },
+            { time: '2025.09 - 2025.11', type: 'competition', title: '蒙牛校园创新大赛', desc: '主导情绪食养草本奶茶新品全案开发，获全国TOP100', side: 'right' },
+            { time: '2025.09 - 2025.11', type: 'competition', title: '工行杯金融科技创新大赛', desc: '设计校园碳普惠平台，获浙江省级二等奖、全国优秀奖', side: 'left' },
+            { time: '2025.07 - 2025.08', type: 'competition', title: 'LVMH Beauty校园创意挑战赛', desc: '搭建三阶闭环营销体系，打造"一周花园"沉浸式展区', side: 'right' },
         ];
 
         const tags = [
@@ -3488,42 +4709,166 @@
             { name: '生活', tooltip: '日常碎片', count: 1 }
         ];
 
-        let dynamicsData = [
-            { time: '2025.05.28', content: '今天面试被问"你觉得产品经理最重要的能力是什么"，我说是同理心，面试官笑了', tags: ['面试'], image: null },
-            { time: '2025.05.20', content: '周末和室友打卡了新开的粤菜馆，虾饺绝了，饭桶认证✓', tags: ['饭桶日记'], image: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=400&h=300&fit=crop' },
-            { time: '2025.05.15', content: '读完了《启示录》，对"最小可行产品"有了新的理解，不只是做得少，而是验证得快', tags: ['读书', '产品思考'], image: null },
-            { time: '2025.05.08', content: '竞赛倒计时，连续肝了三天PPT，但看到成果那一刻值得', tags: ['竞赛'], image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=400&h=300&fit=crop' },
-            { time: '2025.04.30', content: '第一次独立做用户访谈，紧张但学到了很多，原来用户说的和做的真的不一样', tags: ['面试', '产品思考'], image: null },
-            { time: '2025.04.22', content: '深夜食堂第三季看完了，每一集都在饿', tags: ['饭桶日记'], image: null },
-            { time: '2025.04.15', content: '用Notion搭了一个个人知识库，感觉效率翻倍', tags: ['产品思考'], image: null },
-            { time: '2025.04.08', content: '校园樱花开了，拍了好多照片', tags: ['生活'], image: 'https://images.unsplash.com/photo-1522383225653-ed111181a951?w=400&h=300&fit=crop' }
-        ];
+        let dynamicsData = [];
 
         let messagesData = [
-            { name: '小李', time: '2025.05.27', content: '加油！你的网站好酷' },
-            { name: '匿名用户', time: '2025.05.25', content: '饭桶认证笑死我了，有趣的灵魂' },
-            { name: '阿杰', time: '2025.05.22', content: '期待你拿到心仪的offer！' },
-            { name: '学妹Z', time: '2025.05.18', content: '学长好厉害，向你学习' },
-            { name: '产品老王', time: '2025.05.15', content: '留言板这个设计很用心，细节见功力' }
+            { name: '小雨', time: '2026.05.27', content: '话筒女孩加油！你的经历也太丰富了吧', dislikes: 0, questions: 0, disliked: false, questioned: false },
+            { name: '学长Z', time: '2026.05.25', content: 'LVMH那个方案我看了，三阶闭环逻辑很清晰', dislikes: 0, questions: 0, disliked: false, questioned: false },
+            { name: '匿名', time: '2026.05.22', content: '播音主持转产品运营，这个跨界太酷了', dislikes: 0, questions: 0, disliked: false, questioned: false },
+            { name: 'HR小姐姐', time: '2026.05.18', content: '简历很亮眼，期待进一步沟通', dislikes: 0, questions: 0, disliked: false, questioned: false },
         ];
 
         let experiencesData = {
             internship: [
-                { time: '2025.06 - 2025.09', title: 'XX科技 产品运营', tags: ['用户增长', '数据分析'], summary: '负责用户增长策略，DAU提升15%', detail: '岗位职责：\n• 负责用户增长策略制定与执行\n• 通过A/B测试优化获客方案\n\n核心成果：\n• 实现DAU提升15%\n• 独立负责2个增长实验项目\n\n个人收获：\n• 学会了用数据驱动决策\n• 积累了从0到1的项目经验' },
-                { time: '2024.06 - 2024.09', title: 'YY互联网 产品经理', tags: ['需求分析', '项目管理'], summary: '主导需求评审12场，推动3个功能上线', detail: '岗位职责：\n• 独立负责产品需求调研与分析\n• 撰写PRD文档并主导需求评审\n• 跟进开发进度，确保按时上线\n\n核心成果：\n• 主导12场需求评审会议\n• 成功推动3个功能模块上线\n\n个人收获：\n• 建立了系统的产品思维框架\n• 学会了多方协调与沟通技巧' }
+                {
+                    time: '2026.05 - 2026.08',
+                    title: '成都语言家多语信息技术有限公司 · 海外项目实习生',
+                    tags: ['出海运营', 'ToB新媒体', '商务拓客'],
+                    summary: '负责出海星链平台ToB新媒体运营与白皮书编制',
+                    detail: '负责出海星链微信公众号、小红书ToB内容策划，累计产出10+篇推文，月均曝光提升35%。深度参与《2026中国企业出海白皮书》全流程，完成10万+字资料整理与数据核对。负责GalaxyLink平台后端信息源搭建，接入30+个全球采购信息源，覆盖190+国家采购数据。参与3场行业展会，累计接待200+企业客户，收集有效线索80+条。',
+                    origin: '随着全球化进程加速，越来越多的中国中小企业需要拓展海外市场。我通过语言家多语信息的实习机会，参与到企业级出海服务中，帮助搭建连接国内外企业的信息桥梁。这个项目源于团队发现中小企业在出海过程中面临信息不对称的痛点，希望通过数字化平台解决这一问题。',
+                    process: '1. 内容策划：策划并撰写ToB出海内容，包括行业洞察、政策解读、案例分析等类型，累计产出10+篇深度推文\n2. 白皮书编制：深度参与《2026中国企业出海白皮书》编写，负责资料收集、数据整理和初稿撰写，完成10万+字资料核对\n3. 信息源搭建：负责GalaxyLink平台后端建设，接入30+个全球采购信息源，覆盖190+国家采购数据\n4. 展会支持：参与3场行业展会，负责客户接待、需求挖掘和线索收集',
+                    output: '月均曝光提升35%，单篇最高阅读量突破5000+；白皮书被30+家企业下载引用；平台累计接待200+企业客户，收集有效销售线索80+条；协助团队获得2个新增企业客户合作。',
+                    pptImages: []
+                },
+                {
+                    time: '2026.02 - 2026.05',
+                    title: '北京聪明核桃教育科技有限公司 · 用户运营实习生',
+                    tags: ['用户运营', '数据复盘', '转化增长'],
+                    summary: '统筹线下宣讲全流程，助力整体业绩增长67%',
+                    detail: '对接少儿编程意向家长群体，统筹线下宣讲全流程，深度挖掘家长痛点、弱化决策顾虑，助力整体业绩增长67%。每日汇总宣讲数据复盘运营策略，迭代用户转化逻辑，沉淀可复用运营SOP。对新用户、体验课用户、在读学员进行分层管理，整理用户需求台账并同步至产品部对接PRD。通过家长会、社群运营维护长期沟通，助力课程续报转化。',
+                    origin: '聪明核桃教育是一家专注于少儿编程的教育科技公司。我加入时公司正处于快速扩张期，急需优化线下转化流程。我主动请缨负责宣讲环节的统筹工作，希望将播音主持的专业表达能力与运营思维结合，探索一条高效的转化路径。',
+                    process: '1. 宣讲统筹：设计宣讲全流程，包括开场破冰、课程介绍、痛点挖掘、答疑环节等，平均单场宣讲时长控制在45分钟内\n2. 痛点挖掘：通过问卷和1v1沟通收集家长决策顾虑TOP5，针对性准备应对话术\n3. 数据复盘：每日汇总宣讲数据（到场率、转化率、续报率等），分析差异原因并迭代策略\n4. 用户分层：建立新用户→体验课用户→在读学员三级管理机制，制定差异化运营策略',
+                    output: '统筹执行20+场线下宣讲，助力整体业绩增长67%；独立编写《线下宣讲SOP手册》，被团队沿用至今；通过用户分层运营，课程续报率提升23%。',
+                    pptImages: []
+                }
             ],
             competition: [
-                { time: '2025.03', title: '全国大学生产品创新大赛', tags: ['金奖', '团队协作'], summary: '带队5人完成从0到1产品方案', detail: '项目背景：\n为大学生打造校园闲置物品交易平台\n\n我的角色：\n• 担任队长，负责整体项目把控\n• 主导产品设计，输出完整原型\n\n核心成果：\n• 获得全国金奖（前三名）\n• 商业计划获评委高度认可\n\n个人收获：\n• 深刻理解了团队协作的力量\n• 学会了在压力下保持冷静' },
-                { time: '2024.03', title: '互联网+创新创业大赛', tags: ['银奖', '商业模式'], summary: '商业计划书获评委高度认可', detail: '项目背景：\n针对社区老年人的健康监测服务\n\n我的角色：\n• 核心成员，负责市场分析\n• 独立撰写盈利模式章节\n\n核心成果：\n• 获得省级银奖\n• 商业逻辑获评委一致认可\n\n个人收获：\n• 系统学习商业模式画布\n• 提升了商业敏感度' },
-                { time: '2023.03', title: '校级产品策划大赛', tags: ['一等奖', '最佳方案'], summary: '首次参赛即获最佳方案奖', detail: '项目背景：\n校园便利服务一体化小程序\n\n我的角色：\n• 独立完成产品策划案\n• 设计完整功能架构\n\n核心成果：\n• 获得校级一等奖\n• 首次参赛即获最佳方案奖\n\n个人收获：\n• 这是我产品之路的起点\n• 坚定了从事产品工作的决心' }
+                {
+                    time: '2026.01 - 2026.03',
+                    title: '第二届汇丰中国未来商业领袖挑战赛',
+                    tags: ['跨境金融', '汇率风险管理', '出海'],
+                    summary: '深度参与跨境金融方案，助力结算成本降30%',
+                    detail: '系统拆解高端制造出海三大核心痛点（资金分散、小币种波动、结算低效），参与数字化跨境结算与动态汇率风险管理双模块落地，搭建三重准入审查与实时监控风控流程，助力实现跨境结算成本降低30%、对冲成功率提升35%。',
+                    origin: '汇丰中国未来商业领袖挑战赛聚焦金融与商业的创新结合。我组队参赛的初衷是将课堂所学的金融知识与跨境贸易实际场景结合，探索如何帮助中国制造企业更好地"走出去"。我们选择了高端制造出海赛道，聚焦汇率风险管理这一核心命题。',
+                    process: '1. 市场调研：访谈5家中小型制造企业，梳理跨境结算三大痛点：资金分散管理难、小币种汇率波动大、结算流程效率低\n2. 方案设计：提出"智能外汇管理平台"概念，整合多币种账户统一管理、实时汇率监控、自动对冲策略三大功能\n3. 风险控制：设计三重准入审查（企业资质、信用评级、交易历史）和实时监控预警机制\n4. 成本测算：通过敏感性分析验证方案可行性，预计可降低结算成本30%',
+                    output: '获得华东赛区决赛资格（TOP15%）；方案被评审认为是"最具落地可行性"的作品之一；结算成本降低30%、对冲成功率提升35%的预测数据得到企业导师认可。',
+                    pptImages: []
+                },
+                {
+                    time: '2026.03 - 2026.04',
+                    title: '第五届中国未来金融分析师大赛',
+                    tags: ['行研', '智能康复', '金融分析'],
+                    summary: '聚焦智能康复辅具产业深度行研',
+                    detail: '基于产业规模、技术渗透率、政策需求三维度研判智能康复辅具产业处于成长期初期，深度拆解脑机接口三层技术路径与商业化逻辑，系统挖掘政策文件与行业数据交叉验证增长潜力，构建VC验证—产业引导基金—PE规模化的资本梯度适配规律。',
+                    origin: '中国正加速进入老龄化社会，智能康复辅具市场潜力巨大但尚处早期。我对这个赛道的关注源于一次调研经历——在康复医院看到老年人对智能设备的迫切需求，却受限于高昂价格和使用门槛。希望通过金融视角的分析，探索如何推动这一产业健康发展。',
+                    process: '1. 行业研究：从市场规模（500亿+）、渗透率（不足5%）、政策支持力度三个维度判断行业所处阶段\n2. 技术拆解：研究脑机接口、柔性传感、AR康复等前沿技术路径，分析各技术商业化难点\n3. 政策梳理：整理近三年国家及各省市康复辅具相关政策，识别政策催化节点\n4. 投资逻辑：构建"VC验证→产业基金引导→PE规模化"的资本接力模型',
+                    output: '行研报告获决赛资格（TOP20%）；产业阶段判断与事后市场发展高度吻合；投资逻辑框架被团队复用至后续项目。',
+                    pptImages: []
+                },
+                {
+                    time: '2026.01 - 2026.02',
+                    title: '第十四届北大光华案例大赛 · 金融分析组',
+                    tags: ['行研', '金融AI', '量化分析'],
+                    summary: '搭建五维研究框架，输出投研成果',
+                    detail: '搭建"政策—行业—技术—商业—风险"五维研究框架，系统整合政策文件、行业研报、企业财报等多源数据。按"产品定位—技术架构—场景落地—价值量化"逻辑深度拆解标杆案例，设计效率、风控、协同多维度量化指标库，研判行业趋势与核心风险。',
+                    origin: '北大光华案例大赛是国内最具影响力的商赛之一，聚焦真实的商业案例分析。我参赛是希望与来自顶尖院校的同学同台竞技，在高压下快速学习新行业、新公司，锻炼行研能力和商业思维。',
+                    process: '1. 框架搭建：设计"政策—行业—技术—商业—风险"五维分析框架，确保研究全面性\n2. 数据整合：从Wind、Choice、公司公告、行业协会等多渠道收集数据，建立分析数据库\n3. 案例拆解：按"产品→技术→场景→价值"逻辑线深度还原标杆企业商业模式\n4. 量化建模：设计效率（营收增速、利润率）、风控（坏账率、逾期率）、协同（生态贡献度）三类指标',
+                    output: '成功晋级复赛阶段；五维分析框架被评审评价为"逻辑严密、结构清晰"；量化指标体系获评"具有实操参考价值"。',
+                    pptImages: []
+                },
+                {
+                    time: '2025.12 - 2026.03',
+                    title: '欧莱雅BRANDSTORM 2026',
+                    tags: ['产品创新', '全域营销', '可持续发展'],
+                    summary: '人宠共融香氛笔从0到1全案开发',
+                    detail: '带领团队完成首款人宠共融香氛笔全案开发，主导8大基础香调+5组情绪分层调香组合的核心产品矩阵设计，创新可替换内芯、环保可种植包装等可持续设计。搭建线上线下一体化销售矩阵与社交话题营销体系，完成产品定价、成本测算与财务预测。',
+                    origin: 'BRANDSTORM是全球规模最大的校园品牌营销大赛，每年吸引数万名学生参与。我组队参赛的初心是将可持续发展理念与美妆产品结合，探索"人宠共融"这一差异化赛道——既回应宠物经济热潮，又倡导人宠共享、自然和谐的生活理念。',
+                    process: '1. 赛道选择：通过调研发现"人宠共融"概念在美妆领域尚属空白，差异化切入\n2. 产品设计：主导8大基础香调（花香、木质、柑橘等）+5组情绪分层调香组合设计；提出可替换内芯、环保种子包装等可持续创新\n3. 营销策划：设计线上（KOL种草、私域裂变）+线下（快闪店、香氛体验）的全域营销矩阵\n4. 财务测算：完成产品定价（199-399元区间）、成本结构（BOM+包装+营销）及三年财务预测',
+                    output: '从3000+支队伍中晋级中国区决赛（TOP50）；人宠共融概念获评审高度认可；可持续包装设计被建议申请专利；方案中的定价策略被团队在其他项目借鉴。',
+                    pptImages: []
+                },
+                {
+                    time: '2025.10 - 2025.11',
+                    title: '第四届毕马威ESG案例分析大赛',
+                    tags: ['ESG', '供应链', '绿色金融'],
+                    summary: '搭建三维六级供应商分级体系与绿电拼团模式',
+                    detail: '主导搭建基于碳排贡献、合作规模、Tier层级的三维六级供应商分级体系，落地差异化碳排管控与核查标准。创新设计绿电拼团全流程运输模式，实现运输碳排同比下降37.5%。搭建"绿色债券+政府补贴"资金支持体系与动态激励机制，拆解三年量化转型目标。',
+                    origin: '毕马威ESG案例分析大赛聚焦真实企业的可持续发展转型。我的参赛源于对ESG理念的认同——企业不仅要追求利润，更要承担社会责任。希望通过这个案例，深入理解企业如何将ESG理念落地为可执行的行动方案。',
+                    process: '1. 供应商分级：设计"碳排贡献×合作规模×Tier层级"三维评估模型，将供应商分为六级，差异化管控策略\n2. 绿电拼团：创新"多家供应商联合采购绿电、集中配送"的拼团运输模式，减少空驶率\n3. 资金支持：设计"绿色债券+政府补贴"双轮驱动的资金方案，降低企业转型成本\n4. 激励机制：构建动态评分机制，将ESG表现与采购优先级、账期优惠挂钩',
+                    output: '获得华东赛区二等奖（TOP10%）；绿电拼团模式被评委建议试点推广；方案被企业采纳用于供应商管理优化。',
+                    pptImages: []
+                },
+                {
+                    time: '2025.09 - 2025.11',
+                    title: '蒙牛校园创新大赛 · 全国TOP100',
+                    tags: ['产品创新', '市场研策', '情绪食养'],
+                    summary: '主导情绪食养草本奶茶新品全案开发',
+                    detail: '带领3人跨校团队完成蒙牛心境—医养系列草本奶茶新品全案开发，拆解养生茶饮赛道竞争格局，精准定位双核心客群。主导设计4款场景化差异化产品，复用蒙牛供应链实现30%研发成本降低，搭建全维度价值体系与全域运营策略。',
+                    origin: '蒙牛校园创新大赛鼓励学生为品牌提出创新产品方案。看到"情绪食养"这个方向时，我联想到现代年轻人对养生和情绪调节的双重需求，希望打造一款既能治愈情绪、又有养生功效的奶茶产品。',
+                    process: '1. 市场分析：拆解养生茶饮赛道（市场规模300亿+）、竞争格局（元气森林、霸王茶姬等），寻找差异化空间\n2. 客群洞察：通过问卷调研+用户访谈，锁定"精致白领+Z世代学生"双核心客群\n3. 产品设计：设计4款场景化产品（晨起唤醒/午后提神/加班续命/周末治愈），每款对应不同草本配方\n4. 供应链优化：复用蒙牛现有奶源和茶底资源，提出代工厂轻量化合作模式，研发成本降低30%',
+                    output: '从5000+份方案中脱颖而出，入围全国TOP100；产品概念被蒙牛市场部纳入储备选题库；方案获评"商业逻辑清晰、执行路径可行"。',
+                    pptImages: []
+                },
+                {
+                    time: '2025.09 - 2025.11',
+                    title: '第十六届工行杯金融科技创新大赛',
+                    tags: ['金融科技', '绿色金融', '产品架构'],
+                    summary: '设计校园碳普惠平台，获浙江省级二等奖、全国优秀奖',
+                    detail: '设计学生—高校—商户—工行四方联动商业模式与社交裂变运营闭环，搭建适配金融安全的"端—边—云"三级架构，优化用户交互与功能可视化。量化经济、社会、生态三维价值，预计试点期新增储蓄存款200万元、覆盖50所高校年减排1.5万吨。',
+                    origin: '工行杯金融科技创新大赛聚焦金融科技在实体经济中的应用。看到碳普惠这个方向时，我想到校园是一个天然的"小型社会"，可以成为推广碳普惠理念的绝佳试验田。通过设计校园碳普惠平台，让学生在日常生活中践行低碳行为，并获得实实在在的回报。',
+                    process: '1. 需求调研：访谈10所高校学生，梳理校园低碳行为痛点（出行、就餐、用电等）\n2. 商业模式：设计学生（获得碳积分兑换优惠）—高校（获得绿色认证）—商户（获得精准用户）—工行（获得存款和用户）的四方共赢模型\n3. 技术架构：设计"端—边—云"三级架构（移动端+边缘计算+银行云），兼顾用户体验和数据安全\n4. 价值量化：通过试点数据测算，量化经济价值（新增存款）、社会价值（绿色理念普及）、生态价值（减排量）',
+                    output: '获得浙江省二等奖（TOP3%）及全国优秀奖；方案被工行浙江省分行纳入试点候选库；社交裂变机制设计被评审高度认可。',
+                    pptImages: []
+                },
+                {
+                    time: '2025.07 - 2025.08',
+                    title: '第九届LVMH Beauty校园创意挑战赛',
+                    tags: ['品牌营销', '场景化体验', '私域运营'],
+                    summary: '搭建三阶闭环营销体系，打造沉浸式展区',
+                    detail: '锚定娇兰香氛核心痛点，搭建采集—酿造—分享三阶闭环营销体系。打造"一周花园"线下沉浸式mini展区，设计NFC智能交互+3D全息投影多感官体验。设计调香师H5人格测试挖掘用户需求，落地香氛日历个性化推荐，配套社交裂变与私域社区体系。',
+                    origin: 'LVMH Beauty挑战赛要求为旗下品牌提出创新营销方案。我选择娇兰香氛品类，源于对"香氛不仅是一种气味，更是一种生活方式"理念的认同。希望通过创新的互动体验，让更多人感受香氛文化的魅力。',
+                    process: '1. 痛点洞察：通过社交媒体舆情分析，识别娇兰香氛用户的核心痛点：选择困难、场景不匹配、缺乏互动\n2. 三阶闭环：设计"采集（体验装收集）—酿造（个性化调配）—分享（社交传播）"的完整闭环\n3. 线下体验："一周花园"展区采用NFC触碰触发故事、Hologram投影呈现香调演变等创新形式\n4. 线上承接：调香师人格测试H5引流私域，香氛日历实现个性化推荐和复购',
+                    output: '从2000+支队伍中晋级全国30强；"一周花园"展区设计概念获评审"极具创意"评价；三阶闭环逻辑被娇兰中国团队认可。',
+                    pptImages: []
+                }
             ],
             volunteer: [
-                { time: '2024.09 - 2024.12', title: '社区公益课堂 志愿讲师', tags: ['编程教育', '儿童'], summary: '为30+儿童提供编程启蒙课', detail: '工作内容：\n• 作为志愿者讲师教授Scratch编程\n• 每周一次课程，持续4个月\n• 设计适合儿童的趣味课程\n\n影响：\n• 累计服务30多名儿童\n• 获得"优秀志愿者"称号\n\n个人收获：\n• 锻炼了表达和授课能力\n• 收获了孩子们的笑容和成长' },
-                { time: '2023.07', title: '乡村振兴调研志愿者', tags: ['社会调研', '田野调查'], summary: '走访3个村庄，完成调研报告', detail: '工作内容：\n• 走访3个村庄进行实地调研\n• 访谈村支书和当地居民\n• 完成8000字调研报告\n\n影响：\n• 报告被当地政府采纳参考\n• 为乡村发展提供建议\n\n个人收获：\n• 学会了田野调查方法\n• 增强了社会责任意识' }
+                {
+                    time: '2025.10 - 至今',
+                    title: '循声探迹——儿童自然教育声轨系统领航者',
+                    tags: ['校园项目', '财务运营', '资源统筹'],
+                    summary: '项目第二负责人，负责财务运营与资源统筹',
+                    detail: '梳理课程授权、衍生品销售、平台服务等多元盈利路径，独立完成项目财务模型搭建，包含成本结构、收入预测、量本利分析、CAC与CLV测算，完成三年财务预测与敏感性分析。统筹多方资源联动完成合作洽谈与落地对接，负责团队成员招募与分工统筹，支撑项目从小组赛一路晋级，已获校级一等奖并推优至省赛。',
+                    origin: '"循声探迹"是一个将声音艺术与自然教育结合的公益项目。我加入时项目已获校级立项，但面临商业模式不清晰的挑战。作为项目第二负责人，我希望用商业思维为公益项目赋能，让好项目能够可持续运营下去。',
+                    process: '1. 盈利模式设计：梳理三条盈利路径——课程授权（to B）、衍生品销售（to C）、平台服务订阅（to S）\n2. 财务建模：完成固定成本（场地、设备）、变动成本（物料、师资）拆分，搭建量本利模型\n3. 用户价值测算：计算CAC（获客成本）和CLV（用户生命周期价值），验证商业模式可行性\n4. 资源统筹：对接3所小学、2个自然教育基地、1个有声读物平台，完成合作协议签署',
+                    output: '项目获校级一等奖并推优至省赛；财务模型被评审评价为"专业且务实"；成功对接资源支撑项目扩大试点范围。',
+                    pptImages: []
+                }
             ],
             project: [
-                { time: '2024.01 - 2024.05', title: '校园二手交易小程序', tags: ['小程序', '独立开发'], summary: '独立完成产品设计与开发', detail: '项目背景：\n解决大学生二手物品交易痛点\n\n我的工作：\n• 完成产品需求调研\n• 设计产品原型和交互\n• 独立开发上线小程序\n\n核心成果：\n• 小程序累计用户500+\n• 完成真实交易200+笔\n\n个人收获：\n• 完成了从产品到开发的全流程\n• 极大提升了我的动手能力' },
-                { time: '2023.09 - 2024.01', title: '用户行为研究课题', tags: ['学术研究', '数据分析'], summary: '独立完成问卷设计与数据分析', detail: '项目背景：\n研究大学生手机使用行为\n\n我的工作：\n• 设计调研问卷（500+样本）\n• 完成数据分析与可视化\n• 撰写8000字研究报告\n\n核心成果：\n• 论文发表在校刊\n• 研究结论被老师引用\n\n个人收获：\n• 掌握了定量研究方法\n• 提升了数据分析能力' }
+                {
+                    time: '持续运营',
+                    title: 'Elm 瑜光同行',
+                    tags: ['公众号', '行研', '深度分析'],
+                    summary: '独立撰写行业深度公众号文章',
+                    detail: '独立撰写行业深度公众号文章，聚焦VLA、光模块、API等赛道，以行研框架结合经济学与金融理论模型开展深度分析，输出具备投研价值的行业洞察与逻辑论证。',
+                    origin: '运营个人公众号源于对深度思考的热爱。在信息碎片化的时代，我希望通过系统性的行业分析，为读者提供有深度、有价值的认知增量。选择VLA、光模块等硬科技赛道，是希望提升自己跨学科整合分析的能力。',
+                    process: '1. 赛道选择：持续追踪VLA（垂直起降航空）、光模块（高速光通信）、API经济等前沿赛道动态\n2. 研究框架：运用PEST分析、波特五力、竞争格局图等工具，建立标准化研究范式\n3. 写作执行：每篇文章经历"选题→资料收集→框架搭建→初稿撰写→反复修改"流程，平均产出周期2周\n4. 读者互动：通过留言区互动收集反馈，持续优化选题方向和写作风格',
+                    output: '累计发布深度文章15篇，平均阅读量2000+；多篇文章被行业社群转发引用；建立覆盖10+赛道的资料库。',
+                    pptImages: []
+                },
+                {
+                    time: '持续运营',
+                    title: 'Alex01 小红书求职账号',
+                    tags: ['小红书', '求职运营', '用户增长'],
+                    summary: '0-1参与账号运营体系，三月内点赞收藏突破3W+',
+                    detail: '0-1参与小红书求职类账号运营体系，负责选题策划、文案撰写、封面排版、发布排期及数据复盘。收集求职痛点与需求反馈，搭建标准化求职资料素材库；日常答疑维护社群用户，做用户分层与留存运营，三月内点赞收藏突破3W+。',
+                    origin: '参与小红书求职账号运营，是希望将播音主持的表达能力迁移到新媒体赛道。求职是年轻人的高频刚需，通过提供有价值的内容帮助他人的同时，也能积累新媒体运营实战经验。',
+                    process: '1. 账号定位：明确"真诚、有用、有温度"的账号调性，与头部求职博主形成差异化\n2. 内容生产：策划"简历优化/面试技巧/行业揭秘"三大内容系列，批量生产高质量笔记\n3. 封面优化：通过A/B测试确定高点击率封面模板，统一视觉风格\n4. 社群运营：建立求职交流社群，进行用户分层（求职中/已上岸/观望期），差异化运营',
+                    output: '三月内点赞收藏突破3W+，单篇最高赞藏1.2W；社群成员突破500人，用户留存率65%；沉淀标准化选题库和素材库。',
+                    pptImages: []
+                }
             ]
         };
 
@@ -3531,6 +4876,11 @@
         let currentFilter = '全部';
         let isLoggedIn = false;
         let currentAvatar = null; // 头像URL
+        let currentExpDetail = null; // 当前查看的经历详情
+        let currentExpType = null; // 当前经历类型
+        let currentExpIndex = null; // 当前经历索引
+        let currentPptSlide = 0; // 当前PPT页
+        let currentPptSlides = []; // 当前PPT内容
 
         // 页面切换
         function showPage(pageName) {
@@ -3539,7 +4889,7 @@
 
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             const navLinks = document.querySelectorAll('.navbar .nav-link');
-            const pageIndex = ['home', 'experience', 'dynamics', 'guestbook', 'contact'].indexOf(pageName);
+            const pageIndex = ['home', 'experience', 'dynamics', 'guestbook', 'quiz', 'contact'].indexOf(pageName);
             if (pageIndex >= 0 && navLinks[pageIndex]) {
                 navLinks[pageIndex].classList.add('active');
             }
@@ -3556,7 +4906,9 @@
             if (pageName === 'experience') initExperiencePage();
             if (pageName === 'dynamics') initDynamicsPage();
             if (pageName === 'guestbook') initGuestbookPage();
+            if (pageName === 'quiz') initQuizPage();
             if (pageName === 'admin') initAdminPage();
+            if (pageName === 'exp-detail') initExpDetailPage();
 
             window.scrollTo(0, 0);
         }
@@ -3612,44 +4964,44 @@
             {
                 bg: 'https://images.unsplash.com/photo-1523050854058-8df90110c8f1?w=1400&h=900&fit=crop',
                 type: '关于我',
-                title: '林小晚',
-                desc: '产品运营 · 饭桶认证',
-                tags: ['产品运营', '用户运营', '饭桶']
+                title: '王瑜娜',
+                desc: '一支努力看世界的小话筒',
+                tags: ['产品运营', '金融科技', '播音主持']
             },
             {
                 bg: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1400&h=900&fit=crop',
                 type: '实习经历',
-                title: 'XX科技 产品运营',
-                desc: '负责用户增长策略，DAU提升15%',
-                tags: ['用户增长', '数据分析']
+                title: '聪明核桃教育 · 用户运营',
+                desc: '统筹线下宣讲全流程，助力整体业绩增长67%',
+                tags: ['用户运营', '数据复盘']
             },
             {
                 bg: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1400&h=900&fit=crop',
                 type: '竞赛经历',
-                title: '产品创新大赛 金奖',
-                desc: '带队5人完成从0到1产品方案',
-                tags: ['团队协作', '产品创新']
+                title: 'LVMH Beauty校园创意挑战赛',
+                desc: '搭建三阶闭环营销体系，打造线下沉浸式展区',
+                tags: ['市场营销', '品牌营销']
             },
             {
                 bg: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=1400&h=900&fit=crop',
-                type: '志愿经历',
-                title: '社区公益课堂',
-                desc: '为30+儿童提供编程启蒙课',
-                tags: ['公益', '教育']
-            },
-            {
-                bg: 'https://images.unsplash.com/photo-1519389980479-30110a2746ed?w=1400&h=900&fit=crop',
-                type: '实习经历',
-                title: 'YY互联网 产品经理',
-                desc: '主导需求评审12场，推动3个功能上线',
-                tags: ['需求分析', '项目管理']
-            },
-            {
-                bg: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1400&h=900&fit=crop',
                 type: '竞赛经历',
-                title: '互联网+ 银奖',
-                desc: '商业计划书获评委高度认可',
-                tags: ['商业分析', '路演']
+                title: '欧莱雅BRANDSTORM 2026',
+                desc: '人宠共融香氛笔从0到1全案开发',
+                tags: ['产品创新', '全域营销']
+            },
+            {
+                bg: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1400&h=900&fit=crop',
+                type: '竞赛经历',
+                title: '毕马威ESG案例分析大赛',
+                desc: '搭建三维六级供应商分级体系，设计绿电拼团模式',
+                tags: ['ESG', '供应链']
+            },
+            {
+                bg: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1400&h=900&fit=crop',
+                type: '实习经历',
+                title: '语言家多语信息 · 海外项目',
+                desc: 'ToB新媒体运营，月均曝光提升35%',
+                tags: ['出海运营', '新媒体']
             }
         ];
 
@@ -3735,71 +5087,192 @@
         // 章鱼词云渲染
         let tagCloudCanvas = null;
         let tagCloudCtx = null;
-        let placedTags = [];
         let tagPositions = [];
-        const DPR = window.devicePixelRatio || 1;
+        let DPR = window.devicePixelRatio || 1;
 
         // 颜色配置
         const ownerColors = ['#1b4f72', '#2b7dba', '#4a9ed6', '#7bc4f0'];
         const friendColors = ['#b8860b', '#d4a017', '#e6c35c', '#f0d98d'];
 
-        // 字号配置
-        const sizeMap = { 'size-xl': 36, 'size-lg': 28, 'size-md': 22, 'size-sm': 16 };
 
-        // 章鱼轮廓定义（相对于画布尺寸的比例）
+        // 字号配置 - 增加 size-xs
+        const sizeMap = { 'size-xl': 38, 'size-lg': 28, 'size-md': 20, 'size-sm': 14, 'size-xs': 10 };
+
+        // ===== 专业章鱼词云实现 =====
+        
+        // 预计算触手贝塞尔曲线
+        function getTentacleCurves(w, h) {
+            const cx = w / 2;
+            const tentacleTop = h * 0.52;
+            const tentacleBottom = h * 0.95;
+            const curves = [];
+            
+            for (let i = 0; i < 8; i++) {
+                // 起点x位置 - 从中心向两侧分布
+                const startX = cx + (i - 3.5) * w * 0.055;
+                const startY = tentacleTop;
+                
+                // 控制点 - 决定弧度，外侧触手偏移更大
+                const ctrlX = cx + (i - 3.5) * w * 0.22;
+                const ctrlY = h * 0.73;
+                
+                // 终点 - 外侧触手更水平展开
+                const endX = cx + (i - 3.5) * w * 0.18;
+                const endY = tentacleBottom;
+                
+                curves.push({ startX, startY, ctrlX, ctrlY, endX, endY });
+            }
+            
+            return curves;
+        }
+        
+        // 计算贝塞尔曲线上的点
+        function getBezierPoint(t, curve) {
+            const t2 = t * t;
+            const mt = 1 - t;
+            const mt2 = mt * mt;
+            return {
+                x: mt2 * curve.startX + 2 * mt * t * curve.ctrlX + t2 * curve.endX,
+                y: mt2 * curve.startY + 2 * mt * t * curve.ctrlY + t2 * curve.endY
+            };
+        }
+        
+        // 点到贝塞尔曲线的最短距离
+        function distToBezier(px, py, curve) {
+            let minDist = Infinity;
+            const steps = 25;
+            let prevPoint = { x: curve.startX, y: curve.startY };
+            
+            for (let i = 1; i <= steps; i++) {
+                const t = i / steps;
+                const pt = getBezierPoint(t, curve);
+                // 线段距离
+                const dx = pt.x - prevPoint.x;
+                const dy = pt.y - prevPoint.y;
+                const len = Math.sqrt(dx * dx + dy * dy);
+                
+                if (len > 0) {
+                    // 点到线段的距离
+                    const tt = Math.max(0, Math.min(1, ((px - prevPoint.x) * dx + (py - prevPoint.y) * dy) / (len * len)));
+                    const nearX = prevPoint.x + tt * dx;
+                    const nearY = prevPoint.y + tt * dy;
+                    const dist = Math.sqrt((px - nearX) * (px - nearX) + (py - nearY) * (py - nearY));
+                    minDist = Math.min(minDist, dist);
+                }
+                
+                prevPoint = pt;
+            }
+            
+            return minDist;
+        }
+        
+        // 章鱼轮廓判定 - 圆圆大头 + 弧形展开触手
         function isInsideOctopus(x, y, w, h) {
             const cx = w / 2;
-            const headTop = h * 0.12;
-            const headBottom = h * 0.52;
-            const headCenterY = (headTop + headBottom) / 2;
-            const headRx = w * 0.35;
-            const headRy = h * 0.22;
-
-            // 头部椭圆
-            const headDx = (x - cx) / headRx;
-            const headDy = (y - headCenterY) / headRy;
+            
+            // ===== 圆圆的大头 =====
+            const headCx = cx;
+            const headCy = h * 0.30;
+            const headRx = w * 0.42;
+            const headRy = h * 0.26;
+            
+            const headDx = (x - headCx) / headRx;
+            const headDy = (y - headCy) / headRy;
             if (headDx * headDx + headDy * headDy < 1) return true;
-
-            // 头顶两个小耳朵
-            const ear1cx = cx - w * 0.22, ear1cy = headTop + h * 0.05;
-            const ear2cx = cx + w * 0.22, ear2cy = headTop + h * 0.05;
-            const earR = w * 0.08;
-            if (Math.hypot(x - ear1cx, y - ear1cy) < earR) return true;
-            if (Math.hypot(x - ear2cx, y - ear2cy) < earR) return true;
-
-            // 身体连接部分
-            const bodyTop = headBottom - h * 0.02;
-            if (y > headBottom && y < bodyTop + h * 0.08) {
-                const bodyHalfW = headRx * 0.7;
+            
+            // ===== 两只大眼睛区域（椭圆形区域，不是真的画眼睛）=====
+            const leftEyeCx = w * 0.36;
+            const leftEyeCy = h * 0.27;
+            const eyeRx = w * 0.09;
+            const eyeRy = h * 0.08;
+            const eyeDx = (x - leftEyeCx) / eyeRx;
+            const eyeDy = (y - leftEyeCy) / eyeRy;
+            if (eyeDx * eyeDx + eyeDy * eyeDy < 1) return true;
+            
+            const rightEyeCx = w * 0.64;
+            const rightEyeCy = h * 0.27;
+            const eyeDx2 = (x - rightEyeCx) / eyeRx;
+            const eyeDy2 = (y - rightEyeCy) / eyeRy;
+            if (eyeDx2 * eyeDx2 + eyeDy2 * eyeDy2 < 1) return true;
+            
+            // ===== 身体连接区（头部底部到触手顶部）=====
+            const bodyTop = h * 0.50;
+            const bodyBottom = h * 0.52;
+            if (y >= bodyTop && y <= bodyBottom) {
+                const progress = (y - bodyTop) / (bodyBottom - bodyTop);
+                const bodyHalfW = headRx * (0.75 - progress * 0.15);
                 if (Math.abs(x - cx) < bodyHalfW) return true;
             }
-
-            // 8条触手
-            const tentacleStartY = bodyTop + h * 0.06;
-            const tentacleEndY = h * 0.92;
-            if (y > tentacleStartY && y < tentacleEndY) {
-                const spreadFactor = (y - tentacleStartY) / (tentacleEndY - tentacleStartY);
-                const spread = w * 0.3 * spreadFactor;
-                const numTentacles = 8;
-                for (let i = 0; i < numTentacles; i++) {
-                    const angle = ((i - (numTentacles - 1) / 2) / (numTentacles - 1)) * 1.2;
-                    const tx = cx + Math.sin(angle) * spread;
-                    const ty = tentacleStartY + (tentacleEndY - tentacleStartY) * ((i % 2 === 0 ? spreadFactor : spreadFactor - 0.1) || 0.5);
-                    const tentacleWidth = w * (0.06 - 0.02 * spreadFactor);
-                    if (Math.abs(x - tx) < tentacleWidth && y > tentacleStartY - h * 0.02) {
+            
+            // ===== 8条弧形展开的触手 =====
+            const tentacleTop = h * 0.52;
+            const tentacleBottom = h * 0.95;
+            
+            if (y >= tentacleTop && y <= tentacleBottom) {
+                const t = (y - tentacleTop) / (tentacleBottom - tentacleTop);
+                const curves = getTentacleCurves(w, h);
+                
+                for (let i = 0; i < curves.length; i++) {
+                    const curve = curves[i];
+                    
+                    // 触手宽度：从顶部到底部逐渐变细
+                    const baseWidth = w * 0.055;
+                    const tentacleWidth = baseWidth * (1 - t * 0.45);
+                    
+                    // 计算点到曲线的距离
+                    const dist = distToBezier(x, y, curve);
+                    
+                    // 触手中线位置的宽度范围
+                    const centerX = getBezierPoint(t, curve).x;
+                    const widthAtT = tentacleWidth * (1 - Math.abs(t - 0.5) * 0.3);
+                    
+                    // 判定是否在触手条带内
+                    if (Math.abs(x - centerX) < widthAtT && y >= tentacleTop && y <= tentacleBottom) {
                         return true;
                     }
                 }
-                // 触手底部吸盘区域
-                if (y > tentacleEndY - h * 0.1 && Math.abs(x - cx) < w * 0.25) return true;
+                
+                // 触手底部边缘区域 - 略微向外卷曲
+                if (t > 0.7) {
+                    const bottomSpread = w * 0.38;
+                    const bottomY = tentacleBottom - h * 0.02;
+                    const bottomWidth = w * 0.32;
+                    if (Math.abs(y - bottomY) < h * 0.05 && Math.abs(x - cx) < bottomWidth) {
+                        return true;
+                    }
+                }
             }
-
+            
+            return false;
+        }
+        
+        // 触手区域边缘检测（用于布局时识别有效放置区域）
+        function isNearTentacleEdge(x, y, w, h) {
+            const tentacleTop = h * 0.52;
+            const tentacleBottom = h * 0.95;
+            
+            if (y < tentacleTop || y > tentacleBottom) return false;
+            
+            const t = (y - tentacleTop) / (tentacleBottom - tentacleTop);
+            const curves = getTentacleCurves(w, h);
+            
+            for (let i = 0; i < curves.length; i++) {
+                const curve = curves[i];
+                const dist = distToBezier(x, y, curve);
+                const tentacleWidth = w * 0.055 * (1 - t * 0.45);
+                
+                // 距离触手中心线 40%-60% 宽度范围内的点
+                const centerX = getBezierPoint(t, curve).x;
+                const dx = Math.abs(x - centerX);
+                if (dx > tentacleWidth * 0.35 && dx < tentacleWidth * 0.65) {
+                    return true;
+                }
+            }
             return false;
         }
 
-        // 检测位置是否与已有文字重叠
-        function checkOverlap(x, y, tagW, tagH, positions) {
-            const padding = 4;
+        // 检测位置是否与已有文字重叠（严格不重叠）
+        function checkOverlap(x, y, tagW, tagH, positions, padding = 3) {
             for (const pos of positions) {
                 if (!(x + tagW + padding < pos.x || x > pos.x + pos.w + padding ||
                       y + tagH + padding < pos.y || y > pos.y + pos.h + padding)) {
@@ -3809,86 +5282,155 @@
             return false;
         }
 
-        // 螺旋布局放置文字
+        // 生成词云实例列表
+        function generateWordInstances() {
+            const instances = [];
+            const sizeOptions = [
+                { size: 'size-xl', fontSize: 38, weight: 1 },
+                { size: 'size-lg', fontSize: 28, weight: 3 },
+                { size: 'size-md', fontSize: 20, weight: 6 },
+                { size: 'size-sm', fontSize: 14, weight: 8 },
+                { size: 'size-xs', fontSize: 10, weight: 10 },
+            ];
+            
+            // 先添加所有真实标签
+            for (const tag of tagCloudData) {
+                const fontSize = sizeMap[tag.size] || 20;
+                instances.push({ text: tag.text, source: tag.source, size: tag.size, fontSize });
+            }
+            
+            // 补充重复词（每个词最多出现3次）
+            const maxPerWord = 3;
+            const wordCount = {};
+            
+            for (const tag of tagCloudData) {
+                const currentCount = wordCount[tag.text] || 1;
+                const remaining = maxPerWord - currentCount;
+                
+                for (let i = 0; i < remaining; i++) {
+                    // 随机选择大小
+                    const randIdx = Math.floor(Math.random() * sizeOptions.length);
+                    const randSize = sizeOptions[randIdx];
+                    instances.push({ 
+                        text: tag.text, 
+                        source: tag.source, 
+                        size: randSize.size, 
+                        fontSize: randSize.fontSize 
+                    });
+                }
+                wordCount[tag.text] = maxPerWord;
+            }
+            
+            return instances;
+        }
+
+        // 专业词云布局算法 - 不重叠、螺旋+网格扫描
         function placeTagsInOctopus() {
             const canvas = tagCloudCanvas;
             const w = canvas.width / DPR;
             const h = canvas.height / DPR;
+            
             tagPositions = [];
+            const cx = w / 2;
 
-            // 按大小排序，先放大的
-            const sorted = [...tagCloudData].sort((a, b) => {
-                return (sizeMap[b.size] || 20) - (sizeMap[a.size] || 20);
-            });
+            // 生成词实例
+            const wordInstances = generateWordInstances();
+            
+            // 按大小排序，先放大的（字号大的先占位置）
+            const sorted = [...wordInstances].sort((a, b) => b.fontSize - a.fontSize);
+
+            // 颜色配置
+            const ownerColors = ['#1b4f72', '#2b7dba', '#4a9ed6', '#7bc4f0'];
+            const friendColors = ['#b8860b', '#d4a017', '#e6c35c', '#f0d98d'];
 
             for (const tag of sorted) {
-                const fontSize = sizeMap[tag.size] || 20;
-                tagCloudCtx.font = `500 ${fontSize}px "Noto Sans SC", sans-serif`;
+                tagCloudCtx.font = `500 ${tag.fontSize}px "Noto Sans SC", sans-serif`;
                 const metrics = tagCloudCtx.measureText(tag.text);
                 const tagW = metrics.width;
-                const tagH = fontSize * 1.4;
+                const tagH = tag.fontSize * 1.3;
+
+                const colorArr = tag.source === 'owner' ? ownerColors : friendColors;
+                const color = colorArr[Math.floor(Math.random() * colorArr.length)];
 
                 let placed = false;
+                
+                // ===== 策略1: 螺旋扫描 =====
                 let attempts = 0;
-                const maxAttempts = 500;
                 let angle = 0;
                 let radius = 0;
-                const cx = w / 2;
+                const maxSpiralAttempts = 600;
 
-                while (!placed && attempts < maxAttempts) {
-                    const x = cx + Math.cos(angle) * radius - tagW / 2;
-                    const y = h * 0.35 + Math.sin(angle) * radius;
+                while (!placed && attempts < maxSpiralAttempts) {
+                    const spiralCx = cx;
+                    const spiralCy = h * 0.35;
+                    const x = spiralCx + Math.cos(angle) * radius - tagW / 2;
+                    const y = spiralCy + Math.sin(angle) * radius - tagH / 2;
 
-                    if (x > 10 && x + tagW < w - 10 && y > 10 && y + tagH < h - 10) {
+                    if (x > 5 && x + tagW < w - 5 && y > 5 && y + tagH < h - 5) {
                         if (isInsideOctopus(x + tagW / 2, y + tagH / 2, w, h)) {
-                            if (!checkOverlap(x, y, tagW, tagH, tagPositions)) {
-                                const colorArr = tag.source === 'owner' ? ownerColors : friendColors;
-                                const color = colorArr[Math.floor(Math.random() * colorArr.length)];
-
-                                tagPositions.push({
-                                    x, y, w: tagW, h: tagH,
-                                    text: tag.text,
-                                    source: tag.source,
-                                    color,
-                                    fontSize,
-                                    opacity: 0,
-                                    scale: 0.5,
-                                    finalScale: 0.85 + Math.random() * 0.3
+                            if (!checkOverlap(x, y, tagW, tagH, tagPositions, 3)) {
+                                tagPositions.push({ 
+                                    x, y, w: tagW, h: tagH, 
+                                    text: tag.text, source: tag.source, 
+                                    color, fontSize: tag.fontSize, 
+                                    opacity: 0, 
+                                    scale: 0.5, 
+                                    finalScale: 0.8 + Math.random() * 0.35 
                                 });
                                 placed = true;
                             }
                         }
                     }
-
-                    angle += 0.3;
-                    radius += 1.5;
+                    angle += 0.15;
+                    radius += 0.8;
                     attempts++;
                 }
 
-                // 如果放不下，尝试随机位置
+                // ===== 策略2: 网格扫描 =====
                 if (!placed) {
-                    for (let t = 0; t < 100 && !placed; t++) {
-                        const rx = 50 + Math.random() * (w - 100);
-                        const ry = 50 + Math.random() * (h - 100);
-                        if (isInsideOctopus(rx, ry, w, h)) {
-                            if (!checkOverlap(rx, ry, tagW, tagH, tagPositions)) {
-                                const colorArr = tag.source === 'owner' ? ownerColors : friendColors;
-                                const color = colorArr[Math.floor(Math.random() * colorArr.length)];
-                                tagPositions.push({
-                                    x: rx, y: ry, w: tagW, h: tagH,
-                                    text: tag.text,
-                                    source: tag.source,
-                                    color,
-                                    fontSize,
-                                    opacity: 0,
-                                    scale: 0.5,
-                                    finalScale: 0.85 + Math.random() * 0.3
+                    const gridSize = 15;
+                    for (let gy = 0; gy < h && !placed; gy += gridSize) {
+                        for (let gx = 0; gx < w && !placed; gx += gridSize) {
+                            if (isInsideOctopus(gx + tagW / 2, gy + tagH / 2, w, h)) {
+                                if (!checkOverlap(gx, gy, tagW, tagH, tagPositions, 3)) {
+                                    tagPositions.push({ 
+                                        x: gx, y: gy, w: tagW, h: tagH, 
+                                        text: tag.text, source: tag.source, 
+                                        color, fontSize: tag.fontSize, 
+                                        opacity: 0, 
+                                        scale: 0.5, 
+                                        finalScale: 0.8 + Math.random() * 0.35 
+                                    });
+                                    placed = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // ===== 策略3: 随机扫描 =====
+                if (!placed) {
+                    for (let t = 0; t < 200 && !placed; t++) {
+                        const rx = 10 + Math.random() * (w - 20 - tagW);
+                        const ry = 10 + Math.random() * (h - 20 - tagH);
+                        if (isInsideOctopus(rx + tagW / 2, ry + tagH / 2, w, h)) {
+                            if (!checkOverlap(rx, ry, tagW, tagH, tagPositions, 3)) {
+                                tagPositions.push({ 
+                                    x: rx, y: ry, w: tagW, h: tagH, 
+                                    text: tag.text, source: tag.source, 
+                                    color, fontSize: tag.fontSize, 
+                                    opacity: 0, 
+                                    scale: 0.5, 
+                                    finalScale: 0.8 + Math.random() * 0.35 
                                 });
                                 placed = true;
                             }
                         }
                     }
                 }
+
+                // 如果所有策略都失败：跳过该词（不重叠比填满更重要）
+                // 不强制放置未找到位置的词
             }
         }
 
@@ -3899,7 +5441,7 @@
             const w = canvas.width / DPR;
             const h = canvas.height / DPR;
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, w, h);
 
             for (const tag of tagPositions) {
                 ctx.save();
@@ -3926,15 +5468,12 @@
             const canvas = document.getElementById('tagCanvas');
             canvas.classList.add('visible');
 
-            let allDone = false;
             const duration = 1500;
             const startTime = performance.now();
 
             function animate(time) {
                 const elapsed = time - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-
-                // 缓动函数
                 const easeOut = 1 - Math.pow(1 - progress, 3);
 
                 for (const tag of tagPositions) {
@@ -3952,10 +5491,13 @@
             requestAnimationFrame(animate);
         }
 
-        // 初始化标签云
+        // 初始化标签云 - 修复版
         function initTagCloud() {
             tagCloudCanvas = document.getElementById('tagCanvas');
             tagCloudCtx = tagCloudCanvas.getContext('2d');
+            
+            // 重新获取DPR（窗口大小改变时可能变化）
+            DPR = window.devicePixelRatio || 1;
 
             // 设置画布尺寸
             const wrapper = tagCloudCanvas.parentElement;
@@ -3963,13 +5505,25 @@
             const canvasW = isMobile ? 320 : 500;
             const canvasH = isMobile ? 400 : 620;
 
+            // 关键：先重置canvas的width/height（这会自动清空画布和重置transform）
+            tagCloudCanvas.width = 1;
+            tagCloudCanvas.height = 1;
+            
+            // 然后重新设置尺寸
             tagCloudCanvas.width = canvasW * DPR;
             tagCloudCanvas.height = canvasH * DPR;
             tagCloudCanvas.style.width = canvasW + 'px';
             tagCloudCanvas.style.height = canvasH + 'px';
 
+            // 获取新的context（重设尺寸后context状态会重置）
+            tagCloudCtx = tagCloudCanvas.getContext('2d');
+            
+            // 只做一次DPR scale
             tagCloudCtx.scale(DPR, DPR);
 
+            // 重置tagPositions
+            tagPositions = [];
+            
             // 计算位置并绘制
             placeTagsInOctopus();
             drawTagCloud();
@@ -3987,7 +5541,7 @@
             observer.observe(tagCloudCanvas);
         }
 
-        // 添加新标签（亲友模式）
+        // 添加新标签（亲友模式）- 修复版
         function addTag(source, text) {
             if (!text || !text.trim()) return;
 
@@ -3998,6 +5552,34 @@
             };
 
             tagCloudData.push(newTag);
+            
+            // 关键：完全重新初始化画布
+            tagCloudCanvas = document.getElementById('tagCanvas');
+            tagCloudCtx = tagCloudCanvas.getContext('2d');
+            
+            // 重新获取DPR
+            DPR = window.devicePixelRatio || 1;
+            
+            // 获取当前画布尺寸
+            const isMobile = window.innerWidth < 768;
+            const canvasW = isMobile ? 320 : 500;
+            const canvasH = isMobile ? 400 : 620;
+
+            // 重置画布尺寸以清除之前的缩放状态
+            tagCloudCanvas.width = 1;
+            tagCloudCanvas.height = 1;
+            
+            // 重新设置尺寸
+            tagCloudCanvas.width = canvasW * DPR;
+            tagCloudCanvas.height = canvasH * DPR;
+            tagCloudCanvas.style.width = canvasW + 'px';
+            tagCloudCanvas.style.height = canvasH + 'px';
+
+            // 获取新的context
+            tagCloudCtx = tagCloudCanvas.getContext('2d');
+            
+            // 只做一次DPR缩放
+            tagCloudCtx.scale(DPR, DPR);
 
             // 重新布局
             placeTagsInOctopus();
@@ -4010,11 +5592,15 @@
             canvas.classList.add('wobble');
             setTimeout(() => canvas.classList.remove('wobble'), 500);
 
-            // 新标签动画
-            const newIndex = tagPositions.length - 1;
-            if (newIndex >= 0) {
-                const newPlaced = tagPositions[newIndex];
-                const duration = 500;
+            // 确保canvas可见
+            canvas.classList.add('visible');
+
+            // 绘制
+            drawTagCloud();
+            
+            // 新标签入场动画
+            if (tagPositions.length > 0) {
+                const duration = 600;
                 const startTime = performance.now();
 
                 function animateNewTag(time) {
@@ -4022,8 +5608,19 @@
                     const progress = Math.min(elapsed / duration, 1);
                     const easeOut = 1 - Math.pow(1 - progress, 3);
 
-                    newPlaced.opacity = easeOut;
-                    newPlaced.scale = newPlaced.finalScale * easeOut;
+                    // 只动画新添加的标签
+                    for (let i = 0; i < tagPositions.length; i++) {
+                        const tag = tagPositions[i];
+                        if (i === tagPositions.length - 1) {
+                            // 新标签从0开始
+                            tag.opacity = easeOut;
+                            tag.scale = tag.finalScale * easeOut;
+                        } else {
+                            // 其他标签保持最终状态
+                            tag.opacity = 1;
+                            tag.scale = tag.finalScale;
+                        }
+                    }
 
                     drawTagCloud();
 
@@ -4033,8 +5630,6 @@
                 }
 
                 requestAnimationFrame(animateNewTag);
-            } else {
-                drawTagCloud();
             }
         }
 
@@ -4190,7 +5785,7 @@
             if (!container) return;
             container.innerHTML = '';
 
-            experiencesData[type].forEach(exp => {
+            experiencesData[type].forEach((exp, index) => {
                 const card = document.createElement('div');
                 card.className = 'exp-card';
                 card.innerHTML = `
@@ -4208,6 +5803,7 @@
                         ${exp.detail.split('\n').map(line => `<p>${line}</p>`).join('')}
                     </div>
                     <div class="exp-actions">
+                        <button class="exp-detail-btn" onclick="openExpDetail('${type}', ${index})">了解详情</button>
                         <button class="exp-toggle" onclick="toggleExpCard(this)">展开详情</button>
                     </div>
                 `;
@@ -4232,6 +5828,285 @@
                 card.classList.add('expanded');
                 btn.textContent = '收起详情';
             }
+        }
+
+        // 打开经历详情页
+        function openExpDetail(type, index) {
+            const exp = experiencesData[type][index];
+            if (!exp) return;
+
+            currentExpDetail = exp;
+            currentExpType = type;
+            currentExpIndex = index;
+
+            // 渲染详情页
+            const metaEl = document.getElementById('expDetailMeta');
+            const contentEl = document.getElementById('expDetailContent');
+
+            const typeNames = { internship: '实习经历', competition: '竞赛经历', volunteer: '志愿经历', project: '个人项目' };
+
+            metaEl.innerHTML = `
+                <p class="exp-detail-time">${exp.time}</p>
+                <h1 class="exp-detail-title">${exp.title}</h1>
+                <div class="exp-detail-tags">
+                    ${exp.tags.map(t => `<span class="exp-tag">${t}</span>`).join('')}
+                </div>
+            `;
+
+            let contentHtml = '';
+
+            // 项目起源
+            if (exp.origin) {
+                contentHtml += `
+                    <div class="exp-detail-section">
+                        <div class="exp-detail-section-header">
+                            <span class="exp-detail-section-dot"></span>
+                            <h3 class="exp-detail-section-title">项目起源</h3>
+                        </div>
+                        <div class="exp-detail-text">${exp.origin}</div>
+                    </div>
+                `;
+            }
+
+            // 项目经历
+            if (exp.process) {
+                // 处理换行格式的内容
+                const processLines = exp.process.split('\n').filter(line => line.trim());
+                const processContent = processLines.map(line => {
+                    if (line.match(/^\d+\./)) {
+                        return `<li>${line.replace(/^\d+\.\s*/, '')}</li>`;
+                    }
+                    return `<p>${line}</p>`;
+                }).join('');
+
+                contentHtml += `
+                    <div class="exp-detail-section">
+                        <div class="exp-detail-section-header">
+                            <span class="exp-detail-section-dot" style="background: var(--accent-deep);"></span>
+                            <h3 class="exp-detail-section-title">项目经历</h3>
+                        </div>
+                        <div class="exp-detail-text">
+                            <ul>${processContent}</ul>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 具体产出
+            if (exp.output) {
+                contentHtml += `
+                    <div class="exp-detail-section">
+                        <div class="exp-detail-section-header">
+                            <span class="exp-detail-section-dot" style="background: #48a9a6;"></span>
+                            <h3 class="exp-detail-section-title">具体产出</h3>
+                        </div>
+                        <div class="exp-detail-text">${exp.output}</div>
+                    </div>
+                `;
+            }
+
+            // 原始详细描述（可选显示）
+            if (exp.detail) {
+                contentHtml += `
+                    <div class="exp-detail-section">
+                        <div class="exp-detail-section-header">
+                            <span class="exp-detail-section-dot" style="background: var(--gray);"></span>
+                            <h3 class="exp-detail-section-title">详细描述</h3>
+                        </div>
+                        <div class="exp-detail-text">${exp.detail.replace(/\n/g, '\n\n')}</div>
+                    </div>
+                `;
+            }
+
+            contentEl.innerHTML = contentHtml;
+
+            // 切换到详情页
+            showPage('exp-detail');
+        }
+
+        // 初始化经历详情页
+        function initExpDetailPage() {
+            if (!currentExpDetail) {
+                goBackToExpList();
+                return;
+            }
+        }
+
+        // 返回经历列表
+        function goBackToExpList() {
+            showPage('experience');
+        }
+
+        // 打开PPT演示
+        function openExpPpt() {
+            if (!currentExpDetail) return;
+
+            const exp = currentExpDetail;
+            const slides = [];
+
+            // 如果有自定义PPT图片，优先使用
+            if (exp.pptImages && exp.pptImages.length > 0) {
+                exp.pptImages.forEach(img => {
+                    slides.push({
+                        type: 'image',
+                        content: img
+                    });
+                });
+            } else {
+                // 自动生成幻灯片
+                // 封面页
+                slides.push({
+                    type: 'title',
+                    title: exp.title,
+                    subtitle: exp.time
+                });
+
+                // 项目起源页
+                if (exp.origin) {
+                    slides.push({
+                        type: 'content',
+                        title: '项目起源',
+                        content: exp.origin
+                    });
+                }
+
+                // 项目经历页
+                if (exp.process) {
+                    const processContent = exp.process.split('\n')
+                        .filter(line => line.trim())
+                        .map(line => line.replace(/^\d+\.\s*/, ''))
+                        .join('\n');
+                    slides.push({
+                        type: 'content',
+                        title: '项目经历',
+                        content: processContent
+                    });
+                }
+
+                // 具体产出页
+                if (exp.output) {
+                    slides.push({
+                        type: 'content',
+                        title: '具体产出',
+                        content: exp.output
+                    });
+                }
+
+                // 总结页
+                slides.push({
+                    type: 'summary',
+                    title: exp.title,
+                    tags: exp.tags.join(' / ')
+                });
+            }
+
+            currentPptSlides = slides;
+            currentPptSlide = 0;
+
+            renderPptSlides();
+            document.getElementById('pptPresentation').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // 添加ESC关闭支持
+            document.addEventListener('keydown', handlePptKeydown);
+
+            // 添加触摸滑动支持
+            setupPptTouch();
+        }
+
+        // 渲染PPT幻灯片
+        function renderPptSlides() {
+            const container = document.getElementById('pptSlides');
+            const indicator = document.getElementById('pptIndicator');
+
+            container.innerHTML = '';
+            slides = currentPptSlides;
+
+            slides.forEach((slide, index) => {
+                const slideEl = document.createElement('div');
+                slideEl.className = 'ppt-slide' + (index === currentPptSlide ? ' active' : '');
+
+                if (slide.type === 'title') {
+                    slideEl.innerHTML = `
+                        <div class="ppt-slide-type">项目详情</div>
+                        <h2 class="ppt-slide-title">${slide.title}</h2>
+                        <p style="color: rgba(255,255,255,0.6); font-size: 1.1rem;">${slide.subtitle}</p>
+                    `;
+                } else if (slide.type === 'content') {
+                    slideEl.innerHTML = `
+                        <div class="ppt-slide-type">${slide.title}</div>
+                        <div class="ppt-slide-content">${slide.content}</div>
+                    `;
+                } else if (slide.type === 'image') {
+                    slideEl.innerHTML = `<img class="ppt-slide-image" src="${slide.content}" alt="PPT slide">`;
+                } else if (slide.type === 'summary') {
+                    slideEl.innerHTML = `
+                        <div class="ppt-slide-type">总结</div>
+                        <h2 class="ppt-slide-title">${slide.title}</h2>
+                        <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; margin-top: 20px;">${slide.tags}</p>
+                    `;
+                }
+
+                container.appendChild(slideEl);
+            });
+
+            indicator.textContent = `${currentPptSlide + 1} / ${slides.length}`;
+
+            // 更新容器位置
+            container.style.transform = `translateX(-${currentPptSlide * 100}%)`;
+        }
+
+        // PPT翻页
+        let slides = [];
+
+        function pptSlide(dir) {
+            currentPptSlide = (currentPptSlide + dir + slides.length) % slides.length;
+
+            const container = document.getElementById('pptSlides');
+            container.style.transform = `translateX(-${currentPptSlide * 100}%)`;
+
+            document.querySelectorAll('.ppt-slide').forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentPptSlide);
+            });
+
+            document.getElementById('pptIndicator').textContent = `${currentPptSlide + 1} / ${slides.length}`;
+        }
+
+        // 关闭PPT
+        function closeExpPpt() {
+            document.getElementById('pptPresentation').classList.remove('active');
+            document.body.style.overflow = '';
+            document.removeEventListener('keydown', handlePptKeydown);
+        }
+
+        // 处理PPT键盘事件
+        function handlePptKeydown(e) {
+            if (e.key === 'Escape') {
+                closeExpPpt();
+            } else if (e.key === 'ArrowLeft') {
+                pptSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                pptSlide(1);
+            }
+        }
+
+        // 设置PPT触摸滑动
+        function setupPptTouch() {
+            const presentation = document.getElementById('pptPresentation');
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            presentation.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            presentation.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                const diff = touchStartX - touchEndX;
+                if (Math.abs(diff) > 50) {
+                    pptSlide(diff > 0 ? 1 : -1);
+                }
+            }, { passive: true });
         }
 
         // 个人动态
@@ -4337,11 +6212,11 @@
                         <p class="msg-content">${msg.content}</p>
                         <div class="msg-actions">
                             <button class="msg-action-btn ${msg.disliked ? 'active-down' : ''}" onclick="toggleMsgAction(this, 'down', ${idx})">
-                                <span class="msg-action-icon">👎</span>
+                                <span class="msg-action-icon"></span>
                                 <span class="msg-action-count">${msg.dislikes || 0}</span>
                             </button>
                             <button class="msg-action-btn ${msg.questioned ? 'active-question' : ''}" onclick="toggleMsgAction(this, 'question', ${idx})">
-                                <span class="msg-action-icon">❓</span>
+                                <span class="msg-action-icon"></span>
                                 <span class="msg-action-count">${msg.questions || 0}</span>
                             </button>
                         </div>
@@ -4497,7 +6372,7 @@
             tagCloudData.forEach((tag, index) => {
                 const div = document.createElement('div');
                 div.className = 'admin-tag';
-                const sourceLabel = tag.source === 'owner' ? '🔵 主人' : '🟡 亲友';
+                const sourceLabel = tag.source === 'owner' ? '主人' : '亲友';
                 const badgeStyle = tag.source === 'owner' 
                     ? 'background: rgba(43, 125, 186, 0.1); color: #2b7dba;' 
                     : 'background: rgba(212, 160, 23, 0.1); color: #b8860b;';
@@ -4643,13 +6518,14 @@
             container.innerHTML = '';
             
             contactData.forEach((contact, index) => {
+                const iconInfo = contactIcons.find(i => i.icon === contact.icon) || contactIcons[0];
                 const item = document.createElement('div');
                 item.className = 'contact-edit-item';
                 item.innerHTML = `
                     <div class="contact-icon-wrapper">
-                        <button class="contact-icon-select" onclick="toggleIconDropdown(${index})" title="选择图标">${contact.emoji}</button>
+                        <button class="contact-icon-select" onclick="toggleIconDropdown(${index})" title="选择图标">${iconInfo.svg}</button>
                         <div class="contact-icon-dropdown" id="iconDropdown${index}">
-                            ${contactIcons.map(icon => `<button class="contact-icon-option" onclick="selectIcon(${index}, '${icon.emoji}')" title="${icon.label}">${icon.emoji}</button>`).join('')}
+                            ${contactIcons.map(icon => `<button class="contact-icon-option" onclick="selectIcon(${index}, '${icon.icon}')" title="${icon.label}">${icon.svg}</button>`).join('')}
                         </div>
                     </div>
                     <input type="text" placeholder="名称" value="${contact.name}" onchange="updateContact(${index}, 'name', this.value)">
@@ -4669,8 +6545,8 @@
             dropdown.classList.toggle('show');
         }
         
-        function selectIcon(contactIndex, emoji) {
-            contactData[contactIndex].icon = emoji;
+        function selectIcon(contactIndex, iconName) {
+            contactData[contactIndex].icon = iconName;
             document.querySelectorAll('.contact-icon-dropdown')[contactIndex].classList.remove('show');
             renderContactList();
             
@@ -4679,7 +6555,7 @@
         }
         
         function addContact() {
-            contactData.push({ icon: '📧', name: '新联系方式', value: '' });
+            contactData.push({ icon: 'mail', name: '新联系方式', value: '' });
             renderContactList();
             
             // 持久化数据
@@ -4786,14 +6662,15 @@
                 const clickHandler = isLink 
                     ? `window.open('${contact.value}', '_blank')` 
                     : `copyText('${contact.value}', this)`;
+                const iconInfo = contactIcons.find(i => i.icon === contact.icon) || contactIcons[0];
                 return `
                     <div class="contact-item" onclick="${clickHandler}">
-                        <div class="contact-icon">${contact.icon}</div>
+                        <div class="contact-icon">${iconInfo.svg}</div>
                         <div class="contact-info">
                             <h4>${contact.name}</h4>
                             <p>${contact.value}</p>
                         </div>
-                        <span class="copy-hint">已复制 ✓</span>
+                        <span class="copy-hint">已复制</span>
                     </div>
                 `;
             }).join('');
@@ -5021,27 +6898,27 @@
         
         // 模拟解析的简历数据
         const mockResumeData = {
-            name: '林小晚',
-            email: 'linxiaowan@email.com',
-            phone: '138****8888',
+            name: '王瑜娜',
+            email: 'Elms_broadcast2029@outlook.com',
+            phone: '155****1416',
             education: [
-                { school: 'XX大学', major: '工商管理', degree: '本科', time: '2021.09 - 2025.06' }
+                { school: '四川师范大学', major: '播音与主持艺术', degree: '本科', time: '2025.09 - 2029.06' }
             ],
             experiences: [
                 { 
-                    company: 'XX科技', 
-                    position: '产品运营实习生', 
-                    time: '2025.06 - 2025.09',
-                    desc: '负责用户增长策略，DAU提升15%'
+                    company: '成都语言家多语信息技术有限公司', 
+                    position: '海外项目实习生', 
+                    time: '2026.05 - 2026.08',
+                    desc: '负责出海星链ToB新媒体运营与白皮书编制，月均曝光提升35%'
                 },
                 { 
-                    company: 'YY互联网', 
-                    position: '产品经理实习生', 
-                    time: '2024.06 - 2024.09',
-                    desc: '主导需求评审12场，推动3个功能上线'
+                    company: '北京聪明核桃教育科技有限公司', 
+                    position: '用户运营实习生', 
+                    time: '2026.02 - 2026.05',
+                    desc: '统筹线下宣讲全流程，助力整体业绩增长67%'
                 }
             ],
-            skills: ['产品运营', '用户增长', '数据分析', '竞品分析', 'PRD撰写', 'Axure', 'SQL']
+            skills: ['产品运营', '用户运营', '数据分析', '出海运营', '品牌营销', 'ESG', 'SQL', 'Python']
         };
         
         // 简历解析弹窗
@@ -5062,7 +6939,7 @@
             
             content.innerHTML = `
                 <div class="resume-parse-section">
-                    <h4>👤 基本信息</h4>
+                    <h4>基本信息</h4>
                     <div class="resume-parse-item">
                         <input type="checkbox" id="parseName" checked onchange="updateResumeSelection('name', this.checked)">
                         <div class="resume-parse-item-content">
@@ -5084,7 +6961,7 @@
                 </div>
                 
                 <div class="resume-parse-section">
-                    <h4>🎓 教育经历</h4>
+                    <h4>教育经历</h4>
                     ${mockResumeData.education.map((edu, i) => `
                         <div class="resume-parse-item">
                             <input type="checkbox" id="parseEdu${i}" checked onchange="updateResumeSelection('education', this.checked, ${i})">
@@ -5097,7 +6974,7 @@
                 </div>
                 
                 <div class="resume-parse-section">
-                    <h4>💼 实习/工作经历</h4>
+                    <h4>实习/工作经历</h4>
                     ${mockResumeData.experiences.map((exp, i) => `
                         <div class="resume-parse-item">
                             <input type="checkbox" id="parseExp${i}" checked onchange="updateResumeSelection('experiences', this.checked, ${i})">
@@ -5110,7 +6987,7 @@
                 </div>
                 
                 <div class="resume-parse-section">
-                    <h4>🛠️ 技能标签</h4>
+                    <h4>技能标签</h4>
                     <div style="display: flex; flex-wrap: wrap; gap: 10px;">
                         ${mockResumeData.skills.map((skill, i) => `
                             <div class="resume-parse-item" style="flex: 0 0 auto; margin-bottom: 0;">
@@ -5164,7 +7041,7 @@
                 // 添加电话联系方式
                 const hasPhone = contactData.some(c => c.name === '电话');
                 if (!hasPhone) {
-                    contactData.push({ icon: '📱', name: '电话', value: mockResumeData.phone });
+                    contactData.push({ icon: 'phone', name: '电话', value: mockResumeData.phone });
                 }
             }
             
@@ -5288,6 +7165,18 @@
                     </button>
                 </div>
                 <div class="form-group">
+                    <label>项目起源（PPT第一页内容）</label>
+                    <textarea id="newExpOrigin" placeholder="描述项目背景和来源" style="min-height: 80px;">${isEdit ? (existing.origin || '') : ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>项目经历（PPT第二页内容）</label>
+                    <textarea id="newExpProcess" placeholder="描述具体做了什么，每一点用换行分隔，数字序号自动生成" style="min-height: 100px;">${isEdit ? (existing.process || '') : ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>具体产出（PPT第三页内容）</label>
+                    <textarea id="newExpOutput" placeholder="描述成果、数据、量化指标" style="min-height: 80px;">${isEdit ? (existing.output || '') : ''}</textarea>
+                </div>
+                <div class="form-group">
                     <label>附件文档</label>
                     <div class="exp-attachment-area" id="expAttachmentArea">
                         <div class="attachment-upload" onclick="document.getElementById('expFileInput').click()">
@@ -5298,6 +7187,19 @@
                         <input type="file" id="expFileInput" style="display:none" multiple accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" onchange="handleExpAttachment(this)">
                     </div>
                     <div class="attachment-list" id="expAttachmentList"></div>
+                </div>
+                <div class="form-group">
+                    <label>PPT幻灯片上传（可选，用于演示模式）</label>
+                    <div class="exp-attachment-area" id="expPptArea" style="border-style: dashed; border-color: var(--accent); background: var(--accent-light);">
+                        <div class="attachment-upload" onclick="document.getElementById('expPptInput').click()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                            <span>点击上传PPT图片</span>
+                            <span style="font-size:0.75rem;color:#bbb;">支持多张图片，每张对应一页幻灯片</span>
+                        </div>
+                        <input type="file" id="expPptInput" style="display:none" multiple accept=".png,.jpg,.jpeg,.gif,.webp" onchange="handleExpPptUpload(this)">
+                    </div>
+                    <div class="ppt-images-preview" id="expPptPreview" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
+                    <p style="font-size: 0.8rem; color: var(--gray); margin-top: 8px;">已有自定义PPT图片将优先于自动生成内容显示</p>
                 </div>
                 <div class="modal-actions">
                     <button class="modal-btn cancel" onclick="closeModal()">取消</button>
@@ -5312,9 +7214,18 @@
             } else {
                 expAttachments = [];
             }
+
+            // 如果是编辑，加载已有PPT图片
+            if (isEdit && existing.pptImages) {
+                expPptImages = [...existing.pptImages];
+                renderExpPptPreview();
+            } else {
+                expPptImages = [];
+            }
         }
 
         let expAttachments = [];
+        let expPptImages = [];
 
         function handleExpAttachment(input) {
             const files = Array.from(input.files);
@@ -5329,12 +7240,46 @@
             input.value = '';
         }
 
+        function handleExpPptUpload(input) {
+            const files = Array.from(input.files);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    expPptImages.push({
+                        name: file.name,
+                        data: e.target.result
+                    });
+                    renderExpPptPreview();
+                };
+                reader.readAsDataURL(file);
+            });
+            input.value = '';
+        }
+
+        function renderExpPptPreview() {
+            const container = document.getElementById('expPptPreview');
+            if (!container) return;
+
+            container.innerHTML = expPptImages.map((img, index) => `
+                <div style="position: relative; width: 80px; height: 60px; border-radius: 8px; overflow: hidden; border: 1px solid var(--light-gray);">
+                    <img src="${img.data}" style="width: 100%; height: 100%; object-fit: cover;" alt="PPT slide ${index + 1}">
+                    <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); color: white; font-size: 0.65rem; text-align: center; padding: 2px;">${index + 1}</span>
+                    <button onclick="removeExpPptImage(${index})" style="position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: rgba(0,0,0,0.6); border: none; color: white; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;">×</button>
+                </div>
+            `).join('');
+        }
+
+        function removeExpPptImage(index) {
+            expPptImages.splice(index, 1);
+            renderExpPptPreview();
+        }
+
         function renderExpAttachments() {
             const list = document.getElementById('expAttachmentList');
             if (!list) return;
             list.innerHTML = expAttachments.map((f, i) => `
                 <div class="attachment-item">
-                    <span class="attachment-icon">${f.type.includes('pdf') ? '📄' : f.type.includes('image') ? '🖼️' : '📝'}</span>
+                    <span class="attachment-icon">${f.type.includes('pdf') ? 'PDF' : f.type.includes('image') ? 'IMG' : 'DOC'}</span>
                     <span class="attachment-name">${f.name}</span>
                     <span class="attachment-size">${f.size}</span>
                     <button class="attachment-remove" onclick="removeExpAttachment(${i})">×</button>
@@ -5353,11 +7298,25 @@
             const tagsStr = document.getElementById('newExpTags').value.trim();
             const summary = document.getElementById('newExpSummary').value.trim();
             const detail = document.getElementById('newExpDetail').value.trim();
+            const origin = document.getElementById('newExpOrigin').value.trim();
+            const process = document.getElementById('newExpProcess').value.trim();
+            const output = document.getElementById('newExpOutput').value.trim();
 
             if (!time || !title) return;
 
             const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()) : [];
-            const data = { time, title, tags, summary, detail, attachments: [...expAttachments] };
+            const data = {
+                time,
+                title,
+                tags,
+                summary,
+                detail,
+                origin,
+                process,
+                output,
+                attachments: [...expAttachments],
+                pptImages: expPptImages.map(img => img.data)
+            };
 
             if (editType !== undefined) {
                 experiencesData[editType][editIndex] = data;
@@ -5366,7 +7325,7 @@
             }
             renderAdminExperiences();
             closeModal();
-            
+
             // 持久化数据
             saveToStorage();
         }
@@ -5388,7 +7347,7 @@
             setTimeout(() => {
                 const polished = polishText(original);
                 textarea.value = polished;
-                btn.innerHTML = '<span class="ai-sparkle">✦</span> 已润色 ✓';
+                btn.innerHTML = '<span class="ai-sparkle">✦</span> 已润色';
                 btn.disabled = false;
                 
                 // 添加对比提示
@@ -5526,9 +7485,518 @@
             }
         })();
 
-        // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            // 先从localStorage加载数据
+        // ========== 你和我的距离还差多少 - 问答游戏 ==========
+
+        // 题库数据（可从localStorage扩展）
+        let quizQuestionBank = [
+            // ===== 选择题（14道）=====
+            {
+                type: 'choice',
+                question: '我日常最常穿的穿搭风格是？',
+                options: ['甜美风', '轻熟港风', '运动风', '复古国风'],
+                answer: 'B'
+            },
+            {
+                type: 'choice',
+                question: '课余时间我主要在钻研哪个方向？',
+                options: ['播音主持本专业', '商科、金融相关内容', '纯休闲玩乐', '手工创作'],
+                answer: 'B'
+            },
+            {
+                type: 'choice',
+                question: '熬夜之后，我身体最容易不舒服的部位是？',
+                options: ['眼睛', '心脏', '关节', '头部'],
+                answer: 'B'
+            },
+            {
+                type: 'choice',
+                question: '偶尔我也会尝试的穿搭风格是？',
+                options: ['极繁甜妹风 + 新中式', '工装风', '日系简约风', '街头潮牌风'],
+                answer: 'A'
+            },
+            {
+                type: 'choice',
+                question: '我辅修的专业是？',
+                options: ['汉语言文学', '数字金融', '新媒体运营', '市场营销'],
+                answer: 'B'
+            },
+            {
+                type: 'choice',
+                question: '以下不属于我求职意向的是？',
+                options: ['投行 / 一级市场', 'AI 产品 / 运营', '传统固定文职', '国际贸易'],
+                answer: 'C'
+            },
+            {
+                type: 'choice',
+                question: '平时我会喝的低度饮品是？',
+                options: ['啤酒', '6度气泡果酒', '白酒', '碳酸饮料'],
+                answer: 'B'
+            },
+            {
+                type: 'choice',
+                question: '遇到难懂的知识点，我更习惯怎么学？',
+                options: ['用生活例子类比理解', '死记纯理论', '硬背公式', '只看视频学习'],
+                answer: 'A'
+            },
+            {
+                type: 'choice',
+                question: '我没参加过以下哪类比赛？',
+                options: ['营销类赛事', '金融类赛事', '书画比赛', '创新创业比赛'],
+                answer: 'C'
+            },
+            {
+                type: 'choice',
+                question: '我长期在打理的内容平台是？',
+                options: ['短视频账号', '微信公众号', '社交论坛', '图文笔记平台'],
+                answer: 'B'
+            },
+            {
+                type: 'choice',
+                question: '我的性格会在两种人格间切换，它们是？',
+                options: ['INFP / ENFJ', 'ISTJ / ESTP', 'ISFJ / ESFP', 'INTJ / ENTP'],
+                answer: 'A'
+            },
+            {
+                type: 'choice',
+                question: '找工作时，我更偏爱哪种状态？',
+                options: ['久坐办公、很少外出', '薪资可观，还能经常出差', '常年加班', '作息完全自由'],
+                answer: 'B'
+            },
+            {
+                type: 'choice',
+                question: '我的主修专业是？',
+                options: ['影视表演', '播音与主持艺术', '广播电视编导', '新闻采编'],
+                answer: 'B'
+            },
+            {
+                type: 'choice',
+                question: '整理笔记、资料时，我更喜欢哪种形式？',
+                options: ['大段纯文字', '分点、表格这类清晰的排版', '全图片形式', '只留语音记录'],
+                answer: 'B'
+            },
+            // ===== 判断题（12道）=====
+            {
+                type: 'judge',
+                question: '我的本专业成绩在班里排名靠前',
+                answer: false
+            },
+            {
+                type: 'judge',
+                question: '做内容、设计课程时，我喜欢把细节和流程梳理得清清楚楚',
+                answer: true
+            },
+            {
+                type: 'judge',
+                question: '我只穿一种风格的衣服，完全不愿意尝试新穿搭',
+                answer: false
+            },
+            {
+                type: 'judge',
+                question: '运营公众号，也是为了往后跨行进入一级市场做准备',
+                answer: true
+            },
+            {
+                type: 'judge',
+                question: '营销、金融、咨询、创业类的比赛，我都有参与过',
+                answer: true
+            },
+            {
+                type: 'judge',
+                question: '我的作息很规律，基本不会熬夜',
+                answer: false
+            },
+            {
+                type: 'judge',
+                question: '碰到编程、办公软件这类实操问题，我偏爱直接能用的解决办法',
+                answer: true
+            },
+            {
+                type: 'judge',
+                question: '我很向往薪资不错，还能经常外出出差的工作',
+                answer: true
+            },
+            {
+                type: 'judge',
+                question: '整理资料时，我不喜欢分点、做表格这类清晰的形式',
+                answer: false
+            },
+            {
+                type: 'judge',
+                question: '面对同辈压力，我偶尔也会焦虑、自我怀疑',
+                answer: true
+            },
+            {
+                type: 'judge',
+                question: '我偶尔会有咽炎、右胸壁疼痛这类身体小状况',
+                answer: true
+            },
+            {
+                type: 'judge',
+                question: '准备面试说话内容时，我偏爱自然口语，不喜欢堆砌华丽辞藻',
+                answer: true
+            }
+        ];
+
+        // 游戏状态
+        let quizState = {
+            totalQuestions: 0,
+            currentQuestion: 0,
+            correctCount: 0,
+            questions: [],
+            isRolling: false,
+            hasRolled: false
+        };
+
+        // 骰子面朝向映射（用于设置最终旋转角度）
+        const diceRotations = {
+            1: { x: 0, y: 0 },
+            2: { x: -90, y: 0 },
+            3: { x: 0, y: -90 },
+            4: { x: 0, y: 90 },
+            5: { x: 90, y: 0 },
+            6: { x: 180, y: 0 }
+        };
+
+        // 从localStorage加载题库（支持云端同步）
+        function loadQuizBank() {
+            loadFromCloud('quizQuestionBank').then(data => {
+                if (data && Array.isArray(data) && data.length > 0) {
+                    quizQuestionBank = data;
+                }
+            }).catch(() => {
+                // fallback to localStorage only
+                const saved = localStorage.getItem('quizQuestionBank');
+                if (saved) {
+                    try {
+                        const parsed = JSON.parse(saved);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            quizQuestionBank = parsed;
+                        }
+                    } catch (e) {
+                        console.log('题库加载失败，使用默认题库');
+                    }
+                }
+            });
+        }
+
+        // 保存题库到localStorage（支持云端同步）
+        function saveQuizBank() {
+            saveToCloud('quizQuestionBank', quizQuestionBank).catch(() => {});
+        }
+
+        // 初始化问答页面
+        function initQuizPage() {
+            loadQuizBank();
+            resetQuiz();
+        }
+
+        // 重置游戏
+        function resetQuiz() {
+            quizState = {
+                totalQuestions: 0,
+                currentQuestion: 0,
+                correctCount: 0,
+                questions: [],
+                isRolling: false,
+                hasRolled: false
+            };
+            
+            // 隐藏所有游戏元素
+            document.getElementById('questionCard').classList.remove('active');
+            document.getElementById('gameResult').style.display = 'none';
+            document.getElementById('diceContainer').style.display = 'flex';
+            document.getElementById('rollHint').style.display = 'block';
+            document.getElementById('rollHint').textContent = '点击骰子开始答题';
+            document.getElementById('diceResult').classList.remove('show');
+            document.getElementById('dice').classList.remove('rolling');
+            
+            // 隐藏毁灭页面
+            document.getElementById('octopusApocalypse').classList.remove('show');
+        }
+
+        // 掷骰子
+        function rollDice() {
+            if (quizState.isRolling || quizState.hasRolled) return;
+            
+            quizState.isRolling = true;
+            const dice = document.getElementById('dice');
+            const rollHint = document.getElementById('rollHint');
+            const diceResult = document.getElementById('diceResult');
+            
+            // 随机生成1-6
+            const result = Math.floor(Math.random() * 6) + 1;
+            
+            // 设置最终旋转角度
+            const finalRotation = diceRotations[result];
+            dice.style.setProperty('--final-x', finalRotation.x + 'deg');
+            dice.style.setProperty('--final-y', finalRotation.y + 'deg');
+            
+            // 开始动画
+            dice.classList.add('rolling');
+            rollHint.style.display = 'none';
+            
+            // 动画结束后
+            setTimeout(() => {
+                dice.classList.remove('rolling');
+                quizState.isRolling = false;
+                quizState.hasRolled = true;
+                quizState.totalQuestions = result;
+                
+                // 显示结果
+                diceResult.textContent = `🎲 本轮需要答 ${result} 道题`;
+                diceResult.classList.add('show');
+                
+                // 随机选择题目
+                selectRandomQuestions(result);
+                
+                // 开始答题
+                setTimeout(() => {
+                    document.getElementById('diceContainer').style.display = 'none';
+                    startQuiz();
+                }, 1500);
+                
+            }, 1500);
+        }
+
+        // 随机选择题目
+        function selectRandomQuestions(count) {
+            const shuffled = [...quizQuestionBank].sort(() => Math.random() - 0.5);
+            const selected = shuffled.slice(0, Math.min(count, shuffled.length));
+            // 为每道选择题打乱选项顺序，同步更新答案字母
+            quizState.questions = selected.map(q => {
+                if (q.type === 'choice' && q.options) {
+                    const correctText = q.options[['A','B','C','D'].indexOf(q.answer)];
+                    const shuffledOpts = [...q.options].sort(() => Math.random() - 0.5);
+                    const newAnswerIdx = shuffledOpts.indexOf(correctText);
+                    return { ...q, options: shuffledOpts, answer: ['A','B','C','D'][newAnswerIdx] };
+                }
+                return { ...q };
+            });
+        }
+
+        // 开始答题
+        function startQuiz() {
+            quizState.currentQuestion = 0;
+            quizState.correctCount = 0;
+            showQuestion();
+        }
+
+        // 显示题目
+        function showQuestion() {
+            if (quizState.currentQuestion >= quizState.questions.length) {
+                endQuiz();
+                return;
+            }
+            
+            const question = quizState.questions[quizState.currentQuestion];
+            const card = document.getElementById('questionCard');
+            const content = document.getElementById('questionContent');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            // 更新进度
+            const progress = ((quizState.currentQuestion) / quizState.questions.length) * 100;
+            progressFill.style.width = progress + '%';
+            progressText.textContent = `${quizState.currentQuestion + 1}/${quizState.questions.length}`;
+            
+            // 显示卡片
+            card.classList.add('active');
+            
+            // 根据题型渲染
+            let html = '';
+            
+            if (question.type === 'choice') {
+                const letters = ['A', 'B', 'C', 'D'];
+                html = `
+                    <span class="question-type-badge choice">选择题</span>
+                    <p class="question-text">${question.question}</p>
+                    <div class="question-options">
+                        ${question.options.map((opt, i) => `
+                            <button class="option-btn" onclick="selectOption('${letters[i]}')">
+                                <span class="option-letter">${letters[i]}</span>
+                                <span>${opt}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (question.type === 'judge') {
+                html = `
+                    <span class="question-type-badge judge">判断题</span>
+                    <p class="question-text">${question.question}</p>
+                    <div class="judge-options">
+                        <button class="judge-btn" onclick="selectJudge(true)">
+                            <span class="icon">✓</span>
+                            <span>正确</span>
+                        </button>
+                        <button class="judge-btn" onclick="selectJudge(false)">
+                            <span class="icon">✗</span>
+                            <span>错误</span>
+                        </button>
+                    </div>
+                `;
+            } else if (question.type === 'fill') {
+                html = `
+                    <span class="question-type-badge fill">填空题</span>
+                    <p class="question-text">${question.question}</p>
+                    <input type="text" class="fill-input" id="fillAnswer" placeholder="请输入答案..." onkeypress="if(event.key==='Enter')submitFill()">
+                    <button class="submit-btn" onclick="submitFill()">提交答案</button>
+                `;
+            } else if (question.type === 'essay') {
+                html = `
+                    <span class="question-type-badge essay">简答题</span>
+                    <p class="question-text">${question.question}</p>
+                    <textarea class="fill-input" id="fillAnswer" rows="4" placeholder="请输入你的回答..."></textarea>
+                    <button class="submit-btn" onclick="submitFill()">提交答案</button>
+                `;
+            }
+            
+            content.innerHTML = html;
+            
+            // 重新触发动画
+            card.style.animation = 'none';
+            card.offsetHeight; // 强制重绘
+            card.style.animation = 'slideUp 0.5s ease';
+        }
+
+        // 选择选项
+        function selectOption(letter) {
+            const question = quizState.questions[quizState.currentQuestion];
+            const isCorrect = letter === question.answer;
+            
+            // 高亮选中项
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.target.closest('.option-btn').classList.add('selected');
+            
+            // 延迟检查结果
+            setTimeout(() => checkAnswer(isCorrect), 500);
+        }
+
+        // 选择判断
+        function selectJudge(answer) {
+            const question = quizState.questions[quizState.currentQuestion];
+            const isCorrect = answer === question.answer;
+            
+            // 高亮
+            document.querySelectorAll('.judge-btn').forEach(btn => btn.classList.remove('correct', 'wrong'));
+            event.target.closest('.judge-btn').classList.add(isCorrect ? 'correct' : 'wrong');
+            
+            setTimeout(() => checkAnswer(isCorrect), 500);
+        }
+
+        // 提交填空/简答
+        function submitFill() {
+            const input = document.getElementById('fillAnswer');
+            if (!input) return;
+            
+            const userAnswer = input.value.trim().toLowerCase();
+            const question = quizState.questions[quizState.currentQuestion];
+            
+            // 支持数组答案
+            let correctAnswers = Array.isArray(question.answer) ? question.answer : [question.answer];
+            correctAnswers = correctAnswers.map(a => a.toLowerCase());
+            
+            // 宽松匹配：包含关键词或完全匹配
+            const isCorrect = correctAnswers.some(ca => 
+                userAnswer === ca || ca.includes(userAnswer) || userAnswer.includes(ca)
+            );
+            
+            checkAnswer(isCorrect);
+        }
+
+        // 检查答案
+        function checkAnswer(isCorrect) {
+            if (isCorrect) {
+                quizState.correctCount++;
+                showSuccessOverlay();
+            } else {
+                showOctopusApocalypse();
+            }
+        }
+
+        // 显示答对提示
+        function showSuccessOverlay() {
+            const overlay = document.getElementById('successOverlay');
+            overlay.classList.add('show');
+        }
+
+        // 关闭答对提示
+        function closeSuccessOverlay() {
+            const overlay = document.getElementById('successOverlay');
+            overlay.classList.remove('show');
+            
+            // 下一题
+            quizState.currentQuestion++;
+            showQuestion();
+        }
+
+        // 显示章鱼毁灭页面
+        function showOctopusApocalypse() {
+            const apocalypse = document.getElementById('octopusApocalypse');
+            apocalypse.classList.add('show');
+        }
+
+        // 从毁灭页面重新开始
+        function restartFromApocalypse() {
+            document.getElementById('octopusApocalypse').classList.remove('show');
+            resetQuiz();
+        }
+
+        // 结束游戏
+        function endQuiz() {
+            const card = document.getElementById('questionCard');
+            card.classList.remove('active');
+            
+            const resultCard = document.getElementById('gameResult');
+            resultCard.style.display = 'block';
+            
+            const score = quizState.correctCount;
+            const total = quizState.questions.length;
+            const percentage = (score / total) * 100;
+            
+            document.getElementById('resultScore').textContent = `${score}/${total}`;
+            
+            let message;
+            let emojiClass = '';
+            if (percentage === 100) {
+                emojiClass = 'trophy';
+                message = '满分！你对我了如指掌！';
+            } else if (percentage >= 80) {
+                emojiClass = 'star';
+                message = '太棒了！我们心意相通！';
+            } else if (percentage >= 60) {
+                emojiClass = 'happy';
+                message = '还不错，继续加油！';
+            } else if (percentage >= 40) {
+                emojiClass = 'think';
+                message = '还需要多多了解我哦~';
+            } else {
+                emojiClass = 'octopus';
+                message = '世界已被章鱼毁灭...';
+            }
+            
+            const emojiEl = document.getElementById('resultEmoji');
+            emojiEl.className = 'result-emoji ' + emojiClass;
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        // ========== 初始化 ==========
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 初始化Supabase
+            initSupabase();
+            
+            // 检查表是否存在
+            const tableExists = await checkSupabaseTable();
+            if (!tableExists) {
+                const hint = document.getElementById('supabaseTableHint');
+                if (hint) hint.style.display = 'block';
+                updateSyncStatus('local-only');
+            } else {
+                updateSyncStatus('connected');
+            }
+            
+            // 从云端或本地加载数据
             loadFromStorage();
             initHeroSlider();
             initTagCloud();
@@ -5543,4 +8011,6 @@
         });
     </script>
 </body>
+<!-- Supabase JS 客户端 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </html>
