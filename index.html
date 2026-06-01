@@ -396,6 +396,20 @@
             color: #fff;
             backdrop-filter: blur(5px);
         }
+        .hero-slide-cta {
+            margin-top: 16px;
+            padding: 8px 20px;
+            border-radius: 20px;
+            background: rgba(43,125,186,0.7);
+            color: #fff;
+            font-size: 0.85rem;
+            display: inline-block;
+            backdrop-filter: blur(5px);
+            transition: background 0.2s;
+        }
+        .hero-slide:hover .hero-slide-cta {
+            background: rgba(43,125,186,0.95);
+        }
 
         /* 横滑导航箭头 */
         .hero-arrow {
@@ -4271,9 +4285,8 @@
                     <div class="admin-section" id="section-hero">
                         <div class="admin-header">
                             <h2>首屏轮播</h2>
-                            <p>管理首页轮播卡片的内容和底图</p>
+                            <p>编辑个人介绍轮播卡（项目卡由经历数据自动生成）</p>
                         </div>
-                        <button class="add-btn" onclick="addHeroSlide()">+ 添加轮播</button>
                         <div class="hero-editor" id="heroEditor">
                             <!-- JS 动态生成 -->
                         </div>
@@ -4484,7 +4497,7 @@
     <script>
         // ========== Supabase 全栈配置 ==========
         const SUPABASE_URL = 'https://lupounvytpgctmmzztnl.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_D2srvxeNBCoMDgzYA7g90g_SMwpGHSn';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1cG91bnZ5dHBnY3RtbXp6dG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMzk3NDQsImV4cCI6MjA5NTgxNTc0NH0.rwqWoPQOZEjnXaEs5Juri1I6nZUnGJqZU0VPQTTajxs';
         let supabaseClient = null;
         let supabaseConnected = false;
         let currentUser = null; // 当前登录用户
@@ -5647,59 +5660,71 @@
 
         let heroSlideData = [
             {
-                bg: 'https://images.unsplash.com/photo-1523050854058-8df90110c8f1?w=1400&h=900&fit=crop',
+                bg: '',
                 type: '关于我',
-                title: '王瑜娜',
+                title: 'Elm',
                 desc: '一支努力看世界的小话筒',
                 tags: ['产品运营', '金融科技', '播音主持']
-            },
-            {
-                bg: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1400&h=900&fit=crop',
-                type: '实习经历',
-                title: '聪明核桃教育 · 用户运营',
-                desc: '统筹线下宣讲全流程，助力整体业绩增长67%',
-                tags: ['用户运营', '数据复盘']
-            },
-            {
-                bg: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1400&h=900&fit=crop',
-                type: '竞赛经历',
-                title: 'LVMH Beauty校园创意挑战赛',
-                desc: '搭建三阶闭环营销体系，打造线下沉浸式展区',
-                tags: ['市场营销', '品牌营销']
-            },
-            {
-                bg: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=1400&h=900&fit=crop',
-                type: '竞赛经历',
-                title: '欧莱雅BRANDSTORM 2026',
-                desc: '人宠共融香氛笔从0到1全案开发',
-                tags: ['产品创新', '全域营销']
-            },
-            {
-                bg: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1400&h=900&fit=crop',
-                type: '竞赛经历',
-                title: '毕马威ESG案例分析大赛',
-                desc: '搭建三维六级供应商分级体系，设计绿电拼团模式',
-                tags: ['ESG', '供应链']
-            },
-            {
-                bg: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1400&h=900&fit=crop',
-                type: '实习经历',
-                title: '语言家多语信息 · 海外项目',
-                desc: 'ToB新媒体运营，月均曝光提升35%',
-                tags: ['出海运营', '新媒体']
             }
         ];
+
+        // 从经历数据动态生成轮播卡片（随机2-5个项目）
+        function buildHeroSlidesFromExperiences() {
+            const allExps = [];
+            const typeMap = { internship: '实习经历', competition: '竞赛经历', volunteer: '志愿经历', project: '个人项目' };
+            for (const [type, list] of Object.entries(experiencesData)) {
+                list.forEach((exp, idx) => {
+                    allExps.push({ ...exp, expType: type, expIndex: idx, typeName: typeMap[type] || type });
+                });
+            }
+            // 随机取2-5个，但固定包含各类型各一个（如果有的话）
+            const selected = [];
+            const types = ['internship', 'competition', 'volunteer', 'project'];
+            types.forEach(t => {
+                const items = allExps.filter(e => e.expType === t);
+                if (items.length > 0) {
+                    const pick = items[Math.floor(Math.random() * items.length)];
+                    selected.push(pick);
+                }
+            });
+            // 补充到3-5个
+            const remaining = allExps.filter(e => !selected.includes(e));
+            const extra = remaining.sort(() => Math.random() - 0.5).slice(0, Math.max(0, 2 - selected.length));
+            const finalList = [...selected, ...extra].slice(0, 5);
+
+            // 保留第一张个人介绍，后面的由经历数据生成
+            const personalSlide = heroSlideData[0] || {
+                type: '关于我', title: 'Elm', desc: '一支努力看世界的小话筒',
+                tags: ['产品运营', '金融科技', '播音主持'], bg: ''
+            };
+            heroSlideData = [personalSlide];
+            finalList.forEach(exp => {
+                heroSlideData.push({
+                    bg: '',
+                    type: exp.typeName,
+                    title: exp.title,
+                    desc: exp.summary || '',
+                    tags: exp.tags || [],
+                    expType: exp.expType,
+                    expIndex: exp.expIndex
+                });
+            });
+        }
 
         function initHeroSlider() {
             const slider = document.getElementById('heroSlider');
             const dotsContainer = document.getElementById('heroDots');
             
             // 第一张（个人介绍）已经硬编码在HTML里，从第二张开始生成
-            heroSlideData.slice(1).forEach(data => {
+            heroSlideData.slice(1).forEach((data, i) => {
                 const slide = document.createElement('div');
                 slide.className = 'hero-slide';
+                if (data.expType) {
+                    slide.style.cursor = 'pointer';
+                    slide.onclick = () => openExpDetail(data.expType, data.expIndex);
+                }
                 slide.innerHTML = `
-                    <div class="hero-slide-bg" style="background-image: url('${data.bg}')"></div>
+                    <div class="hero-slide-bg" style="${data.bg ? "background-image: url('" + data.bg + "')" : ''}"></div>
                     <div class="hero-slide-overlay"></div>
                     <div class="hero-slide-content">
                         <div class="hero-slide-type">${data.type}</div>
@@ -5708,6 +5733,7 @@
                         <div class="hero-slide-tags">
                             ${data.tags.map(t => `<span class="hero-slide-tag">${t}</span>`).join('')}
                         </div>
+                        ${data.expType ? '<div class="hero-slide-cta">查看详情 →</div>' : ''}
                     </div>
                 `;
                 slider.appendChild(slide);
@@ -7628,14 +7654,14 @@
             });
         }
 
-        function deleteExp(type, index) {
-            if (confirm('确定要删除这条经历吗？')) {
-                experiencesData[type].splice(index, 1);
-                renderAdminExperiences(type);
-                
-                // 持久化数据
-                saveToStorage();
+        async function deleteExp(type, index) {
+            if (!confirm('确定要删除这条经历吗？')) return;
+            const item = experiencesData[type][index];
+            if (supabaseClient && item?.id) {
+                try { await supabaseClient.from('experiences').delete().eq('id', item.id); } catch(e) { console.log('删除经历失败', e); }
             }
+            experiencesData[type].splice(index, 1);
+            renderAdminExperiences(type);
         }
 
         function renderAdminDynamics() {
@@ -7857,13 +7883,15 @@
             const slider = document.getElementById('heroSlider');
             if (!slider) return;
             
-            // 更新第一张幻灯片的标题和描述
+            // 更新第一张幻灯片
             const firstSlide = slider.querySelector('.hero-slide:first-child');
             if (firstSlide && heroSlideData.length > 0) {
                 const titleEl = firstSlide.querySelector('.hero-slide-title');
                 const descEl = firstSlide.querySelector('.hero-slide-desc');
+                const bgEl = firstSlide.querySelector('.hero-slide-bg');
                 if (titleEl) titleEl.textContent = heroSlideData[0].title;
                 if (descEl) descEl.textContent = heroSlideData[0].desc;
+                if (bgEl && heroSlideData[0].bg) bgEl.style.backgroundImage = `url('${heroSlideData[0].bg}')`;
             }
         }
         
@@ -7891,124 +7919,107 @@
             }).join('');
         }
         
-        // 首屏轮播管理
+        // 首屏轮播管理（只编辑第一张个人介绍卡，项目卡由经历管理）
         function renderHeroEditor() {
             const container = document.getElementById('heroEditor');
             if (!container) return;
             container.innerHTML = '';
             
-            const grid = document.createElement('div');
-            grid.className = 'hero-slides-grid';
-            
-            heroSlideData.forEach((slide, index) => {
-                const card = document.createElement('div');
-                card.className = 'hero-slide-edit-card';
-                card.innerHTML = `
-                    <div class="hero-slide-edit-header">
-                        <h4><span class="hero-slide-number">${index + 1}</span>轮播卡片</h4>
-                        <button class="action-btn delete" onclick="deleteHeroSlide(${index})">删除</button>
-                    </div>
-                    <div class="hero-slide-edit-body">
-                        <div class="hero-slide-bg-preview" style="background-image: url('${slide.bg}')"></div>
-                        <div class="hero-slide-edit-row">
-                            <div class="form-group">
-                                <label>类型标签</label>
-                                <input type="text" id="heroType${index}" value="${slide.type}" placeholder="例如：关于我、实习经历" onchange="updateHeroSlide(${index}, 'type', this.value)">
-                            </div>
-                            <div class="form-group">
-                                <label>标题</label>
-                                <input type="text" id="heroTitle${index}" value="${slide.title}" placeholder="输入标题" onchange="updateHeroSlide(${index}, 'title', this.value)">
-                            </div>
+            const slide = heroSlideData[0];
+            if (!slide) return;
+
+            const card = document.createElement('div');
+            card.className = 'hero-slide-edit-card';
+            card.innerHTML = `
+                <div class="hero-slide-edit-header">
+                    <h4>个人介绍轮播卡</h4>
+                    <p style="font-size:0.8rem;color:#888;margin-top:4px;">其他项目轮播卡由经历数据自动生成，在"经历管理"中编辑</p>
+                </div>
+                <div class="hero-slide-edit-body">
+                    <div class="hero-slide-bg-preview" style="${slide.bg ? "background-image: url('" + slide.bg + "')" : 'background: linear-gradient(135deg, #0d1b2a, #1b4f72)'}"></div>
+                    <div class="hero-slide-edit-row">
+                        <div class="form-group">
+                            <label>类型标签</label>
+                            <input type="text" value="${slide.type}" placeholder="例如：关于我" onchange="updatePersonalSlide('type', this.value)">
                         </div>
-                        <div class="hero-slide-edit-row single">
-                            <div class="form-group">
-                                <label>描述/副标题</label>
-                                <input type="text" id="heroDesc${index}" value="${slide.desc}" placeholder="输入描述" onchange="updateHeroSlide(${index}, 'desc', this.value)">
-                            </div>
-                        </div>
-                        <div class="hero-slide-edit-row single">
-                            <div class="form-group">
-                                <label>标签（逗号分隔）</label>
-                                <input type="text" id="heroTags${index}" value="${slide.tags ? slide.tags.join(', ') : ''}" placeholder="例如：产品运营,数据分析" onchange="updateHeroSlide(${index}, 'tags', this.value)">
-                            </div>
-                        </div>
-                        <div class="hero-slide-edit-row single">
-                            <div class="form-group">
-                                <label>底图URL</label>
-                                <div style="display: flex; gap: 10px;">
-                                    <input type="text" id="heroBg${index}" value="${slide.bg}" placeholder="输入图片URL" style="flex: 1;" onchange="updateHeroSlide(${index}, 'bg', this.value)">
-                                    <button class="add-btn" onclick="document.getElementById('heroFile${index}').click()">上传</button>
-                                </div>
-                                <input type="file" id="heroFile${index}" style="display: none;" accept="image/*" onchange="handleHeroImageUpload(this, ${index})">
-                            </div>
+                        <div class="form-group">
+                            <label>标题</label>
+                            <input type="text" value="${slide.title}" placeholder="输入标题" onchange="updatePersonalSlide('title', this.value)">
                         </div>
                     </div>
-                `;
-                grid.appendChild(card);
-            });
-            
-            container.appendChild(grid);
+                    <div class="hero-slide-edit-row single">
+                        <div class="form-group">
+                            <label>描述/副标题</label>
+                            <input type="text" value="${slide.desc}" placeholder="输入描述" onchange="updatePersonalSlide('desc', this.value)">
+                        </div>
+                    </div>
+                    <div class="hero-slide-edit-row single">
+                        <div class="form-group">
+                            <label>标签（逗号分隔）</label>
+                            <input type="text" value="${slide.tags ? slide.tags.join(', ') : ''}" placeholder="例如：产品运营,数据分析" onchange="updatePersonalSlide('tags', this.value)">
+                        </div>
+                    </div>
+                    <div class="hero-slide-edit-row single">
+                        <div class="form-group">
+                            <label>底图</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="heroBg0" value="${slide.bg}" placeholder="输入图片URL" style="flex: 1;" onchange="updatePersonalSlide('bg', this.value)">
+                                <button class="add-btn" onclick="document.getElementById('heroFile0').click()">上传</button>
+                            </div>
+                            <input type="file" id="heroFile0" style="display: none;" accept="image/*" onchange="handlePersonalImageUpload(this)">
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
         }
         
-        function updateHeroSlide(index, field, value) {
+        async function updatePersonalSlide(field, value) {
+            if (!heroSlideData[0]) return;
             if (field === 'tags') {
-                heroSlideData[index][field] = value.split(',').map(t => t.trim()).filter(t => t);
+                heroSlideData[0][field] = value.split(',').map(t => t.trim()).filter(t => t);
             } else {
-                heroSlideData[index][field] = value;
+                heroSlideData[0][field] = value;
             }
             renderHeroSlider();
-            
-            // 持久化数据
-            saveToStorage();
+            // 同步到Supabase
+            if (supabaseClient && heroSlideData[0].id) {
+                const dbField = field === 'bg' ? 'background_url' : field === 'type' ? 'slide_type' : field === 'desc' ? 'description' : field;
+                const dbValue = field === 'tags' ? heroSlideData[0].tags : value;
+                try { await supabaseClient.from('hero_slides').update({ [dbField]: dbValue }).eq('id', heroSlideData[0].id); } catch(e) { console.log('更新个人轮播失败', e); }
+            }
         }
         
-        function handleHeroImageUpload(input, index) {
+        async function handlePersonalImageUpload(input) {
             const file = input.files[0];
             if (!file) return;
-            
+            if (supabaseClient) {
+                try {
+                    const filePath = `hero/${Date.now()}_${file.name}`;
+                    const { error } = await supabaseClient.storage.from('site-uploads').upload(filePath, file);
+                    if (!error) {
+                        const { data: urlData } = supabaseClient.storage.from('site-uploads').getPublicUrl(filePath);
+                        heroSlideData[0].bg = urlData.publicUrl;
+                        document.getElementById('heroBg0').value = urlData.publicUrl;
+                        if (heroSlideData[0].id) {
+                            await supabaseClient.from('hero_slides').update({ background_url: urlData.publicUrl }).eq('id', heroSlideData[0].id);
+                        }
+                        renderHeroSlider();
+                        renderHeroEditor();
+                        return;
+                    }
+                } catch(e) { console.log('上传个人底图失败', e); }
+            }
+            // 降级：base64
             const reader = new FileReader();
             reader.onload = function(e) {
-                const dataUrl = e.target.result;
-                document.getElementById('heroBg' + index).value = dataUrl;
-                heroSlideData[index].bg = dataUrl;
+                heroSlideData[0].bg = e.target.result;
+                document.getElementById('heroBg0').value = e.target.result;
                 renderHeroSlider();
                 renderHeroEditor();
-                
-                // 持久化数据
-                saveToStorage();
             };
             reader.readAsDataURL(file);
             input.value = '';
-        }
-        
-        function addHeroSlide() {
-            heroSlideData.push({
-                bg: 'https://images.unsplash.com/photo-1523050854058-8df90110c8f1?w=1400&h=900&fit=crop',
-                type: '新卡片',
-                title: '新标题',
-                desc: '新描述',
-                tags: ['标签1', '标签2']
-            });
-            renderHeroSlider();
-            renderHeroEditor();
-            
-            // 持久化数据
-            saveToStorage();
-        }
-        
-        function deleteHeroSlide(index) {
-            if (heroSlideData.length > 1) {
-                if (confirm('确定要删除这张轮播吗？')) {
-                    heroSlideData.splice(index, 1);
-                    renderHeroSlider();
-                    renderHeroEditor();
-                    
-                    // 持久化数据
-                    saveToStorage();
-                }
-            } else {
-                alert('至少保留一张轮播');
-            }
         }
         
         function saveImageUrl(index) {
@@ -8475,7 +8486,7 @@
             renderExpAttachments();
         }
 
-        function saveExp(editType, editIndex) {
+        async function saveExp(editType, editIndex) {
             const time = document.getElementById('newExpTime').value.trim();
             const title = document.getElementById('newExpTitle').value.trim();
             const tagsStr = document.getElementById('newExpTags').value.trim();
@@ -8488,29 +8499,52 @@
             if (!time || !title) return;
 
             const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()) : [];
-            const data = {
-                time,
-                title,
-                tags,
-                summary,
-                detail,
-                origin,
-                process,
-                output,
+            const localData = {
+                time, title, tags, summary, detail, origin, process, output,
                 attachments: [...expAttachments],
                 pptImages: expPptImages.map(img => img.data)
             };
 
+            // 确定经历类型
+            let expType = 'internship';
             if (editType !== undefined) {
-                experiencesData[editType][editIndex] = data;
+                expType = editType;
+            }
+
+            // 写入Supabase
+            if (supabaseClient) {
+                const dbRecord = {
+                    exp_type: expType,
+                    time_range: time,
+                    title,
+                    tags,
+                    summary,
+                    detail,
+                    origin,
+                    process,
+                    output,
+                    ppt_images: expPptImages.map(img => img.data)
+                };
+                try {
+                    if (editType !== undefined) {
+                        const item = experiencesData[editType][editIndex];
+                        if (item?.id) {
+                            await supabaseClient.from('experiences').update(dbRecord).eq('id', item.id);
+                        }
+                    } else {
+                        const { data } = await supabaseClient.from('experiences').insert(dbRecord).select('id').single();
+                        if (data) localData.id = data.id;
+                    }
+                } catch(e) { console.log('保存经历失败', e); }
+            }
+
+            if (editType !== undefined) {
+                experiencesData[editType][editIndex] = { ...experiencesData[editType][editIndex], ...localData };
             } else {
-                experiencesData.internship.unshift(data);
+                experiencesData.internship.unshift(localData);
             }
             renderAdminExperiences();
             closeModal();
-
-            // 持久化数据
-            saveToStorage();
         }
 
         function openDynamicModal(editIndex) {
@@ -8565,7 +8599,6 @@
             dynamicsData.unshift({ id: newId, time, content, tags, image: null });
             renderAdminDynamics();
             closeModal();
-        }
         }
 
         // 点击模态框外部关闭
@@ -9096,10 +9129,29 @@
                 updateSyncStatus('local-only');
             }
             
-            // 从本地存储恢复（作为缓存）
-            await loadFromStorage();
+            // 从本地存储恢复（仅补充Supabase未加载的数据）
+            const localData = localStorage.getItem(STORAGE_KEY);
+            if (localData) {
+                try {
+                    const parsed = JSON.parse(localData);
+                    // 仅当Supabase数据为空时用本地数据补充
+                    if (tagCloudData.length <= 1 && parsed.tagCloudData) tagCloudData = parsed.tagCloudData;
+                    if (timelineData.length === 0 && parsed.timelineData) timelineData = parsed.timelineData;
+                    if (dynamicsData.length === 0 && parsed.dynamicsData) dynamicsData = parsed.dynamicsData;
+                    if (messagesData.length === 0 && parsed.messagesData) messagesData = parsed.messagesData;
+                    if (parsed.siteProfile) Object.assign(siteProfileData, parsed.siteProfile);
+                    if (siteProfileData.avatar) {
+                        currentAvatar = siteProfileData.avatar;
+                        const preview = document.getElementById('avatarPreview');
+                        if (preview) preview.innerHTML = `<img src="${currentAvatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    }
+                    const brand = document.querySelector('.navbar-brand');
+                    if (brand && siteProfileData.name) brand.textContent = siteProfileData.name;
+                } catch (e) { console.log('本地数据解析失败', e); }
+            }
             
             // 初始化前端组件
+            buildHeroSlidesFromExperiences();
             initHeroSlider();
             initTagCloud();
             initTimeline();
