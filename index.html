@@ -346,6 +346,24 @@
             padding: 40px;
             max-width: 800px;
         }
+        .hero-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            overflow: hidden;
+            border: 3px solid rgba(43,125,186,0.6);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            display: none;
+        }
+        .hero-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .hero-avatar.visible {
+            display: block;
+        }
 
         .hero-slide-type {
             display: inline-block;
@@ -2501,6 +2519,27 @@
             width: 100%;
             max-width: 400px;
             box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .login-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2b7dba, #1b4f72);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(43,125,186,0.3);
+        }
+        .login-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .login-card h2 {
@@ -3816,6 +3855,9 @@
                     <div class="hero-slide-bg" style="background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c8f1?w=1400&h=900&fit=crop')"></div>
                     <div class="hero-slide-overlay"></div>
                     <div class="hero-slide-content">
+                        <div class="hero-avatar" id="heroAvatar">
+                            <img src="" alt="头像" style="display:none;">
+                        </div>
                         <div class="hero-slide-type">关于我</div>
                         <h1 class="hero-slide-title">王瑜娜</h1>
                         <p class="hero-slide-desc">一支努力看世界的小话筒</p>
@@ -4107,6 +4149,9 @@
             <!-- 登录页 -->
             <div class="admin-login" id="adminLogin">
                 <div class="login-card">
+                    <div class="login-avatar" id="loginAvatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"/></svg>
+                    </div>
                     <h2>管理员登录</h2>
                     <p style="color: var(--gray); font-size: 0.85rem; margin-bottom: 15px;">请使用管理员账号登录</p>
                     <div class="form-group">
@@ -4629,6 +4674,12 @@
                 if (preview) {
                     preview.innerHTML = `<img src="${settings.avatar_url}" style="width: 100%; height: 100%; object-fit: cover;">`;
                 }
+                // 更新登录页头像
+                const loginAvatar = document.getElementById('loginAvatar');
+                if (loginAvatar) {
+                    loginAvatar.innerHTML = `<img src="${settings.avatar_url}" alt="头像">`;
+                }
+                updatePublicAvatar();
             }
             if (settings.theme_color) {
                 document.documentElement.style.setProperty('--accent', settings.theme_color);
@@ -5410,10 +5461,6 @@
         let dynamicsData = [];
 
         let messagesData = [
-            { name: '小雨', time: '2026.05.27', content: '话筒女孩加油！你的经历也太丰富了吧', dislikes: 0, questions: 0, disliked: false, questioned: false },
-            { name: '学长Z', time: '2026.05.25', content: 'LVMH那个方案我看了，三阶闭环逻辑很清晰', dislikes: 0, questions: 0, disliked: false, questioned: false },
-            { name: '匿名', time: '2026.05.22', content: '播音主持转产品运营，这个跨界太酷了', dislikes: 0, questions: 0, disliked: false, questioned: false },
-            { name: 'HR小姐姐', time: '2026.05.18', content: '简历很亮眼，期待进一步沟通', dislikes: 0, questions: 0, disliked: false, questioned: false },
         ];
 
         let experiencesData = {
@@ -6253,7 +6300,7 @@
         }
 
         // 添加新标签（亲友模式）- 修复版
-        function addTag(source, text) {
+        async function addTag(source, text) {
             if (!text || !text.trim()) return;
 
             const newTag = {
@@ -6295,8 +6342,10 @@
             // 重新布局
             placeTagsInOctopus();
             
-            // 持久化数据
-            saveToStorage();
+            // 同步Supabase
+            if (supabaseClient) {
+                try { await supabaseClient.from('tag_cloud').insert({ text: text.trim(), source: source || 'friend', size_class: 'size-md' }).select('id').single(); } catch(e) { console.log('添加词云失败', e); }
+            }
 
             // 触发章鱼抖动效果
             const canvas = document.getElementById('tagCanvas');
@@ -7203,16 +7252,15 @@
             });
         }
 
-        function deleteTagCloudTag(index) {
-            if (confirm('确定要删除这个标签吗？')) {
-                tagCloudData.splice(index, 1);
-                renderAdminTags();
-                // 重新渲染前台词云
-                initTagCloud();
-                
-                // 持久化数据
-                saveToStorage();
+        async function deleteTagCloudTag(index) {
+            if (!confirm('确定要删除这个标签吗？')) return;
+            const item = tagCloudData[index];
+            if (supabaseClient && item?.id) {
+                try { await supabaseClient.from('tag_cloud').delete().eq('id', item.id); } catch(e) { console.log('删除词云失败', e); }
             }
+            tagCloudData.splice(index, 1);
+            renderAdminTags();
+            initTagCloud();
         }
 
         // ========== 时间轴管理 ==========
@@ -7780,13 +7828,14 @@
             dropdown.classList.toggle('show');
         }
         
-        function selectIcon(contactIndex, iconName) {
+        async function selectIcon(contactIndex, iconName) {
             contactData[contactIndex].icon = iconName;
             document.querySelectorAll('.contact-icon-dropdown')[contactIndex].classList.remove('show');
             renderContactList();
-            
-            // 持久化数据
-            saveToStorage();
+            const item = contactData[contactIndex];
+            if (supabaseClient && item?.id) {
+                try { await supabaseClient.from('contacts').update({ icon_type: iconName }).eq('id', item.id); } catch(e) { console.log('更新联系方式图标失败', e); }
+            }
         }
         
         async function addContact() {
@@ -7822,59 +7871,63 @@
             }
         }
         
-        function handleAvatarUpload(input) {
+        async function handleAvatarUpload(input) {
             const file = input.files[0];
             if (!file) return;
             
+            // 先尝试上传到Supabase Storage
+            if (supabaseClient) {
+                try {
+                    const filePath = `avatars/${Date.now()}_${file.name}`;
+                    const { error } = await supabaseClient.storage.from('avatars').upload(filePath, file);
+                    if (!error) {
+                        const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(filePath);
+                        currentAvatar = urlData.publicUrl;
+                        siteProfileData.avatar = currentAvatar;
+                        try { await supabaseClient.from('site_settings').update({ avatar_url: currentAvatar }).eq('id', 1); } catch(e2) {}
+                        const preview = document.getElementById('avatarPreview');
+                        if (preview) preview.innerHTML = `<img src="${currentAvatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                        updatePublicAvatar();
+                        input.value = '';
+                        return;
+                    }
+                } catch(e) { console.log('上传头像到Storage失败', e); }
+            }
+            // 降级：base64压缩
             const reader = new FileReader();
             reader.onload = function(e) {
-                // 压缩并存储头像
                 compressAvatar(e.target.result, function(compressedAvatar) {
                     currentAvatar = compressedAvatar;
                     siteProfileData.avatar = compressedAvatar;
                     const preview = document.getElementById('avatarPreview');
-                    preview.innerHTML = `<img src="${currentAvatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
-                    
-                    // 持久化头像数据
-                    saveToStorage();
+                    if (preview) preview.innerHTML = `<img src="${currentAvatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    updatePublicAvatar();
                 });
             };
             reader.readAsDataURL(file);
             input.value = '';
         }
         
-        function saveProfile() {
-            // 保存基本信息
+        async function saveProfile() {
             const name = document.getElementById('profileName').value.trim();
             const subtitle = document.getElementById('profileSubtitle').value.trim();
-            
-            if (!name) {
-                alert('请输入姓名');
-                return;
-            }
-            
-            // 更新导航栏品牌名
+            if (!name) { alert('请输入姓名'); return; }
             document.querySelector('.navbar-brand').textContent = name;
-            
-            // 更新 siteProfileData
             siteProfileData.name = name;
             siteProfileData.subtitle = subtitle;
-            
-            // 更新首页hero第一张幻灯片的标题和描述
             if (heroSlideData.length > 0) {
                 heroSlideData[0].title = name;
                 heroSlideData[0].desc = subtitle;
             }
-            
-            // 重新渲染轮播
             renderHeroSlider();
-            
-            // 保存联系方式到"联系我"页面
             updateContactPage();
-            
-            // 持久化数据
-            saveToStorage();
-            
+            // 同步Supabase
+            if (supabaseClient) {
+                try { await supabaseClient.from('site_settings').update({ title: name, name, subtitle }).eq('id', 1); } catch(e) { console.log('保存基本信息失败', e); }
+                if (heroSlideData[0]?.id) {
+                    try { await supabaseClient.from('hero_slides').update({ title: name, description: subtitle }).eq('id', heroSlideData[0].id); } catch(e) {}
+                }
+            }
             alert('保存成功！');
         }
         
@@ -7895,6 +7948,15 @@
             }
         }
         
+        function updatePublicAvatar() {
+            const avatarEl = document.getElementById('heroAvatar');
+            if (!avatarEl || !currentAvatar) return;
+            const img = avatarEl.querySelector('img');
+            img.src = currentAvatar;
+            img.style.display = 'block';
+            avatarEl.classList.add('visible');
+        }
+
         function updateContactPage() {
             const contactList = document.getElementById('contactListPage');
             if (!contactList) return;
@@ -8026,44 +8088,52 @@
             const input = document.getElementById('imgUrl' + index);
             const newUrl = input.value.trim();
             if (!newUrl) return;
-
             heroSlideData[index].bg = newUrl;
-            // 更新轮播
             const slides = document.querySelectorAll('.hero-slide');
             if (slides[index]) {
                 const bgEl = slides[index].querySelector('.hero-slide-bg');
                 if (bgEl) bgEl.style.backgroundImage = `url('${newUrl}')`;
             }
-            // 刷新预览
             renderImageManager();
-            
-            // 持久化数据
-            saveToStorage();
+            if (supabaseClient && heroSlideData[index]?.id) {
+                supabaseClient.from('hero_slides').update({ background_url: newUrl }).eq('id', heroSlideData[index].id).then(() => {}).catch(e => console.log('更新底图URL失败', e));
+            }
         }
 
         function uploadImage(index) {
             document.getElementById('imgFile' + index).click();
         }
 
-        function handleImageUpload(input, index) {
+        async function handleImageUpload(input, index) {
             const file = input.files[0];
             if (!file) return;
-
+            // 尝试上传到Storage
+            if (supabaseClient) {
+                try {
+                    const filePath = `hero/${Date.now()}_${file.name}`;
+                    const { error } = await supabaseClient.storage.from('site-uploads').upload(filePath, file);
+                    if (!error) {
+                        const { data: urlData } = supabaseClient.storage.from('site-uploads').getPublicUrl(filePath);
+                        heroSlideData[index].bg = urlData.publicUrl;
+                        document.getElementById('imgUrl' + index).value = urlData.publicUrl;
+                        if (heroSlideData[index]?.id) {
+                            await supabaseClient.from('hero_slides').update({ background_url: urlData.publicUrl }).eq('id', heroSlideData[index].id);
+                        }
+                        const slides = document.querySelectorAll('.hero-slide');
+                        if (slides[index]) { const bgEl = slides[index].querySelector('.hero-slide-bg'); if (bgEl) bgEl.style.backgroundImage = `url('${urlData.publicUrl}')`; }
+                        renderImageManager();
+                        return;
+                    }
+                } catch(e) { console.log('上传图片失败', e); }
+            }
+            // 降级
             const reader = new FileReader();
             reader.onload = function(e) {
-                const dataUrl = e.target.result;
-                document.getElementById('imgUrl' + index).value = dataUrl;
-                heroSlideData[index].bg = dataUrl;
-                // 更新轮播
+                heroSlideData[index].bg = e.target.result;
+                document.getElementById('imgUrl' + index).value = e.target.result;
                 const slides = document.querySelectorAll('.hero-slide');
-                if (slides[index]) {
-                    const bgEl = slides[index].querySelector('.hero-slide-bg');
-                    if (bgEl) bgEl.style.backgroundImage = `url('${dataUrl}')`;
-                }
+                if (slides[index]) { const bgEl = slides[index].querySelector('.hero-slide-bg'); if (bgEl) bgEl.style.backgroundImage = `url('${e.target.result}')`; }
                 renderImageManager();
-                
-                // 持久化数据
-                saveToStorage();
             };
             reader.readAsDataURL(file);
             input.value = '';
@@ -8281,9 +8351,6 @@
             statusEl.innerHTML = '<span style="color: #4caf50; font-weight: 500;">同步成功！已更新个人信息、经历和标签</span>';
             statusEl.style.display = 'block';
             setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
-            
-            // 持久化数据
-            saveToStorage();
         }
         
         function reParseFile() {
@@ -9156,6 +9223,7 @@
             initTagCloud();
             initTimeline();
             updateContactPage();
+            updatePublicAvatar();
         });
     </script>
 </body>
