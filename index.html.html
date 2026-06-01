@@ -4683,7 +4683,7 @@
                         type: item.slide_type || '关于我',
                         title: item.title || '',
                         desc: item.description || '',
-                        tags: item.tags ? JSON.parse(item.tags) : [],
+                        tags: Array.isArray(item.tags) ? item.tags : (item.tags ? JSON.parse(item.tags) : []),
                         sort_order: item.sort_order
                     }));
                 }
@@ -4704,7 +4704,7 @@
                     slide_type: slide.type,
                     title: slide.title,
                     description: slide.desc,
-                    tags: JSON.stringify(slide.tags || []),
+                    tags: slide.tags || [],
                     sort_order: index
                 }));
                 const { error } = await supabaseClient
@@ -4827,9 +4827,9 @@
                     data.forEach(item => {
                         const exp = {
                             id: item.id,
-                            time: formatDateRange(item.start_date, item.end_date),
+                            time: item.time_range || formatDateRange(item.start_date, item.end_date),
                             title: item.title,
-                            tags: item.tags ? JSON.parse(item.tags) : [],
+                            tags: Array.isArray(item.tags) ? item.tags : (item.tags ? JSON.parse(item.tags) : []),
                             summary: item.summary || '',
                             detail: item.detail || '',
                             origin: item.origin || '',
@@ -4867,10 +4867,10 @@
                 if (data && data.length > 0) {
                     dynamicsData = data.map(item => ({
                         id: item.id,
-                        time: item.display_time || formatTime(item.created_at),
+                        time: formatTime(item.created_at),
                         content: item.content,
-                        tags: item.tags ? JSON.parse(item.tags) : [],
-                        image: item.image_url
+                        tags: Array.isArray(item.tags) ? item.tags : (item.tags ? JSON.parse(item.tags) : []),
+                        image: Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : null
                     }));
                 }
                 return dynamicsData;
@@ -4936,8 +4936,8 @@
                         id: item.id,
                         type: item.question_type,
                         question: item.question_text,
-                        options: item.options ? JSON.parse(item.options) : [],
-                        answer: item.correct_answer,
+                        options: Array.isArray(item.options) ? item.options : (item.options ? JSON.parse(item.options) : []),
+                        answer: item.answer,
                         sort_order: item.sort_order,
                         is_active: item.is_active !== false
                     }));
@@ -4976,7 +4976,7 @@
         }
 
         // ========== 文件上传到 Supabase Storage ==========
-        async function handleFileUpload(file) {
+        async function handleFileUploadAsync(file) {
             if (!file || !supabaseClient) {
                 alert('上传功能暂不可用');
                 return null;
@@ -4996,12 +4996,13 @@
                     .getPublicUrl(filePath);
                 // 记录到数据库
                 await supabaseClient.from('uploaded_files').insert({
-                    file_name: file.name,
-                    file_path: filePath,
+                    filename: `${Date.now()}_${file.name}`,
+                    original_name: file.name,
+                    storage_path: filePath,
                     file_url: urlData.publicUrl,
                     file_size: file.size
                 });
-                alert(`文件 "${file.name}" 上传成功！\nURL: ${urlData.publicUrl}`);
+                alert(`文件 "${file.name}" 上传成功！`);
                 return urlData.publicUrl;
             } catch (e) {
                 alert('上传异常: ' + e.message);
@@ -5009,7 +5010,7 @@
             }
         }
 
-        async function handleResumeUpload(file) {
+        async function handleResumeUploadAsync(file) {
             if (!file) return;
             if (!supabaseClient) {
                 alert('上传功能暂不可用');
@@ -5046,11 +5047,12 @@
                     .getPublicUrl(filePath);
                 // 记录到数据库
                 await supabaseClient.from('uploaded_files').insert({
-                    file_name: file.name,
-                    file_path: filePath,
+                    filename: `${Date.now()}_${file.name}`,
+                    original_name: file.name,
+                    storage_path: filePath,
                     file_url: urlData.publicUrl,
                     file_size: file.size,
-                    file_type: 'resume'
+                    category: 'resume'
                 });
                 statusEl.innerHTML = `<span style="color: #22c55e;">✓ 简历上传成功！</span>`;
                 setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
@@ -5113,9 +5115,9 @@
                 // 记录到附件表
                 await supabaseClient.from('experience_attachments').insert({
                     experience_id: expId,
-                    file_name: file.name,
-                    file_path: filePath,
-                    file_url: urlData.publicUrl
+                    filename: file.name,
+                    original_name: file.name,
+                    storage_path: filePath
                 });
                 return urlData.publicUrl;
             } catch (e) {
@@ -7496,8 +7498,8 @@
                     await supabaseClient.from('quiz_questions').insert({
                         question_type: type,
                         question_text: question,
-                        options: options ? JSON.stringify(options) : null,
-                        correct_answer: answer,
+                        options: options || [],
+                        answer: answer,
                         sort_order: sortOrder,
                         is_active: true
                     });
@@ -7549,8 +7551,8 @@
                     await supabaseClient.from('quiz_questions').update({
                         question_type: type,
                         question_text: question,
-                        options: options ? JSON.stringify(options) : null,
-                        correct_answer: answer,
+                        options: options || [],
+                        answer: answer,
                         sort_order: sortOrder
                     }).eq('id', q.id);
                 } catch (e) {
@@ -8063,46 +8065,14 @@
         }
 
         function handleFileUpload(file) {
-            if (file) {
-                alert(`已上传文件: ${file.name}\n\n注意：这是原型演示，实际文件解析功能需要后端支持。`);
-            }
+            // 调用新版 async 上传函数
+            if (file) handleFileUploadAsync(file);
         }
         
-        // 简历解析
+        // 简历解析 - 调用新版
         function handleResumeUpload(file) {
             if (!file) return;
-            
-            const statusEl = document.getElementById('resumeUploadStatus');
-            const filename = file.name.toLowerCase();
-            
-            // 检查是否是简历文件
-            const isResume = filename.includes('简历') || 
-                            filename.includes('resume') || 
-                            filename.endsWith('.pdf') || 
-                            filename.endsWith('.doc') || 
-                            filename.endsWith('.docx');
-            
-            if (!isResume) {
-                statusEl.innerHTML = '<span style="color: var(--accent);">请上传 PDF 或 Word 格式的简历文件</span>';
-                statusEl.style.display = 'block';
-                return;
-            }
-            
-            // 显示loading状态
-            statusEl.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 10px; padding: 15px; background: var(--accent-light); border-radius: 10px;">
-                    <div style="width: 20px; height: 20px; border: 2px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                    <span>正在解析简历 "${file.name}"...</span>
-                </div>
-            `;
-            statusEl.style.display = 'block';
-            
-            // 模拟2秒AI解析过程
-            setTimeout(() => {
-                // 关闭loading，显示结果
-                statusEl.style.display = 'none';
-                showResumeParseModal();
-            }, 2000);
+            handleResumeUploadAsync(file);
         }
         
         // 模拟解析的简历数据
@@ -8302,7 +8272,7 @@
         }
         
         function reParseFile() {
-            alert('正在重新解析文件...\n\n注意：这是原型演示，实际解析功能需要后端支持。');
+            alert('重新解析功能需要上传新文件后自动解析。');
         }
 
         // 模态框
