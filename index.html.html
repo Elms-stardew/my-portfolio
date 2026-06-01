@@ -4093,17 +4093,17 @@
             <!-- 登录页 -->
             <div class="admin-login" id="adminLogin">
                 <div class="login-card">
-                    <h2>管理后台</h2>
-                    <p id="loginHint" style="color: var(--gray); font-size: 0.85rem; margin-bottom: 15px;">首次登录将设置管理员账户</p>
+                    <h2>管理员登录</h2>
+                    <p style="color: var(--gray); font-size: 0.85rem; margin-bottom: 15px;">请使用管理员账号登录</p>
                     <div class="form-group">
-                        <label>用户名</label>
-                        <input type="text" id="loginUsername" placeholder="输入用户名">
+                        <label>邮箱</label>
+                        <input type="email" id="loginEmail" placeholder="输入管理员邮箱">
                     </div>
                     <div class="form-group">
                         <label>密码</label>
                         <input type="password" id="loginPassword" placeholder="输入密码">
                     </div>
-                    <button class="login-btn" onclick="adminLogin()">登录</button>
+                    <button class="login-btn" id="loginBtn" onclick="handleAdminLogin()">登录</button>
                     <div class="form-message" id="loginFormMessage" style="margin-top: 10px;"></div>
                 </div>
             </div>
@@ -4116,7 +4116,9 @@
                     <div class="admin-mobile-nav-item" onclick="switchAdminSection('profile')">个人信息</div>
                     <div class="admin-mobile-nav-item" onclick="switchAdminSection('tags')">标签管理</div>
                     <div class="admin-mobile-nav-item" onclick="switchAdminSection('hero')">首屏轮播</div>
+                    <div class="admin-mobile-nav-item" onclick="switchAdminSection('timeline')">时间轴</div>
                     <div class="admin-mobile-nav-item" onclick="switchAdminSection('experiences')">经历管理</div>
+                    <div class="admin-mobile-nav-item" onclick="switchAdminSection('quiz')">题库管理</div>
                     <div class="admin-mobile-nav-item" onclick="switchAdminSection('dynamics-admin')">动态管理</div>
                     <div class="admin-mobile-nav-item" onclick="switchAdminSection('messages')">留言管理</div>
                     <div class="admin-mobile-nav-item" onclick="switchAdminSection('upload')">文件上传</div>
@@ -4136,8 +4138,14 @@
                     <div class="admin-menu-item" onclick="switchAdminSection('hero')">
                         首屏轮播
                     </div>
+                    <div class="admin-menu-item" onclick="switchAdminSection('timeline')">
+                        时间轴
+                    </div>
                     <div class="admin-menu-item" onclick="switchAdminSection('experiences')">
                         经历管理
+                    </div>
+                    <div class="admin-menu-item" onclick="switchAdminSection('quiz')">
+                        题库管理
                     </div>
                     <div class="admin-menu-item" onclick="switchAdminSection('dynamics-admin')">
                         动态管理
@@ -4289,6 +4297,30 @@
                         </div>
                     </div>
 
+                    <!-- 时间轴管理 -->
+                    <div class="admin-section" id="section-timeline">
+                        <div class="admin-header">
+                            <h2>时间轴管理</h2>
+                            <p>管理首页展示的时间轴条目</p>
+                        </div>
+                        <button class="add-btn" onclick="openTimelineModal()">+ 添加时间轴</button>
+                        <div class="admin-table" id="adminTimelineTable">
+                            <!-- JS 动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 题库管理 -->
+                    <div class="admin-section" id="section-quiz">
+                        <div class="admin-header">
+                            <h2>题库管理</h2>
+                            <p>管理问答游戏的题目</p>
+                        </div>
+                        <button class="add-btn" onclick="openQuizModal()">+ 添加题目</button>
+                        <div class="admin-table" id="adminQuizTable">
+                            <!-- JS 动态生成 -->
+                        </div>
+                    </div>
+
                     <!-- 动态管理 -->
                     <div class="admin-section" id="section-dynamics-admin">
                         <div class="admin-header">
@@ -4392,25 +4424,30 @@
                         <div class="settings-form">
                             <div class="form-group">
                                 <label>网站标题</label>
-                                <input type="text" value="王瑜娜 - 个人展示网站">
+                                <input type="text" id="settingSiteTitle" value="王瑜娜 - 个人展示网站">
                             </div>
                             <div class="form-group">
                                 <label>网站副标题</label>
-                                <input type="text" value="一支努力看世界的小话筒">
+                                <input type="text" id="settingSiteSubtitle" value="一支努力看世界的小话筒">
                             </div>
                             <div class="form-group">
                                 <label>主题色</label>
-                                <input type="color" value="#2b7dba" style="width: 100px; height: 40px; border: none; cursor: pointer;">
+                                <input type="color" id="settingThemeColor" value="#2b7dba" style="width: 100px; height: 40px; border: none; cursor: pointer;">
                             </div>
                             <div class="toggle-switch">
                                 <label>开放留言板</label>
-                                <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+                                <div class="toggle active" id="settingMessageBoard" onclick="this.classList.toggle('active')"></div>
                             </div>
                             <div class="toggle-switch">
                                 <label>公开动态</label>
-                                <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+                                <div class="toggle active" id="settingDynamicsPublic" onclick="this.classList.toggle('active')"></div>
                             </div>
-                            <button class="submit-btn" style="max-width: 200px; margin-top: 30px;">保存设置</button>
+                            <div class="form-group" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--light-gray);">
+                                <label>DeepSeek API Key</label>
+                                <input type="password" id="settingDeepseekKey" placeholder="sk-xxxxxxxxxx" style="width: 100%; padding: 10px; border: 2px solid var(--light-gray); border-radius: 8px; background: var(--bg);">
+                                <p style="font-size: 0.75rem; color: var(--gray); margin-top: 5px;">用于 AI 润色功能，可在 <a href="https://platform.deepseek.com/api_key" target="_blank">DeepSeek 平台</a> 获取</p>
+                            </div>
+                            <button class="submit-btn" style="max-width: 200px; margin-top: 30px;" onclick="saveSettings()">保存设置</button>
                         </div>
                     </div>
                 </div>
@@ -4445,12 +4482,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ========== Supabase 云端同步配置 ==========
+        // ========== Supabase 全栈配置 ==========
         const SUPABASE_URL = 'https://lupounvytpgctmmzztnl.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_D2srvxeNBCoMDgzYA7g90g_SMwpGHSn';
         let supabaseClient = null;
         let supabaseConnected = false;
-        let supabaseTableExists = false;
+        let currentUser = null; // 当前登录用户
 
         function initSupabase() {
             try {
@@ -4458,85 +4495,720 @@
                 console.log('Supabase连接成功');
                 return true;
             } catch (e) {
-                console.log('Supabase连接失败，使用本地存储', e);
+                console.log('Supabase连接失败', e);
                 return false;
             }
         }
 
-        async function checkSupabaseTable() {
-            if (!supabaseClient) return false;
+        // ========== Supabase Auth 认证 ==========
+        async function checkAuthState() {
+            if (!supabaseClient) return null;
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    currentUser = session.user;
+                    isLoggedIn = true;
+                    return session;
+                }
+                currentUser = null;
+                isLoggedIn = false;
+                return null;
+            } catch (e) {
+                console.log('获取登录状态失败', e);
+                return null;
+            }
+        }
+
+        async function signIn(email, password) {
+            if (!supabaseClient) {
+                return { error: 'Supabase未初始化' };
+            }
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                if (error) {
+                    return { error: error.message };
+                }
+                currentUser = data.user;
+                isLoggedIn = true;
+                return { success: true, user: data.user };
+            } catch (e) {
+                return { error: '登录异常: ' + e.message };
+            }
+        }
+
+        async function signOut() {
+            if (!supabaseClient) return;
+            try {
+                await supabaseClient.auth.signOut();
+                currentUser = null;
+                isLoggedIn = false;
+            } catch (e) {
+                console.log('退出登录异常', e);
+            }
+        }
+
+        // ========== 数据库 CRUD 函数 ==========
+        
+        // 加载网站设置
+        async function loadSiteSettings() {
+            if (!supabaseClient) return null;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('site_settings')
+                    .select('*')
+                    .eq('id', 1)
+                    .single();
+                if (error) {
+                    console.log('加载网站设置失败', error);
+                    return null;
+                }
+                // 应用设置到页面
+                applySiteSettings(data);
+                return data;
+            } catch (e) {
+                console.log('加载网站设置异常', e);
+                return null;
+            }
+        }
+
+        // 保存网站设置
+        async function saveSiteSettings(settings) {
+            if (!supabaseClient) return { error: 'Supabase未初始化' };
             try {
                 const { error } = await supabaseClient
-                    .from('site_data')
-                    .select('id')
-                    .limit(1);
-                if (error && error.code === '42P01') {
-                    console.log('Supabase表不存在，需要创建');
-                    supabaseTableExists = false;
-                    return false;
+                    .from('site_settings')
+                    .update(settings)
+                    .eq('id', 1);
+                if (error) {
+                    console.log('保存网站设置失败', error);
+                    return { error: error.message };
                 }
-                supabaseTableExists = true;
-                return true;
+                applySiteSettings(settings);
+                return { success: true };
             } catch (e) {
-                return false;
+                return { error: '保存异常: ' + e.message };
             }
         }
 
-        // 云端同步函数
-        async function saveToCloud(key, data) {
-            // 先保存到localStorage（本地备份）
-            localStorage.setItem(key, JSON.stringify(data));
-            
-            // 再同步到Supabase
-            if (supabaseClient && supabaseTableExists) {
-                try {
-                    const { error } = await supabaseClient
-                        .from('site_data')
-                        .upsert({ 
-                            id: key, 
-                            data: data, 
-                            updated_at: new Date().toISOString() 
-                        }, { onConflict: 'id' });
-                    if (error) {
-                        console.log('云端同步失败:', error.message);
-                        updateSyncStatus('local-only');
-                    } else {
-                        updateSyncStatus('connected');
-                    }
-                } catch (e) {
-                    console.log('云端同步异常:', e);
-                    updateSyncStatus('error');
+        // 应用网站设置到页面
+        function applySiteSettings(settings) {
+            if (!settings) return;
+            if (settings.name) {
+                siteProfileData.name = settings.name;
+                const brand = document.querySelector('.navbar-brand');
+                if (brand) brand.textContent = settings.name;
+                // 填充设置页面
+                const titleInput = document.getElementById('settingSiteTitle');
+                if (titleInput) titleInput.value = settings.name;
+            }
+            if (settings.subtitle) {
+                siteProfileData.subtitle = settings.subtitle;
+                const subtitleInput = document.getElementById('settingSiteSubtitle');
+                if (subtitleInput) subtitleInput.value = settings.subtitle;
+            }
+            if (settings.avatar_url) {
+                siteProfileData.avatar = settings.avatar_url;
+                currentAvatar = settings.avatar_url;
+                const preview = document.getElementById('avatarPreview');
+                if (preview) {
+                    preview.innerHTML = `<img src="${settings.avatar_url}" style="width: 100%; height: 100%; object-fit: cover;">`;
                 }
             }
+            if (settings.theme_color) {
+                document.documentElement.style.setProperty('--accent', settings.theme_color);
+                const colorInput = document.getElementById('settingThemeColor');
+                if (colorInput) colorInput.value = settings.theme_color;
+            }
+            if (settings.message_board_open !== undefined) {
+                const toggle = document.getElementById('settingMessageBoard');
+                if (toggle) toggle.classList.toggle('active', settings.message_board_open);
+            }
+            if (settings.dynamics_public !== undefined) {
+                const toggle = document.getElementById('settingDynamicsPublic');
+                if (toggle) toggle.classList.toggle('active', settings.dynamics_public);
+            }
+            if (settings.deepseek_api_key) {
+                const keyInput = document.getElementById('settingDeepseekKey');
+                if (keyInput) keyInput.value = settings.deepseek_api_key;
+            }
         }
 
-        async function loadFromCloud(key) {
-            // 先尝试Supabase
-            if (supabaseClient && supabaseTableExists) {
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('site_data')
-                        .select('data')
-                        .eq('id', key)
+        // 保存网站设置
+        async function saveSettings() {
+            const title = document.getElementById('settingSiteTitle').value.trim();
+            const subtitle = document.getElementById('settingSiteSubtitle').value.trim();
+            const themeColor = document.getElementById('settingThemeColor').value;
+            const messageBoard = document.getElementById('settingMessageBoard').classList.contains('active');
+            const dynamicsPublic = document.getElementById('settingDynamicsPublic').classList.contains('active');
+            const deepseekKey = document.getElementById('settingDeepseekKey').value.trim();
+
+            const settings = {
+                name: title,
+                subtitle: subtitle,
+                theme_color: themeColor,
+                message_board_open: messageBoard,
+                dynamics_public: dynamicsPublic
+            };
+
+            if (deepseekKey) {
+                settings.deepseek_api_key = deepseekKey;
+            }
+
+            const result = await saveSiteSettings(settings);
+            if (result.error) {
+                alert('保存失败: ' + result.error);
+            } else {
+                alert('设置已保存！');
+            }
+        }
+
+        // 加载首屏轮播
+        async function loadHeroSlides() {
+            if (!supabaseClient) return heroSlideData;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('hero_slides')
+                    .select('*')
+                    .order('sort_order');
+                if (error) {
+                    console.log('加载轮播失败', error);
+                    return heroSlideData;
+                }
+                if (data && data.length > 0) {
+                    heroSlideData = data.map(item => ({
+                        bg: item.background_url || '',
+                        type: item.slide_type || '关于我',
+                        title: item.title || '',
+                        desc: item.description || '',
+                        tags: item.tags ? JSON.parse(item.tags) : [],
+                        sort_order: item.sort_order
+                    }));
+                }
+                return heroSlideData;
+            } catch (e) {
+                console.log('加载轮播异常', e);
+                return heroSlideData;
+            }
+        }
+
+        // 保存首屏轮播
+        async function saveHeroSlides() {
+            if (!supabaseClient) return { error: 'Supabase未初始化' };
+            try {
+                const records = heroSlideData.map((slide, index) => ({
+                    id: slide.id || null,
+                    background_url: slide.bg,
+                    slide_type: slide.type,
+                    title: slide.title,
+                    description: slide.desc,
+                    tags: JSON.stringify(slide.tags || []),
+                    sort_order: index
+                }));
+                const { error } = await supabaseClient
+                    .from('hero_slides')
+                    .upsert(records);
+                if (error) {
+                    console.log('保存轮播失败', error);
+                    return { error: error.message };
+                }
+                return { success: true };
+            } catch (e) {
+                return { error: '保存异常: ' + e.message };
+            }
+        }
+
+        // 加载词云标签
+        async function loadTagCloud() {
+            if (!supabaseClient) return tagCloudData;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('tag_cloud')
+                    .select('*')
+                    .order('sort_order');
+                if (error) {
+                    console.log('加载词云失败', error);
+                    return tagCloudData;
+                }
+                if (data && data.length > 0) {
+                    tagCloudData = data.map(item => ({
+                        text: item.tag_text,
+                        source: item.source || 'owner',
+                        size: item.size || 'size-md'
+                    }));
+                }
+                return tagCloudData;
+            } catch (e) {
+                console.log('加载词云异常', e);
+                return tagCloudData;
+            }
+        }
+
+        // 保存词云标签
+        async function saveTagCloud() {
+            if (!supabaseClient) return { error: 'Supabase未初始化' };
+            try {
+                const records = tagCloudData.map((tag, index) => ({
+                    tag_text: tag.text,
+                    source: tag.source,
+                    size: tag.size,
+                    sort_order: index
+                }));
+                // 先删除所有，再插入
+                await supabaseClient.from('tag_cloud').delete().neq('id', 0);
+                const { error } = await supabaseClient
+                    .from('tag_cloud')
+                    .insert(records);
+                if (error) {
+                    console.log('保存词云失败', error);
+                    return { error: error.message };
+                }
+                return { success: true };
+            } catch (e) {
+                return { error: '保存异常: ' + e.message };
+            }
+        }
+
+        // 加载时间轴
+        async function loadTimeline() {
+            if (!supabaseClient) return timelineData;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('timeline_entries')
+                    .select('*')
+                    .order('start_date', { ascending: false });
+                if (error) {
+                    console.log('加载时间轴失败', error);
+                    return timelineData;
+                }
+                if (data && data.length > 0) {
+                    timelineData = data.map(item => ({
+                        id: item.id,
+                        time: formatDateRange(item.start_date, item.end_date),
+                        type: item.entry_type,
+                        title: item.title,
+                        desc: item.description || '',
+                        side: item.side || 'left'
+                    }));
+                }
+                return timelineData;
+            } catch (e) {
+                console.log('加载时间轴异常', e);
+                return timelineData;
+            }
+        }
+
+        // 格式化日期范围
+        function formatDateRange(start, end) {
+            const formatDate = (date) => {
+                if (!date) return '至今';
+                const d = new Date(date);
+                return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}`;
+            };
+            return `${formatDate(start)} - ${formatDate(end)}`;
+        }
+
+        // 加载经历详情
+        async function loadExperiences() {
+            if (!supabaseClient) return experiencesData;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('experiences')
+                    .select('*, experience_attachments(*)')
+                    .order('start_date', { ascending: false });
+                if (error) {
+                    console.log('加载经历失败', error);
+                    return experiencesData;
+                }
+                if (data && data.length > 0) {
+                    const grouped = { internship: [], competition: [], volunteer: [], project: [] };
+                    data.forEach(item => {
+                        const exp = {
+                            id: item.id,
+                            time: formatDateRange(item.start_date, item.end_date),
+                            title: item.title,
+                            tags: item.tags ? JSON.parse(item.tags) : [],
+                            summary: item.summary || '',
+                            detail: item.detail || '',
+                            origin: item.origin || '',
+                            process: item.process || '',
+                            output: item.output || '',
+                            pptImages: item.experience_attachments ? 
+                                item.experience_attachments.map(a => a.file_url).filter(Boolean) : []
+                        };
+                        const type = item.exp_type || 'internship';
+                        if (grouped[type]) {
+                            grouped[type].push(exp);
+                        }
+                    });
+                    experiencesData = grouped;
+                }
+                return experiencesData;
+            } catch (e) {
+                console.log('加载经历异常', e);
+                return experiencesData;
+            }
+        }
+
+        // 加载个人动态
+        async function loadDynamics() {
+            if (!supabaseClient) return dynamicsData;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('dynamics')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                if (error) {
+                    console.log('加载动态失败', error);
+                    return dynamicsData;
+                }
+                if (data && data.length > 0) {
+                    dynamicsData = data.map(item => ({
+                        id: item.id,
+                        time: item.display_time || formatTime(item.created_at),
+                        content: item.content,
+                        tags: item.tags ? JSON.parse(item.tags) : [],
+                        image: item.image_url
+                    }));
+                }
+                return dynamicsData;
+            } catch (e) {
+                console.log('加载动态异常', e);
+                return dynamicsData;
+            }
+        }
+
+        // 格式化时间
+        function formatTime(date) {
+            const d = new Date(date);
+            return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        // 加载访客留言
+        async function loadMessages() {
+            if (!supabaseClient) return messagesData;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('messages')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                if (error) {
+                    console.log('加载留言失败', error);
+                    return messagesData;
+                }
+                if (data && data.length > 0) {
+                    messagesData = data.map(item => ({
+                        id: item.id,
+                        name: item.visitor_name,
+                        time: formatTime(item.created_at),
+                        content: item.content,
+                        dislikes: item.dislikes || 0,
+                        questions: item.questions || 0,
+                        disliked: false,
+                        questioned: false,
+                        is_featured: item.is_featured || false,
+                        is_hidden: item.is_hidden || false
+                    }));
+                }
+                return messagesData;
+            } catch (e) {
+                console.log('加载留言异常', e);
+                return messagesData;
+            }
+        }
+
+        // 加载题库
+        async function loadQuizQuestions() {
+            if (!supabaseClient) return quizQuestionBank;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('quiz_questions')
+                    .select('*')
+                    .order('sort_order');
+                if (error) {
+                    console.log('加载题库失败', error);
+                    return quizQuestionBank;
+                }
+                if (data && data.length > 0) {
+                    quizQuestionBank = data.map(item => ({
+                        id: item.id,
+                        type: item.question_type,
+                        question: item.question_text,
+                        options: item.options ? JSON.parse(item.options) : [],
+                        answer: item.correct_answer,
+                        sort_order: item.sort_order,
+                        is_active: item.is_active !== false
+                    }));
+                }
+                return quizQuestionBank;
+            } catch (e) {
+                console.log('加载题库异常', e);
+                return quizQuestionBank;
+            }
+        }
+
+        // 加载联系方式
+        async function loadContacts() {
+            if (!supabaseClient) return contactData;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('contacts')
+                    .select('*')
+                    .order('sort_order');
+                if (error) {
+                    console.log('加载联系方式失败', error);
+                    return contactData;
+                }
+                if (data && data.length > 0) {
+                    contactData = data.map(item => ({
+                        icon: item.icon_type,
+                        name: item.name,
+                        value: item.value
+                    }));
+                }
+                return contactData;
+            } catch (e) {
+                console.log('加载联系方式异常', e);
+                return contactData;
+            }
+        }
+
+        // ========== 文件上传到 Supabase Storage ==========
+        async function handleFileUpload(file) {
+            if (!file || !supabaseClient) {
+                alert('上传功能暂不可用');
+                return null;
+            }
+            try {
+                const filePath = `files/${Date.now()}_${file.name}`;
+                const { data, error } = await supabaseClient.storage
+                    .from('site-uploads')
+                    .upload(filePath, file);
+                if (error) {
+                    alert('上传失败: ' + error.message);
+                    return null;
+                }
+                // 获取公共URL
+                const { data: urlData } = supabaseClient.storage
+                    .from('site-uploads')
+                    .getPublicUrl(filePath);
+                // 记录到数据库
+                await supabaseClient.from('uploaded_files').insert({
+                    file_name: file.name,
+                    file_path: filePath,
+                    file_url: urlData.publicUrl,
+                    file_size: file.size
+                });
+                alert(`文件 "${file.name}" 上传成功！\nURL: ${urlData.publicUrl}`);
+                return urlData.publicUrl;
+            } catch (e) {
+                alert('上传异常: ' + e.message);
+                return null;
+            }
+        }
+
+        async function handleResumeUpload(file) {
+            if (!file) return;
+            if (!supabaseClient) {
+                alert('上传功能暂不可用');
+                return;
+            }
+            const statusEl = document.getElementById('resumeUploadStatus');
+            const filename = file.name.toLowerCase();
+            const isResume = filename.includes('resume') || 
+                            filename.endsWith('.pdf') || 
+                            filename.endsWith('.doc') || 
+                            filename.endsWith('.docx');
+            if (!isResume) {
+                statusEl.innerHTML = '<span style="color: var(--accent);">请上传 PDF 或 Word 格式的简历文件</span>';
+                statusEl.style.display = 'block';
+                return;
+            }
+            statusEl.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px; padding: 15px; background: var(--accent-light); border-radius: 10px;">
+                    <div style="width: 20px; height: 20px; border: 2px solid var(--accent); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <span>正在上传简历 "${file.name}"...</span>
+                </div>
+            `;
+            statusEl.style.display = 'block';
+            try {
+                const filePath = `resumes/${Date.now()}_${file.name}`;
+                const { data, error } = await supabaseClient.storage
+                    .from('resumes')
+                    .upload(filePath, file, { cacheControl: '3600', upsert: false });
+                if (error) {
+                    throw error;
+                }
+                const { data: urlData } = supabaseClient.storage
+                    .from('resumes')
+                    .getPublicUrl(filePath);
+                // 记录到数据库
+                await supabaseClient.from('uploaded_files').insert({
+                    file_name: file.name,
+                    file_path: filePath,
+                    file_url: urlData.publicUrl,
+                    file_size: file.size,
+                    file_type: 'resume'
+                });
+                statusEl.innerHTML = `<span style="color: #22c55e;">✓ 简历上传成功！</span>`;
+                setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+            } catch (e) {
+                statusEl.innerHTML = `<span style="color: #ef4444;">上传失败: ${e.message}</span>`;
+            }
+        }
+
+        // 头像上传到 avatars bucket
+        async function handleAvatarUpload(input) {
+            if (!input.files[0] || !supabaseClient) {
+                alert('上传功能暂不可用');
+                return;
+            }
+            const file = input.files[0];
+            try {
+                const ext = file.name.split('.').pop();
+                const filePath = `avatars/${Date.now()}.${ext}`;
+                const { error } = await supabaseClient.storage
+                    .from('avatars')
+                    .upload(filePath, file, { cacheControl: '3600', upsert: true });
+                if (error) {
+                    throw error;
+                }
+                const { data: urlData } = supabaseClient.storage
+                    .from('avatars')
+                    .getPublicUrl(filePath);
+                currentAvatar = urlData.publicUrl;
+                siteProfileData.avatar = urlData.publicUrl;
+                // 更新预览
+                const preview = document.getElementById('avatarPreview');
+                if (preview) {
+                    preview.innerHTML = `<img src="${urlData.publicUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                }
+                // 更新导航栏
+                const brand = document.querySelector('.navbar-brand');
+                if (brand && siteProfileData.name) {
+                    brand.textContent = siteProfileData.name;
+                }
+                // 保存到网站设置
+                await saveSiteSettings({ avatar_url: urlData.publicUrl });
+                alert('头像上传成功！');
+            } catch (e) {
+                alert('上传失败: ' + e.message);
+            }
+        }
+
+        // 经历附件上传
+        async function uploadExperienceAttachment(file, expId) {
+            if (!file || !supabaseClient) return null;
+            try {
+                const filePath = `attachments/${expId}/${Date.now()}_${file.name}`;
+                const { error } = await supabaseClient.storage
+                    .from('site-uploads')
+                    .upload(filePath, file);
+                if (error) throw error;
+                const { data: urlData } = supabaseClient.storage
+                    .from('site-uploads')
+                    .getPublicUrl(filePath);
+                // 记录到附件表
+                await supabaseClient.from('experience_attachments').insert({
+                    experience_id: expId,
+                    file_name: file.name,
+                    file_path: filePath,
+                    file_url: urlData.publicUrl
+                });
+                return urlData.publicUrl;
+            } catch (e) {
+                console.log('上传附件失败', e);
+                return null;
+            }
+        }
+
+        // ========== DeepSeek AI 润色 ==========
+        async function aiPolish(textareaId) {
+            const textarea = document.getElementById(textareaId);
+            if (!textarea) return;
+            const original = textarea.value.trim();
+            if (!original) {
+                alert('先写点内容，AI才能帮你润色哦～');
+                return;
+            }
+            const btn = textarea.parentElement.querySelector('.ai-polish-btn');
+            if (btn) {
+                btn.innerHTML = '<span class="ai-sparkle spinning">✦</span> 润色中...';
+                btn.disabled = true;
+            }
+            try {
+                // 获取 API Key
+                let apiKey = '';
+                if (supabaseClient) {
+                    const { data } = await supabaseClient
+                        .from('site_settings')
+                        .select('deepseek_api_key')
+                        .eq('id', 1)
                         .single();
-                    if (data && !error) {
-                        // 同步到localStorage
-                        localStorage.setItem(key, JSON.stringify(data.data));
-                        updateSyncStatus('connected');
-                        return data.data;
+                    apiKey = data?.deepseek_api_key || '';
+                }
+                if (!apiKey) {
+                    alert('请先在设置中配置 DeepSeek API Key');
+                    if (btn) {
+                        btn.innerHTML = '<span class="ai-sparkle">✦</span> AI润色';
+                        btn.disabled = false;
                     }
-                } catch (e) {
-                    console.log('云端读取失败，使用本地:', e);
+                    return;
+                }
+                const response = await fetch('https://api.deepseek.com/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'deepseek-chat',
+                        messages: [
+                            { role: 'system', content: '你是一个专业的中文文案润色助手。请对用户给出的文本进行润色，使其更加专业、精炼、有表现力。保持原文的核心含义不变，但提升表达质量和可读性。如果是工作经历描述，请适当增强量化指标和专业感。直接输出润色后的文本，不要加任何解释。' },
+                            { role: 'user', content: original }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 2000
+                    })
+                });
+                if (!response.ok) {
+                    throw new Error('API请求失败: ' + response.status);
+                }
+                const result = await response.json();
+                const polished = result.choices[0].message.content;
+                textarea.value = polished;
+                if (btn) {
+                    btn.innerHTML = '<span class="ai-sparkle">✦</span> 已润色';
+                    btn.disabled = false;
+                    // 添加撤回提示
+                    const hint = textarea.parentElement.querySelector('.ai-hint');
+                    if (hint) hint.remove();
+                    const hintEl = document.createElement('div');
+                    hintEl.className = 'ai-hint';
+                    hintEl.innerHTML = `✦ AI已润色，<a href="javascript:void(0)" onclick="undoPolish('${textareaId}', \`${original.replace(/`/g, '\\`').replace(/\n/g, '\\n')}\`)">撤回润色</a>`;
+                    textarea.parentElement.appendChild(hintEl);
+                    setTimeout(() => {
+                        btn.innerHTML = '<span class="ai-sparkle">✦</span> AI润色';
+                    }, 2000);
+                }
+            } catch (e) {
+                alert('润色失败: ' + e.message);
+                if (btn) {
+                    btn.innerHTML = '<span class="ai-sparkle">✦</span> AI润色';
+                    btn.disabled = false;
                 }
             }
-            // 降级到localStorage
-            const local = localStorage.getItem(key);
-            if (local) {
-                try { return JSON.parse(local); } catch (e) {}
-            }
-            return null;
         }
 
+        function undoPolish(textareaId, original) {
+            document.getElementById(textareaId).value = original;
+            const hint = document.getElementById(textareaId).parentElement.querySelector('.ai-hint');
+            if (hint) hint.remove();
+        }
+
+        // ========== 同步状态更新 ==========
         function updateSyncStatus(status) {
             if (status === 'connected' && !supabaseConnected) {
                 supabaseConnected = true;
@@ -4548,7 +5220,7 @@
             if (indicator && text) {
                 indicator.className = 'sync-indicator ' + status;
                 const statusMap = {
-                    'connected': '已连接',
+                    'connected': '已连接云端',
                     'local-only': '仅本地',
                     'error': '连接失败',
                     'syncing': '同步中...'
@@ -4584,22 +5256,15 @@
                 },
                 isLoggedIn
             };
-            // 异步保存到云端，不阻塞UI
-            saveToCloud(STORAGE_KEY, data).catch(() => {});
+            // 保存到localStorage作为缓存
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         }
 
         async function loadFromStorage() {
             let data = null;
-            try {
-                data = await loadFromCloud(STORAGE_KEY);
-            } catch (e) {
-                console.log('云端加载失败，尝试本地', e);
-            }
-            if (!data) {
-                const local = localStorage.getItem(STORAGE_KEY);
-                if (local) {
-                    try { data = JSON.parse(local); } catch (e) {}
-                }
+            const local = localStorage.getItem(STORAGE_KEY);
+            if (local) {
+                try { data = JSON.parse(local); } catch (e) {}
             }
             if (data) {
                 if (data.heroSlideData) heroSlideData = data.heroSlideData;
@@ -5781,6 +6446,11 @@
             timelineItems.forEach(item => observer.observe(item));
         }
 
+        // 重新渲染时间轴（供后台管理调用）
+        function renderTimeline() {
+            initTimeline();
+        }
+
         function toggleTimelineItem(entry) {
             const item = entry.closest('.timeline-item');
             item.classList.toggle('expanded');
@@ -6260,7 +6930,7 @@
             btn.querySelector('.msg-action-count').textContent = type === 'down' ? (msg.dislikes || 0) : (msg.questions || 0);
         }
 
-        function submitMessage() {
+        async function submitMessage() {
             const name = document.getElementById('guestName').value.trim();
             const content = document.getElementById('guestMessage').value.trim();
             const messageEl = document.getElementById('formMessage');
@@ -6281,11 +6951,28 @@
                 questioned: false
             };
 
+            // 提交到 Supabase
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('messages')
+                        .insert({
+                            visitor_name: name,
+                            content: content,
+                            dislikes: 0,
+                            questions: 0
+                        })
+                        .select()
+                        .single();
+                    if (error) throw error;
+                    newMsg.id = data.id;
+                } catch (e) {
+                    console.log('提交留言失败', e);
+                }
+            }
+
             messagesData.unshift(newMsg);
             renderMessages();
-            
-            // 持久化数据
-            saveToStorage();
 
             document.getElementById('guestName').value = '';
             document.getElementById('guestMessage').value = '';
@@ -6318,7 +7005,7 @@
                 // 更新登录提示
                 const hint = document.getElementById('loginHint');
                 if (hint) {
-                    hint.textContent = isAdminRegistered() ? '请输入管理员账户登录' : '首次登录将设置管理员账户，请牢记您的用户名和密码';
+                    hint.textContent = '请输入管理员邮箱和密码登录';
                 }
             }
             renderAdminTags();
@@ -6328,57 +7015,39 @@
             renderContactList();
         }
 
-        // 管理员账户（首次登录时设置，之后不可更改）
-        const ADMIN_CREDENTIALS_KEY = 'admin_credentials';
-
-        function getAdminCredentials() {
-            const saved = localStorage.getItem(ADMIN_CREDENTIALS_KEY);
-            if (saved) {
-                try { return JSON.parse(saved); } catch (e) {}
-            }
-            return null;
-        }
-
-        function isAdminRegistered() {
-            return getAdminCredentials() !== null;
-        }
-
-        function adminLogin() {
-            const username = document.getElementById('loginUsername').value.trim();
+        // ========== 管理员登录（Supabase Auth） ==========
+        
+        async function handleAdminLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
+            const btn = document.getElementById('loginBtn');
+            const formMsg = document.getElementById('loginFormMessage');
 
-            if (!username || !password) {
-                showLoginMessage('请输入用户名和密码');
+            if (!email || !password) {
+                showLoginMessage('请输入邮箱和密码');
                 return;
             }
 
-            const saved = getAdminCredentials();
-            if (!saved) {
-                // 首次登录：设置管理员账户
-                localStorage.setItem(ADMIN_CREDENTIALS_KEY, JSON.stringify({ username, password }));
-                isLoggedIn = true;
-                document.getElementById('adminLogin').classList.add('hidden');
-                document.getElementById('adminDashboard').classList.add('active');
-                renderAdminTags();
-                renderAdminExperiences();
-                renderAdminDynamics();
-                renderAdminMessages();
-                showLoginMessage('');
-            } else {
-                // 验证用户名和密码
-                if (username === saved.username && password === saved.password) {
-                    isLoggedIn = true;
-                    document.getElementById('adminLogin').classList.add('hidden');
-                    document.getElementById('adminDashboard').classList.add('active');
-                    renderAdminTags();
-                    renderAdminExperiences();
-                    renderAdminDynamics();
-                    renderAdminMessages();
-                    showLoginMessage('');
-                } else {
-                    showLoginMessage('用户名或密码错误');
-                }
+            btn.textContent = '登录中...';
+            btn.disabled = true;
+
+            const result = await signIn(email, password);
+            
+            if (result.error) {
+                showLoginMessage(result.error);
+                btn.textContent = '登录';
+                btn.disabled = false;
+                return;
             }
+
+            // 登录成功
+            isLoggedIn = true;
+            document.getElementById('adminLogin').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.add('active');
+            showLoginMessage('');
+            
+            // 渲染后台内容
+            renderAdminData();
         }
 
         function showLoginMessage(msg) {
@@ -6390,15 +7059,72 @@
             }
         }
 
-        function adminLogout() {
+        async function adminLogout() {
+            await signOut();
             isLoggedIn = false;
             document.getElementById('adminLogin').classList.remove('hidden');
             document.getElementById('adminDashboard').classList.remove('active');
-            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginEmail').value = '';
             document.getElementById('loginPassword').value = '';
-            
-            // 持久化登录状态
-            saveToStorage();
+        }
+
+        async function renderAdminData() {
+            // 加载所有数据并渲染
+            await Promise.all([
+                loadSiteSettings(),
+                loadHeroSlides(),
+                loadTagCloud(),
+                loadTimeline(),
+                loadExperiences(),
+                loadDynamics(),
+                loadMessages(),
+                loadQuizQuestions(),
+                loadContacts(),
+                updateStatsOverview()
+            ]);
+            renderAdminTags();
+            renderAdminExperiences();
+            renderAdminDynamics();
+            renderAdminMessages();
+            renderAdminTimeline();
+            renderAdminQuiz();
+            renderContactList();
+        }
+
+        // ========== 数据概览统计 ==========
+        async function updateStatsOverview() {
+            if (!supabaseClient) return;
+            try {
+                const counts = {
+                    messages: 0,
+                    dynamics: 0,
+                    experiences: 0,
+                    quiz: 0
+                };
+                
+                const [msgRes, dynRes, expRes, quizRes] = await Promise.all([
+                    supabaseClient.from('messages').select('id', { count: 'exact', head: true }),
+                    supabaseClient.from('dynamics').select('id', { count: 'exact', head: true }),
+                    supabaseClient.from('experiences').select('id', { count: 'exact', head: true }),
+                    supabaseClient.from('quiz_questions').select('id', { count: 'exact', head: true })
+                ]);
+                
+                counts.messages = msgRes.count || 0;
+                counts.dynamics = dynRes.count || 0;
+                counts.experiences = expRes.count || 0;
+                counts.quiz = quizRes.count || 0;
+                
+                // 更新UI
+                const statCards = document.querySelectorAll('.stat-card h3');
+                if (statCards[2]) statCards[2].textContent = counts.messages;
+                if (statCards[3]) statCards[3].textContent = counts.dynamics;
+                
+                // 添加新的统计卡片（如果不存在）
+                updateSyncStatus('connected');
+            } catch (e) {
+                console.log('更新统计失败', e);
+                updateSyncStatus('local-only');
+            }
         }
 
         function switchAdminSection(section) {
@@ -6407,7 +7133,7 @@
             
             // 找到对应的桌面端菜单项
             const menuItems = document.querySelectorAll('.admin-menu-item');
-            const sections = ['overview', 'profile', 'tags', 'hero', 'experiences', 'dynamics-admin', 'messages', 'upload', 'settings'];
+            const sections = ['overview', 'profile', 'tags', 'hero', 'timeline', 'experiences', 'quiz', 'dynamics-admin', 'messages', 'upload', 'settings'];
             const idx = sections.indexOf(section);
             if (idx >= 0 && menuItems[idx]) menuItems[idx].classList.add('active');
             
@@ -6418,7 +7144,7 @@
             document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
             document.getElementById('section-' + section).classList.add('active');
             
-            // 如果切换到首屏轮播，渲染编辑器
+            // 渲染对应的编辑器
             if (section === 'hero') {
                 renderHeroEditor();
             }
@@ -6463,6 +7189,422 @@
                 // 持久化数据
                 saveToStorage();
             }
+        }
+
+        // ========== 时间轴管理 ==========
+        function renderAdminTimeline() {
+            const container = document.getElementById('adminTimelineTable');
+            if (!container) return;
+            container.innerHTML = `<table><thead><tr><th>时间</th><th>类型</th><th>标题</th><th>描述</th><th>操作</th></tr></thead><tbody></tbody></table>`;
+            const tbody = container.querySelector('tbody');
+
+            timelineData.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                const typeLabels = { internship: '实习', competition: '竞赛', research: '研究', volunteer: '志愿', project: '项目' };
+                tr.innerHTML = `
+                    <td>${item.time}</td>
+                    <td><span class="tl-type ${item.type}">${typeLabels[item.type] || item.type}</span></td>
+                    <td>${item.title}</td>
+                    <td>${item.desc.substring(0, 30)}${item.desc.length > 30 ? '...' : ''}</td>
+                    <td>
+                        <button class="action-btn edit" onclick="openTimelineModal(${index})">编辑</button>
+                        <button class="action-btn delete" onclick="deleteTimelineItem(${index})">删除</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openTimelineModal(editIndex) {
+            const isEdit = editIndex !== undefined;
+            const existing = isEdit ? timelineData[editIndex] : null;
+            
+            openModal(isEdit ? '编辑时间轴' : '添加时间轴', `
+                <div class="form-group">
+                    <label>起始日期</label>
+                    <input type="date" id="timelineStartDate" value="${existing ? existing.startDate || '' : ''}">
+                </div>
+                <div class="form-group">
+                    <label>结束日期</label>
+                    <input type="date" id="timelineEndDate" value="${existing ? existing.endDate || '' : ''}">
+                </div>
+                <div class="form-group">
+                    <label>类型</label>
+                    <select id="timelineType" style="width: 100%; padding: 10px; border: 2px solid var(--light-gray); border-radius: 8px; background: var(--bg);">
+                        <option value="internship" ${existing?.type === 'internship' ? 'selected' : ''}>实习</option>
+                        <option value="competition" ${existing?.type === 'competition' ? 'selected' : ''}>竞赛</option>
+                        <option value="research" ${existing?.type === 'research' ? 'selected' : ''}>研究</option>
+                        <option value="volunteer" ${existing?.type === 'volunteer' ? 'selected' : ''}>志愿</option>
+                        <option value="project" ${existing?.type === 'project' ? 'selected' : ''}>项目</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>标题</label>
+                    <input type="text" id="timelineTitle" value="${existing ? existing.title : ''}" placeholder="输入标题">
+                </div>
+                <div class="form-group">
+                    <label>描述</label>
+                    <textarea id="timelineDesc" rows="3" placeholder="输入描述">${existing ? existing.desc : ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>排序（数字越小越靠前）</label>
+                    <input type="number" id="timelineSortOrder" value="${existing ? existing.sortOrder || 0 : 0}" min="0">
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeModal()">取消</button>
+                    <button class="modal-btn submit" onclick="${isEdit ? `saveTimelineItem(${editIndex})` : 'addTimelineItem()'}">${isEdit ? '保存' : '添加'}</button>
+                </div>
+            `);
+        }
+
+        async function addTimelineItem() {
+            const startDate = document.getElementById('timelineStartDate').value;
+            const endDate = document.getElementById('timelineEndDate').value;
+            const type = document.getElementById('timelineType').value;
+            const title = document.getElementById('timelineTitle').value.trim();
+            const desc = document.getElementById('timelineDesc').value.trim();
+            const sortOrder = parseInt(document.getElementById('timelineSortOrder').value) || 0;
+
+            if (!title) {
+                alert('请输入标题');
+                return;
+            }
+
+            // 保存到数据库
+            if (supabaseClient) {
+                try {
+                    const { error } = await supabaseClient.from('timeline_entries').insert({
+                        start_date: startDate || null,
+                        end_date: endDate || null,
+                        entry_type: type,
+                        title: title,
+                        description: desc,
+                        sort_order: sortOrder
+                    });
+                    if (error) throw error;
+                } catch (e) {
+                    console.log('保存时间轴失败', e);
+                }
+            }
+
+            // 更新本地数据
+            timelineData.unshift({
+                time: formatDateRange(startDate, endDate),
+                type,
+                title,
+                desc,
+                startDate,
+                endDate,
+                sortOrder,
+                side: timelineData.length % 2 === 0 ? 'left' : 'right'
+            });
+
+            renderAdminTimeline();
+            renderTimeline();
+            closeModal();
+        }
+
+        async function saveTimelineItem(index) {
+            const startDate = document.getElementById('timelineStartDate').value;
+            const endDate = document.getElementById('timelineEndDate').value;
+            const type = document.getElementById('timelineType').value;
+            const title = document.getElementById('timelineTitle').value.trim();
+            const desc = document.getElementById('timelineDesc').value.trim();
+            const sortOrder = parseInt(document.getElementById('timelineSortOrder').value) || 0;
+
+            if (!title) {
+                alert('请输入标题');
+                return;
+            }
+
+            const item = timelineData[index];
+
+            // 更新到数据库
+            if (supabaseClient && item.id) {
+                try {
+                    const { error } = await supabaseClient.from('timeline_entries').update({
+                        start_date: startDate || null,
+                        end_date: endDate || null,
+                        entry_type: type,
+                        title: title,
+                        description: desc,
+                        sort_order: sortOrder
+                    }).eq('id', item.id);
+                    if (error) throw error;
+                } catch (e) {
+                    console.log('更新时间轴失败', e);
+                }
+            }
+
+            // 更新本地数据
+            timelineData[index] = {
+                ...item,
+                time: formatDateRange(startDate, endDate),
+                type,
+                title,
+                desc,
+                startDate,
+                endDate,
+                sortOrder
+            };
+
+            renderAdminTimeline();
+            renderTimeline();
+            closeModal();
+        }
+
+        async function deleteTimelineItem(index) {
+            if (!confirm('确定要删除这条时间轴吗？')) return;
+
+            const item = timelineData[index];
+
+            // 从数据库删除
+            if (supabaseClient && item.id) {
+                try {
+                    await supabaseClient.from('timeline_entries').delete().eq('id', item.id);
+                } catch (e) {
+                    console.log('删除时间轴失败', e);
+                }
+            }
+
+            timelineData.splice(index, 1);
+            renderAdminTimeline();
+            renderTimeline();
+        }
+
+        // ========== 题库管理 ==========
+        function renderAdminQuiz() {
+            const container = document.getElementById('adminQuizTable');
+            if (!container) return;
+            container.innerHTML = `<table><thead><tr><th>题型</th><th>题目</th><th>答案</th><th>状态</th><th>操作</th></tr></thead><tbody></tbody></table>`;
+            const tbody = container.querySelector('tbody');
+
+            quizQuestionBank.forEach((q, index) => {
+                const typeLabels = { choice: '选择题', judge: '判断题', fill: '填空题', essay: '问答题' };
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="question-type-badge ${q.type}">${typeLabels[q.type] || q.type}</span></td>
+                    <td>${q.question.substring(0, 40)}${q.question.length > 40 ? '...' : ''}</td>
+                    <td>${q.answer || '-'}</td>
+                    <td><span style="color: ${q.is_active !== false ? '#22c55e' : '#999'}">${q.is_active !== false ? '启用' : '停用'}</span></td>
+                    <td>
+                        <button class="action-btn edit" onclick="openQuizModal(${index})">编辑</button>
+                        <button class="action-btn ${q.is_active !== false ? 'delete' : ''}" onclick="toggleQuizStatus(${index})">${q.is_active !== false ? '停用' : '启用'}</button>
+                        <button class="action-btn delete" onclick="deleteQuizQuestion(${index})">删除</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openQuizModal(editIndex) {
+            const isEdit = editIndex !== undefined;
+            const existing = isEdit ? quizQuestionBank[editIndex] : null;
+            
+            const optionsHtml = existing?.options?.map((opt, i) => 
+                `<div class="form-group" style="margin-bottom: 10px;">
+                    <label>选项 ${String.fromCharCode(65 + i)}</label>
+                    <input type="text" id="quizOption${i}" value="${opt}" placeholder="选项内容">
+                </div>`
+            ).join('') || '';
+
+            openModal(isEdit ? '编辑题目' : '添加题目', `
+                <div class="form-group">
+                    <label>题型</label>
+                    <select id="quizType" onchange="toggleOptionInputs()" style="width: 100%; padding: 10px; border: 2px solid var(--light-gray); border-radius: 8px; background: var(--bg);">
+                        <option value="choice" ${existing?.type === 'choice' ? 'selected' : ''}>选择题</option>
+                        <option value="judge" ${existing?.type === 'judge' ? 'selected' : ''}>判断题</option>
+                        <option value="fill" ${existing?.type === 'fill' ? 'selected' : ''}>填空题</option>
+                        <option value="essay" ${existing?.type === 'essay' ? 'selected' : ''}>问答题</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>题目内容</label>
+                    <textarea id="quizQuestion" rows="2" placeholder="输入题目">${existing ? existing.question : ''}</textarea>
+                </div>
+                <div id="optionInputsContainer">
+                    ${optionsHtml || `
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label>选项 A</label>
+                            <input type="text" id="quizOption0" placeholder="选项内容">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label>选项 B</label>
+                            <input type="text" id="quizOption1" placeholder="选项内容">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label>选项 C</label>
+                            <input type="text" id="quizOption2" placeholder="选项内容">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label>选项 D</label>
+                            <input type="text" id="quizOption3" placeholder="选项内容">
+                        </div>
+                    `}
+                </div>
+                <div class="form-group">
+                    <label>正确答案</label>
+                    <input type="text" id="quizAnswer" value="${existing ? existing.answer : ''}" placeholder="选择题输入A/B/C/D，判断题输入true/false">
+                </div>
+                <div class="form-group">
+                    <label>排序</label>
+                    <input type="number" id="quizSortOrder" value="${existing ? existing.sort_order || 0 : 0}" min="0">
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn cancel" onclick="closeModal()">取消</button>
+                    <button class="modal-btn submit" onclick="${isEdit ? `saveQuizQuestion(${editIndex})` : 'addQuizQuestion()'}">${isEdit ? '保存' : '添加'}</button>
+                </div>
+            `);
+            
+            toggleOptionInputs();
+        }
+
+        function toggleOptionInputs() {
+            const type = document.getElementById('quizType').value;
+            const container = document.getElementById('optionInputsContainer');
+            if (type === 'choice') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        async function addQuizQuestion() {
+            const type = document.getElementById('quizType').value;
+            const question = document.getElementById('quizQuestion').value.trim();
+            const answer = document.getElementById('quizAnswer').value.trim();
+            const sortOrder = parseInt(document.getElementById('quizSortOrder').value) || 0;
+
+            if (!question) {
+                alert('请输入题目');
+                return;
+            }
+
+            let options = null;
+            if (type === 'choice') {
+                options = [
+                    document.getElementById('quizOption0').value.trim(),
+                    document.getElementById('quizOption1').value.trim(),
+                    document.getElementById('quizOption2').value.trim(),
+                    document.getElementById('quizOption3').value.trim()
+                ].filter(Boolean);
+            }
+
+            // 保存到数据库
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('quiz_questions').insert({
+                        question_type: type,
+                        question_text: question,
+                        options: options ? JSON.stringify(options) : null,
+                        correct_answer: answer,
+                        sort_order: sortOrder,
+                        is_active: true
+                    });
+                } catch (e) {
+                    console.log('保存题目失败', e);
+                }
+            }
+
+            // 更新本地数据
+            quizQuestionBank.unshift({
+                type,
+                question,
+                options,
+                answer,
+                sort_order: sortOrder,
+                is_active: true
+            });
+
+            renderAdminQuiz();
+            closeModal();
+        }
+
+        async function saveQuizQuestion(index) {
+            const type = document.getElementById('quizType').value;
+            const question = document.getElementById('quizQuestion').value.trim();
+            const answer = document.getElementById('quizAnswer').value.trim();
+            const sortOrder = parseInt(document.getElementById('quizSortOrder').value) || 0;
+
+            if (!question) {
+                alert('请输入题目');
+                return;
+            }
+
+            let options = null;
+            if (type === 'choice') {
+                options = [
+                    document.getElementById('quizOption0').value.trim(),
+                    document.getElementById('quizOption1').value.trim(),
+                    document.getElementById('quizOption2').value.trim(),
+                    document.getElementById('quizOption3').value.trim()
+                ].filter(Boolean);
+            }
+
+            const q = quizQuestionBank[index];
+
+            // 更新到数据库
+            if (supabaseClient && q.id) {
+                try {
+                    await supabaseClient.from('quiz_questions').update({
+                        question_type: type,
+                        question_text: question,
+                        options: options ? JSON.stringify(options) : null,
+                        correct_answer: answer,
+                        sort_order: sortOrder
+                    }).eq('id', q.id);
+                } catch (e) {
+                    console.log('更新题目失败', e);
+                }
+            }
+
+            // 更新本地数据
+            quizQuestionBank[index] = {
+                ...q,
+                type,
+                question,
+                options,
+                answer,
+                sort_order: sortOrder
+            };
+
+            renderAdminQuiz();
+            closeModal();
+        }
+
+        async function toggleQuizStatus(index) {
+            const q = quizQuestionBank[index];
+            const newStatus = q.is_active === false;
+
+            // 更新到数据库
+            if (supabaseClient && q.id) {
+                try {
+                    await supabaseClient.from('quiz_questions').update({ is_active: newStatus }).eq('id', q.id);
+                } catch (e) {
+                    console.log('更新题目状态失败', e);
+                }
+            }
+
+            q.is_active = newStatus;
+            renderAdminQuiz();
+        }
+
+        async function deleteQuizQuestion(index) {
+            if (!confirm('确定要删除这道题目吗？')) return;
+
+            const q = quizQuestionBank[index];
+
+            // 从数据库删除
+            if (supabaseClient && q.id) {
+                try {
+                    await supabaseClient.from('quiz_questions').delete().eq('id', q.id);
+                } catch (e) {
+                    console.log('删除题目失败', e);
+                }
+            }
+
+            quizQuestionBank.splice(index, 1);
+            renderAdminQuiz();
         }
 
         function renderAdminExperiences(type = 'internship') {
@@ -7397,81 +8539,6 @@
             saveToStorage();
         }
 
-        // AI润色
-        function aiPolish(textareaId) {
-            const textarea = document.getElementById(textareaId);
-            const original = textarea.value.trim();
-            if (!original) {
-                alert('先写点内容，AI才能帮你润色哦～');
-                return;
-            }
-
-            const btn = textarea.parentElement.querySelector('.ai-polish-btn');
-            btn.innerHTML = '<span class="ai-sparkle spinning">✦</span> 润色中...';
-            btn.disabled = true;
-
-            // 模拟AI润色延迟
-            setTimeout(() => {
-                const polished = polishText(original);
-                textarea.value = polished;
-                btn.innerHTML = '<span class="ai-sparkle">✦</span> 已润色';
-                btn.disabled = false;
-                
-                // 添加对比提示
-                const hint = textarea.parentElement.querySelector('.ai-hint');
-                if (hint) hint.remove();
-                const hintEl = document.createElement('div');
-                hintEl.className = 'ai-hint';
-                hintEl.innerHTML = '✦ AI已润色，<a href="javascript:void(0)" onclick="undoPolish(\'' + textareaId + '\', `' + original.replace(/`/g, '\\`').replace(/\n/g, '\\n') + '`)">撤回润色</a>';
-                textarea.parentElement.appendChild(hintEl);
-
-                setTimeout(() => {
-                    btn.innerHTML = '<span class="ai-sparkle">✦</span> AI润色';
-                }, 2000);
-            }, 1500);
-        }
-
-        function undoPolish(textareaId, original) {
-            document.getElementById(textareaId).value = original;
-            const hint = document.getElementById(textareaId).parentElement.querySelector('.ai-hint');
-            if (hint) hint.remove();
-        }
-
-        function polishText(text) {
-            // 模拟AI润色：增强表达、加粗关键成果、量化数据
-            let result = text;
-            
-            // 常见润色规则
-            const replacements = [
-                [/负责/g, '主导'],
-                [/做了/g, '完成'],
-                [/参与了/g, '深度参与'],
-                [/帮助/g, '助力'],
-                [/提高了/g, '显著提升了'],
-                [/提升了/g, '实现同比提升'],
-                [/完成了/g, '高质量交付'],
-                [/开发了/g, '独立设计并开发'],
-                [/优化了/g, '系统性优化'],
-                [/分析了/g, '深度分析'],
-                [/推动了/g, '有效推动'],
-                [/管理/g, '统筹管理'],
-                [/协作/g, '高效协作'],
-                [/用户/g, '目标用户'],
-                [/数据/g, '核心数据'],
-            ];
-
-            replacements.forEach(([from, to]) => {
-                result = result.replace(from, to);
-            });
-
-            // 如果原文较短，补充总结句
-            if (result.length < 50 && result.length > 5) {
-                result += '\\n\\n通过本次经历，锻炼了从0到1的项目把控能力与团队协作力。';
-            }
-
-            return result;
-        }
-
         function openDynamicModal(editIndex) {
             const isEdit = editIndex !== undefined;
             const existing = isEdit ? dynamicsData[editIndex] : null;
@@ -7724,36 +8791,8 @@
             6: { x: 180, y: 0 }
         };
 
-        // 从localStorage加载题库（支持云端同步）
-        function loadQuizBank() {
-            loadFromCloud('quizQuestionBank').then(data => {
-                if (data && Array.isArray(data) && data.length > 0) {
-                    quizQuestionBank = data;
-                }
-            }).catch(() => {
-                // fallback to localStorage only
-                const saved = localStorage.getItem('quizQuestionBank');
-                if (saved) {
-                    try {
-                        const parsed = JSON.parse(saved);
-                        if (Array.isArray(parsed) && parsed.length > 0) {
-                            quizQuestionBank = parsed;
-                        }
-                    } catch (e) {
-                        console.log('题库加载失败，使用默认题库');
-                    }
-                }
-            });
-        }
-
-        // 保存题库到localStorage（支持云端同步）
-        function saveQuizBank() {
-            saveToCloud('quizQuestionBank', quizQuestionBank).catch(() => {});
-        }
-
         // 初始化问答页面
         function initQuizPage() {
-            loadQuizBank();
             resetQuiz();
         }
 
@@ -8053,28 +9092,41 @@
             // 初始化Supabase
             initSupabase();
             
-            // 检查表是否存在
-            const tableExists = await checkSupabaseTable();
-            if (!tableExists) {
-                const hint = document.getElementById('supabaseTableHint');
-                if (hint) hint.style.display = 'block';
-                updateSyncStatus('local-only');
-            } else {
-                updateSyncStatus('connected');
-            }
-            
-            // 从云端或本地加载数据
-            await loadFromStorage();
-            initHeroSlider();
-            initTagCloud();
-            initTimeline();
-            // 初始化联系我页面（基于contactData动态渲染）
-            updateContactPage();
-            // 根据isLoggedIn更新后台UI
-            if (isLoggedIn) {
+            // 检查认证状态
+            const session = await checkAuthState();
+            if (session) {
                 document.getElementById('adminLogin').classList.add('hidden');
                 document.getElementById('adminDashboard').classList.add('active');
             }
+            
+            // 从云端加载数据（降级到本地数据）
+            await Promise.all([
+                loadSiteSettings(),
+                loadHeroSlides(),
+                loadTagCloud(),
+                loadTimeline(),
+                loadExperiences(),
+                loadDynamics(),
+                loadMessages(),
+                loadQuizQuestions(),
+                loadContacts()
+            ]);
+            
+            // 更新同步状态
+            if (supabaseClient) {
+                updateSyncStatus('connected');
+            } else {
+                updateSyncStatus('local-only');
+            }
+            
+            // 从本地存储恢复（作为缓存）
+            await loadFromStorage();
+            
+            // 初始化前端组件
+            initHeroSlider();
+            initTagCloud();
+            initTimeline();
+            updateContactPage();
         });
     </script>
 </body>
