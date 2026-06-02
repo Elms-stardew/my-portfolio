@@ -5718,51 +5718,32 @@
 
         // 从数据库全量轮播中，选个人卡+随机2-4张项目卡
         function pickDailyHeroSlides() {
-            // 优先从allHeroSlides构建；如果为空则从experiencesData构建
-            if (allHeroSlides.length === 0) {
-                // 降级：从experiencesData生成
-                const allExps = [];
-                const typeMap = { internship: '实习经历', competition: '竞赛经历', volunteer: '志愿经历', project: '个人项目' };
-                for (const [type, list] of Object.entries(experiencesData)) {
-                    list.forEach((exp, idx) => {
-                        allExps.push({ ...exp, expType: type, expIndex: idx, typeName: typeMap[type] || type });
-                    });
-                }
-                const shuffled = allExps.sort(() => Math.random() - 0.5);
-                const pickCount = Math.min(Math.max(2, allExps.length), 4);
-                heroSlideData = [{
-                    bg: '', type: '关于我', title: siteProfileData.name || '王瑜娜',
-                    desc: siteProfileData.subtitle || '一支努力看世界的小话筒',
-                    tags: ['产品运营', '金融科技', '播音主持']
-                }];
-                shuffled.slice(0, pickCount).forEach(exp => {
-                    heroSlideData.push({
-                        bg: exp.background_url || '',
-                        type: exp.typeName || '',
-                        title: exp.title || '',
-                        desc: exp.summary || '',
-                        tags: exp.tags || [],
-                        expType: exp.expType,
-                        expIndex: exp.expIndex
-                    });
+            // 个人卡：优先从allHeroSlides取，否则默认
+            const dbPersonal = allHeroSlides.find(s => s.slide_type === '关于我' || s.sort_order === 0);
+            const personalSlide = dbPersonal ? {
+                id: dbPersonal.id, bg: dbPersonal.background_url || '',
+                type: dbPersonal.slide_type || '关于我', title: dbPersonal.title || siteProfileData.name || '王瑜娜',
+                desc: dbPersonal.description || siteProfileData.subtitle || '', tags: Array.isArray(dbPersonal.tags) ? dbPersonal.tags : []
+            } : {
+                bg: '', type: '关于我', title: siteProfileData.name || '王瑜娜',
+                desc: siteProfileData.subtitle || '一支努力看世界的小话筒', tags: ['产品运营', '金融科技', '播音主持']
+            };
+            // 项目卡：始终从experiencesData生成（底图来自各经历的background_url）
+            const allExps = [];
+            const typeMap = { internship: '实习经历', competition: '竞赛经历', volunteer: '志愿经历', project: '个人项目' };
+            for (const [type, list] of Object.entries(experiencesData)) {
+                list.forEach((exp, idx) => {
+                    allExps.push({ ...exp, expType: type, expIndex: idx, typeName: typeMap[type] || type });
                 });
-                return;
             }
-            const personal = allHeroSlides.filter(s => s.slide_type === '关于我' || s.sort_order === 0);
-            const projects = allHeroSlides.filter(s => s.slide_type !== '关于我' && s.sort_order !== 0);
-            const shuffled = projects.sort(() => Math.random() - 0.5);
-            const pickCount = Math.min(Math.max(2, projects.length), 4);
-            displayHeroSlides = [...personal, ...shuffled.slice(0, pickCount)];
-            heroSlideData = displayHeroSlides.map(s => ({
-                id: s.id,
-                bg: s.background_url || '',
-                type: s.slide_type || '',
-                title: s.title || '',
-                desc: s.description || '',
-                tags: Array.isArray(s.tags) ? s.tags : [],
-                expType: s.exp_type,
-                expIndex: s.exp_index
+            const shuffled = allExps.sort(() => Math.random() - 0.5);
+            const pickCount = Math.min(Math.max(2, allExps.length), 4);
+            const projectSlides = shuffled.slice(0, pickCount).map(exp => ({
+                bg: exp.background_url || '', type: exp.typeName || '',
+                title: exp.title || '', desc: exp.summary || '',
+                tags: exp.tags || [], expType: exp.expType, expIndex: exp.expIndex
             }));
+            heroSlideData = [personalSlide, ...projectSlides];
         }
 
         function initHeroSlider() {
