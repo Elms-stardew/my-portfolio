@@ -3855,9 +3855,6 @@
                     <div class="hero-slide-bg" style="background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c8f1?w=1400&h=900&fit=crop')"></div>
                     <div class="hero-slide-overlay"></div>
                     <div class="hero-slide-content">
-                        <div class="hero-avatar" id="heroAvatar">
-                            <img src="" alt="头像" style="display:none;">
-                        </div>
                         <div class="hero-slide-type">关于我</div>
                         <h1 class="hero-slide-title">王瑜娜</h1>
                         <p class="hero-slide-desc">一支努力看世界的小话筒</p>
@@ -4240,30 +4237,29 @@
                         </div>
                         <div class="stats-grid">
                             <div class="stat-card">
-                                <h3>86</h3>
-                                <p>总访客数</p>
+                                <h3 id="statExperiences">-</h3>
+                                <p>经历数</p>
                             </div>
                             <div class="stat-card">
-                                <h3>5</h3>
-                                <p>今日访客</p>
-                            </div>
-                            <div class="stat-card">
-                                <h3>4</h3>
+                                <h3 id="statMessages">-</h3>
                                 <p>留言数</p>
                             </div>
                             <div class="stat-card">
-                                <h3>0</h3>
+                                <h3 id="statDynamics">-</h3>
                                 <p>动态数</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3 id="statQuiz">-</h3>
+                                <p>题库数</p>
                             </div>
                         </div>
                         <div class="admin-table">
-                            <h3 style="padding: 20px; font-size: 1.1rem;">近期访客趋势</h3>
-                            <div style="padding: 20px; text-align: center; color: var(--gray);">
-                                <svg width="100%" height="200" viewBox="0 0 600 200">
-                                    <polyline fill="none" stroke="var(--accent)" stroke-width="2" points="0,180 60,160 120,140 180,150 240,120 300,100 360,110 420,80 480,60 540,40 600,30"/>
-                                    <polyline fill="rgba(201,169,110,0.1)" stroke="none" points="0,180 60,160 120,140 180,150 240,120 300,100 360,110 420,80 480,60 540,40 600,30 600,200 0,200"/>
-                                </svg>
-                                <p style="margin-top: 10px;">最近 30 天访客趋势</p>
+                            <h3 style="padding: 20px; font-size: 1.1rem;">快捷操作</h3>
+                            <div style="padding: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button class="add-btn" onclick="switchAdminSection('experiences')">添加经历</button>
+                                <button class="add-btn" onclick="switchAdminSection('dynamics-admin')">发布动态</button>
+                                <button class="add-btn" onclick="switchAdminSection('quiz')">添加题目</button>
+                                <button class="add-btn" onclick="switchAdminSection('settings')">网站设置</button>
                             </div>
                         </div>
                     </div>
@@ -4731,31 +4727,28 @@
 
         // 加载首屏轮播
         async function loadHeroSlides() {
-            if (!supabaseClient) return heroSlideData;
+            if (!supabaseClient) return;
             try {
                 const { data, error } = await supabaseClient
                     .from('hero_slides')
                     .select('*')
                     .order('sort_order');
-                if (error) {
-                    console.log('加载轮播失败', error);
-                    return heroSlideData;
-                }
+                if (error) { console.log('加载轮播失败', error); return; }
                 if (data && data.length > 0) {
-                    heroSlideData = data.map(item => ({
-                        bg: item.background_url || '',
-                        type: item.slide_type || '关于我',
+                    allHeroSlides = data.map(item => ({
+                        id: item.id,
+                        background_url: item.background_url || '',
+                        slide_type: item.slide_type || '关于我',
                         title: item.title || '',
-                        desc: item.description || '',
+                        description: item.description || '',
                         tags: Array.isArray(item.tags) ? item.tags : (item.tags ? JSON.parse(item.tags) : []),
-                        sort_order: item.sort_order
+                        sort_order: item.sort_order,
+                        exp_type: item.exp_type || null,
+                        exp_index: item.exp_index ?? null
                     }));
+                    pickDailyHeroSlides();
                 }
-                return heroSlideData;
-            } catch (e) {
-                console.log('加载轮播异常', e);
-                return heroSlideData;
-            }
+            } catch (e) { console.log('加载轮播异常', e); }
         }
 
         // 保存首屏轮播
@@ -4876,43 +4869,51 @@
 
         // 加载经历详情
         async function loadExperiences() {
-            if (!supabaseClient) return experiencesData;
+            if (!supabaseClient) return;
             try {
                 const { data, error } = await supabaseClient
                     .from('experiences')
-                    .select('*, experience_attachments(*)')
+                    .select('*')
                     .order('start_date', { ascending: false });
-                if (error) {
-                    console.log('加载经历失败', error);
-                    return experiencesData;
-                }
+                if (error) { console.log('加载经历失败', error); return; }
                 if (data && data.length > 0) {
                     const grouped = { internship: [], competition: [], volunteer: [], project: [] };
                     data.forEach(item => {
-                        const exp = {
-                            id: item.id,
-                            time: item.time_range || formatDateRange(item.start_date, item.end_date),
-                            title: item.title,
-                            tags: Array.isArray(item.tags) ? item.tags : (item.tags ? JSON.parse(item.tags) : []),
-                            summary: item.summary || '',
-                            detail: item.detail || '',
-                            origin: item.origin || '',
-                            process: item.process || '',
-                            output: item.output || '',
-                            pptImages: item.experience_attachments ? 
-                                item.experience_attachments.map(a => a.file_url).filter(Boolean) : []
-                        };
                         const type = item.exp_type || 'internship';
                         if (grouped[type]) {
-                            grouped[type].push(exp);
+                            grouped[type].push({
+                                id: item.id,
+                                time: item.time_range || '',
+                                title: item.title,
+                                tags: Array.isArray(item.tags) ? item.tags : (item.tags ? JSON.parse(item.tags) : []),
+                                summary: item.summary || '',
+                                detail: item.detail || '',
+                                origin: item.origin || '',
+                                process: item.process || '',
+                                output: item.output || '',
+                                background_url: item.background_url || '',
+                                pptImages: Array.isArray(item.ppt_images) ? item.ppt_images : []
+                            });
                         }
                     });
                     experiencesData = grouped;
+                    // 同步到hero_slides（项目卡底图）
+                    syncExpToHeroSlides(data);
                 }
-                return experiencesData;
-            } catch (e) {
-                console.log('加载经历异常', e);
-                return experiencesData;
+            } catch (e) { console.log('加载经历异常', e); }
+        }
+
+        // 经历数据同步到hero_slides（确保项目卡有底图）
+        async function syncExpToHeroSlides(exps) {
+            if (!supabaseClient) return;
+            for (const exp of exps) {
+                if (!exp.background_url) continue;
+                // 查找hero_slides中关联此经历的记录
+                const { data: existing } = await supabaseClient.from('hero_slides')
+                    .select('id').eq('exp_type', exp.exp_type).eq('exp_index', exp.id).limit(1);
+                if (existing && existing.length > 0) {
+                    await supabaseClient.from('hero_slides').update({ background_url: exp.background_url }).eq('id', existing[0].id);
+                }
             }
         }
 
@@ -5283,14 +5284,20 @@
             const text = document.getElementById('syncStatusText');
             if (indicator && text) {
                 indicator.className = 'sync-indicator ' + status;
-                const statusMap = {
-                    'connected': '已连接云端',
-                    'local-only': '仅本地',
-                    'error': '连接失败',
-                    'syncing': '同步中...'
-                };
-                text.textContent = statusMap[status] || '未知状态';
+                text.textContent = status === 'connected' ? '已同步' : '仅本地';
             }
+            // 更新真实统计数据
+            updateRealStats();
+        }
+
+        function updateRealStats() {
+            let expCount = 0;
+            for (const list of Object.values(experiencesData)) expCount += list.length;
+            const el = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+            el('statExperiences', expCount);
+            el('statMessages', messagesData.length);
+            el('statDynamics', dynamicsData.length);
+            el('statQuiz', quizQuestionBank.length);
         }
 
         // ========== 数据持久化配置 ==========
@@ -5705,57 +5712,57 @@
         let heroSlideCount = 0;
         let heroAutoTimer = null;
 
-        let heroSlideData = [
-            {
-                bg: '',
-                type: '关于我',
-                title: 'Elm',
-                desc: '一支努力看世界的小话筒',
-                tags: ['产品运营', '金融科技', '播音主持']
-            }
-        ];
+        let heroSlideData = [];
+        let allHeroSlides = []; // 数据库全部轮播（含项目卡）
+        let displayHeroSlides = []; // 当天展示的轮播子集
 
-        // 从经历数据动态生成轮播卡片（随机2-5个项目）
-        function buildHeroSlidesFromExperiences() {
-            const allExps = [];
-            const typeMap = { internship: '实习经历', competition: '竞赛经历', volunteer: '志愿经历', project: '个人项目' };
-            for (const [type, list] of Object.entries(experiencesData)) {
-                list.forEach((exp, idx) => {
-                    allExps.push({ ...exp, expType: type, expIndex: idx, typeName: typeMap[type] || type });
-                });
-            }
-            // 随机取2-5个，但固定包含各类型各一个（如果有的话）
-            const selected = [];
-            const types = ['internship', 'competition', 'volunteer', 'project'];
-            types.forEach(t => {
-                const items = allExps.filter(e => e.expType === t);
-                if (items.length > 0) {
-                    const pick = items[Math.floor(Math.random() * items.length)];
-                    selected.push(pick);
+        // 从数据库全量轮播中，选个人卡+随机2-4张项目卡
+        function pickDailyHeroSlides() {
+            // 优先从allHeroSlides构建；如果为空则从experiencesData构建
+            if (allHeroSlides.length === 0) {
+                // 降级：从experiencesData生成
+                const allExps = [];
+                const typeMap = { internship: '实习经历', competition: '竞赛经历', volunteer: '志愿经历', project: '个人项目' };
+                for (const [type, list] of Object.entries(experiencesData)) {
+                    list.forEach((exp, idx) => {
+                        allExps.push({ ...exp, expType: type, expIndex: idx, typeName: typeMap[type] || type });
+                    });
                 }
-            });
-            // 补充到3-5个
-            const remaining = allExps.filter(e => !selected.includes(e));
-            const extra = remaining.sort(() => Math.random() - 0.5).slice(0, Math.max(0, 2 - selected.length));
-            const finalList = [...selected, ...extra].slice(0, 5);
-
-            // 保留第一张个人介绍，后面的由经历数据生成
-            const personalSlide = heroSlideData[0] || {
-                type: '关于我', title: 'Elm', desc: '一支努力看世界的小话筒',
-                tags: ['产品运营', '金融科技', '播音主持'], bg: ''
-            };
-            heroSlideData = [personalSlide];
-            finalList.forEach(exp => {
-                heroSlideData.push({
-                    bg: '',
-                    type: exp.typeName,
-                    title: exp.title,
-                    desc: exp.summary || '',
-                    tags: exp.tags || [],
-                    expType: exp.expType,
-                    expIndex: exp.expIndex
+                const shuffled = allExps.sort(() => Math.random() - 0.5);
+                const pickCount = Math.min(Math.max(2, allExps.length), 4);
+                heroSlideData = [{
+                    bg: '', type: '关于我', title: siteProfileData.name || '王瑜娜',
+                    desc: siteProfileData.subtitle || '一支努力看世界的小话筒',
+                    tags: ['产品运营', '金融科技', '播音主持']
+                }];
+                shuffled.slice(0, pickCount).forEach(exp => {
+                    heroSlideData.push({
+                        bg: exp.background_url || '',
+                        type: exp.typeName || '',
+                        title: exp.title || '',
+                        desc: exp.summary || '',
+                        tags: exp.tags || [],
+                        expType: exp.expType,
+                        expIndex: exp.expIndex
+                    });
                 });
-            });
+                return;
+            }
+            const personal = allHeroSlides.filter(s => s.slide_type === '关于我' || s.sort_order === 0);
+            const projects = allHeroSlides.filter(s => s.slide_type !== '关于我' && s.sort_order !== 0);
+            const shuffled = projects.sort(() => Math.random() - 0.5);
+            const pickCount = Math.min(Math.max(2, projects.length), 4);
+            displayHeroSlides = [...personal, ...shuffled.slice(0, pickCount)];
+            heroSlideData = displayHeroSlides.map(s => ({
+                id: s.id,
+                bg: s.background_url || '',
+                type: s.slide_type || '',
+                title: s.title || '',
+                desc: s.description || '',
+                tags: Array.isArray(s.tags) ? s.tags : [],
+                expType: s.exp_type,
+                expIndex: s.exp_index
+            }));
         }
 
         function initHeroSlider() {
@@ -7990,12 +7997,12 @@
             const slide = heroSlideData[0];
             if (!slide) return;
 
+            // 个人卡编辑区
             const card = document.createElement('div');
             card.className = 'hero-slide-edit-card';
             card.innerHTML = `
                 <div class="hero-slide-edit-header">
                     <h4>个人介绍轮播卡</h4>
-                    <p style="font-size:0.8rem;color:#888;margin-top:4px;">其他项目轮播卡由经历数据自动生成，在"经历管理"中编辑</p>
                 </div>
                 <div class="hero-slide-edit-body">
                     <div class="hero-slide-bg-preview" style="${slide.bg ? "background-image: url('" + slide.bg + "')" : 'background: linear-gradient(135deg, #0d1b2a, #1b4f72)'}"></div>
@@ -8034,6 +8041,25 @@
                 </div>
             `;
             container.appendChild(card);
+
+            // 项目卡预览
+            const projectSlides = heroSlideData.slice(1);
+            if (projectSlides.length > 0) {
+                const info = document.createElement('div');
+                info.style.cssText = 'margin-top:16px; padding:12px; background:var(--light-gray); border-radius:8px; font-size:0.85rem;';
+                let html = '<strong>今日展示的项目卡</strong>（每次刷新随机选取，底图在"经历管理"中上传）<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">';
+                projectSlides.forEach(s => {
+                    html += `<div style="width:100px;text-align:center;">
+                        <div style="width:100px;height:65px;border-radius:6px;overflow:hidden;border:1px solid var(--light-gray);${s.bg ? "background-image:url('" + s.bg + "');background-size:cover;" : ''}">
+                            ${!s.bg ? '<div style="width:100%;height:100%;background:linear-gradient(135deg,#1b4f72,#2b7dba);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.7rem;">暂无底图</div>' : ''}
+                        </div>
+                        <p style="font-size:0.75rem;margin-top:4px;color:var(--gray);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.title}</p>
+                    </div>`;
+                });
+                html += '</div>';
+                info.innerHTML = html;
+                container.appendChild(info);
+            }
         }
         
         async function updatePersonalSlide(field, value) {
@@ -8450,6 +8476,17 @@
                     <div class="attachment-list" id="expAttachmentList"></div>
                 </div>
                 <div class="form-group">
+                    <label>项目底图</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="newExpBgUrl" placeholder="图片URL或点击上传" style="flex: 1;" value="${isEdit ? (existing.background_url || '') : ''}">
+                        <button class="add-btn" onclick="document.getElementById('expBgFile').click()">上传</button>
+                    </div>
+                    <input type="file" id="expBgFile" style="display:none" accept="image/*" onchange="handleExpBgUpload(this)">
+                    <div id="expBgPreview" style="margin-top:8px;${isEdit && existing.background_url ? '' : 'display:none'}; width:120px; height:80px; border-radius:8px; overflow:hidden; border:1px solid var(--light-gray);">
+                        <img src="${isEdit ? (existing.background_url || '') : ''}" style="width:100%;height:100%;object-fit:cover;" id="expBgPreviewImg">
+                    </div>
+                </div>
+                <div class="form-group">
                     <label>PPT幻灯片上传（可选，用于演示模式）</label>
                     <div class="exp-attachment-area" id="expPptArea" style="border-style: dashed; border-color: var(--accent); background: var(--accent-light);">
                         <div class="attachment-upload" onclick="document.getElementById('expPptInput').click()">
@@ -8488,6 +8525,36 @@
         let expAttachments = [];
         let expPptImages = [];
 
+        async function handleExpBgUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            if (supabaseClient) {
+                try {
+                    const filePath = `experiences/${Date.now()}_${file.name}`;
+                    const { error } = await supabaseClient.storage.from('site-uploads').upload(filePath, file);
+                    if (!error) {
+                        const { data: urlData } = supabaseClient.storage.from('site-uploads').getPublicUrl(filePath);
+                        document.getElementById('newExpBgUrl').value = urlData.publicUrl;
+                        const prev = document.getElementById('expBgPreview');
+                        if (prev) prev.style.display = 'block';
+                        const img = document.getElementById('expBgPreviewImg');
+                        if (img) img.src = urlData.publicUrl;
+                        return;
+                    }
+                } catch(e) { console.log('上传项目底图失败', e); }
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('newExpBgUrl').value = e.target.result;
+                const prev = document.getElementById('expBgPreview');
+                if (prev) prev.style.display = 'block';
+                const img = document.getElementById('expBgPreviewImg');
+                if (img) img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            input.value = '';
+        }
+
         function handleExpAttachment(input) {
             const files = Array.from(input.files);
             files.forEach(file => {
@@ -8501,19 +8568,28 @@
             input.value = '';
         }
 
-        function handleExpPptUpload(input) {
+        async function handleExpPptUpload(input) {
             const files = Array.from(input.files);
-            files.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    expPptImages.push({
-                        name: file.name,
-                        data: e.target.result
-                    });
-                    renderExpPptPreview();
-                };
-                reader.readAsDataURL(file);
-            });
+            for (const file of files) {
+                if (supabaseClient) {
+                    try {
+                        const filePath = `ppt/${Date.now()}_${file.name}`;
+                        const { error } = await supabaseClient.storage.from('site-uploads').upload(filePath, file);
+                        if (!error) {
+                            const { data: urlData } = supabaseClient.storage.from('site-uploads').getPublicUrl(filePath);
+                            expPptImages.push({ name: file.name, data: urlData.publicUrl });
+                            renderExpPptPreview();
+                            continue;
+                        }
+                    } catch(e) { console.log('上传PPT图片失败', e); }
+                }
+                // 降级base64
+                await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) { expPptImages.push({ name: file.name, data: e.target.result }); renderExpPptPreview(); resolve(); };
+                    reader.readAsDataURL(file);
+                });
+            }
             input.value = '';
         }
 
@@ -8562,42 +8638,30 @@
             const origin = document.getElementById('newExpOrigin').value.trim();
             const process = document.getElementById('newExpProcess').value.trim();
             const output = document.getElementById('newExpOutput').value.trim();
+            const background_url = document.getElementById('newExpBgUrl').value.trim();
 
             if (!time || !title) return;
 
             const tags = tagsStr ? tagsStr.split(',').map(t => t.trim()) : [];
             const localData = {
                 time, title, tags, summary, detail, origin, process, output,
+                background_url,
                 attachments: [...expAttachments],
                 pptImages: expPptImages.map(img => img.data)
             };
 
-            // 确定经历类型
-            let expType = 'internship';
-            if (editType !== undefined) {
-                expType = editType;
-            }
+            let expType = editType !== undefined ? editType : 'internship';
 
-            // 写入Supabase
             if (supabaseClient) {
                 const dbRecord = {
-                    exp_type: expType,
-                    time_range: time,
-                    title,
-                    tags,
-                    summary,
-                    detail,
-                    origin,
-                    process,
-                    output,
+                    exp_type: expType, time_range: time, title, tags, summary, detail, origin, process, output,
+                    background_url,
                     ppt_images: expPptImages.map(img => img.data)
                 };
                 try {
                     if (editType !== undefined) {
                         const item = experiencesData[editType][editIndex];
-                        if (item?.id) {
-                            await supabaseClient.from('experiences').update(dbRecord).eq('id', item.id);
-                        }
+                        if (item?.id) await supabaseClient.from('experiences').update(dbRecord).eq('id', item.id);
                     } else {
                         const { data } = await supabaseClient.from('experiences').insert(dbRecord).select('id').single();
                         if (data) localData.id = data.id;
@@ -9057,11 +9121,17 @@
         }
 
         // 选择判断
-        function selectJudge(answer) {
+        function selectJudge(userAnswer) {
             const question = quizState.questions[quizState.currentQuestion];
-            const isCorrect = answer === question.answer;
+            // 兼容 √/×、true/false、对/错 等格式
+            const correctStr = String(question.answer).trim();
+            let isCorrect = false;
+            if (correctStr === '√' || correctStr.toLowerCase() === 'true' || correctStr === '对') {
+                isCorrect = userAnswer === true;
+            } else if (correctStr === '×' || correctStr.toLowerCase() === 'false' || correctStr === '错') {
+                isCorrect = userAnswer === false;
+            }
             
-            // 高亮
             document.querySelectorAll('.judge-btn').forEach(btn => btn.classList.remove('correct', 'wrong'));
             event.target.closest('.judge-btn').classList.add(isCorrect ? 'correct' : 'wrong');
             
@@ -9196,29 +9266,26 @@
                 updateSyncStatus('local-only');
             }
             
-            // 从本地存储恢复（仅补充Supabase未加载的数据）
-            const localData = localStorage.getItem(STORAGE_KEY);
-            if (localData) {
-                try {
-                    const parsed = JSON.parse(localData);
-                    // 仅当Supabase数据为空时用本地数据补充
-                    if (tagCloudData.length <= 1 && parsed.tagCloudData) tagCloudData = parsed.tagCloudData;
-                    if (timelineData.length === 0 && parsed.timelineData) timelineData = parsed.timelineData;
-                    if (dynamicsData.length === 0 && parsed.dynamicsData) dynamicsData = parsed.dynamicsData;
-                    if (messagesData.length === 0 && parsed.messagesData) messagesData = parsed.messagesData;
-                    if (parsed.siteProfile) Object.assign(siteProfileData, parsed.siteProfile);
-                    if (siteProfileData.avatar) {
-                        currentAvatar = siteProfileData.avatar;
-                        const preview = document.getElementById('avatarPreview');
-                        if (preview) preview.innerHTML = `<img src="${currentAvatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
-                    }
-                    const brand = document.querySelector('.navbar-brand');
-                    if (brand && siteProfileData.name) brand.textContent = siteProfileData.name;
-                } catch (e) { console.log('本地数据解析失败', e); }
+            // 从本地存储恢复（仅当Supabase完全无数据时用本地数据补充）
+            if (!supabaseClient) {
+                const localData = localStorage.getItem(STORAGE_KEY);
+                if (localData) {
+                    try {
+                        const parsed = JSON.parse(localData);
+                        if (parsed.tagCloudData) tagCloudData = parsed.tagCloudData;
+                        if (parsed.timelineData) timelineData = parsed.timelineData;
+                        if (parsed.dynamicsData) dynamicsData = parsed.dynamicsData;
+                        if (parsed.messagesData) messagesData = parsed.messagesData;
+                        if (parsed.siteProfile) Object.assign(siteProfileData, parsed.siteProfile);
+                        if (siteProfileData.avatar) currentAvatar = siteProfileData.avatar;
+                        const brand = document.querySelector('.navbar-brand');
+                        if (brand && siteProfileData.name) brand.textContent = siteProfileData.name;
+                    } catch (e) { console.log('本地数据解析失败', e); }
+                }
             }
             
             // 初始化前端组件
-            buildHeroSlidesFromExperiences();
+            pickDailyHeroSlides();
             initHeroSlider();
             initTagCloud();
             initTimeline();
