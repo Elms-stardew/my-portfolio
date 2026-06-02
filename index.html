@@ -4675,7 +4675,6 @@
                 if (loginAvatar) {
                     loginAvatar.innerHTML = `<img src="${settings.avatar_url}" alt="头像">`;
                 }
-                updatePublicAvatar();
             }
             if (settings.theme_color) {
                 document.documentElement.style.setProperty('--accent', settings.theme_color);
@@ -5718,11 +5717,11 @@
 
         // 从数据库全量轮播中，选个人卡+随机2-4张项目卡
         function pickDailyHeroSlides() {
-            // 个人卡：优先从allHeroSlides取，否则默认
-            const dbPersonal = allHeroSlides.find(s => s.slide_type === '关于我' || s.sort_order === 0);
+            // 个人卡：从allHeroSlides取sort_order=0的记录
+            const dbPersonal = allHeroSlides.find(s => s.sort_order === 0);
             const personalSlide = dbPersonal ? {
                 id: dbPersonal.id, bg: dbPersonal.background_url || '',
-                type: dbPersonal.slide_type || '关于我', title: dbPersonal.title || siteProfileData.name || '王瑜娜',
+                type: '关于我', title: dbPersonal.title || siteProfileData.name || '王瑜娜',
                 desc: dbPersonal.description || siteProfileData.subtitle || '', tags: Array.isArray(dbPersonal.tags) ? dbPersonal.tags : []
             } : {
                 bg: '', type: '关于我', title: siteProfileData.name || '王瑜娜',
@@ -6332,7 +6331,10 @@
             
             // 同步Supabase
             if (supabaseClient) {
-                try { await supabaseClient.from('tag_cloud').insert({ text: text.trim(), source: source || 'friend', size_class: 'size-md' }).select('id').single(); } catch(e) { console.log('添加词云失败', e); }
+                try {
+                    const { data } = await supabaseClient.from('tag_cloud').insert({ text: text.trim(), source: source || 'friend', size_class: 'size-md' }).select('id').single();
+                    if (data) newTag.id = data.id;
+                } catch(e) { console.log('添加词云失败', e); }
             }
 
             // 触发章鱼抖动效果
@@ -7875,7 +7877,6 @@
                         try { await supabaseClient.from('site_settings').update({ avatar_url: currentAvatar }).eq('id', 1); } catch(e2) {}
                         const preview = document.getElementById('avatarPreview');
                         if (preview) preview.innerHTML = `<img src="${currentAvatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
-                        updatePublicAvatar();
                         input.value = '';
                         return;
                     }
@@ -7889,7 +7890,6 @@
                     siteProfileData.avatar = compressedAvatar;
                     const preview = document.getElementById('avatarPreview');
                     if (preview) preview.innerHTML = `<img src="${currentAvatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
-                    updatePublicAvatar();
                 });
             };
             reader.readAsDataURL(file);
@@ -7907,15 +7907,15 @@
                 heroSlideData[0].title = name;
                 heroSlideData[0].desc = subtitle;
             }
-            renderHeroSlider();
             updateContactPage();
             // 同步Supabase
             if (supabaseClient) {
-                try { await supabaseClient.from('site_settings').update({ title: name, name, subtitle }).eq('id', 1); } catch(e) { console.log('保存基本信息失败', e); }
+                try { await supabaseClient.from('site_settings').update({ title: name, name: name, subtitle: subtitle }).eq('id', 1); } catch(e) { console.log('保存基本信息失败', e); }
                 if (heroSlideData[0]?.id) {
-                    try { await supabaseClient.from('hero_slides').update({ title: name, description: subtitle }).eq('id', heroSlideData[0].id); } catch(e) {}
+                    try { await supabaseClient.from('hero_slides').update({ title: name, description: subtitle }).eq('id', heroSlideData[0].id); } catch(e) { console.log('更新轮播失败', e); }
                 }
             }
+            renderHeroSlider();
             alert('保存成功！');
         }
         
@@ -7923,28 +7923,43 @@
         function renderHeroSlider() {
             const slider = document.getElementById('heroSlider');
             if (!slider) return;
-            
-            // 更新第一张幻灯片
-            const firstSlide = slider.querySelector('.hero-slide:first-child');
-            if (firstSlide && heroSlideData.length > 0) {
-                const titleEl = firstSlide.querySelector('.hero-slide-title');
-                const descEl = firstSlide.querySelector('.hero-slide-desc');
-                const bgEl = firstSlide.querySelector('.hero-slide-bg');
-                if (titleEl) titleEl.textContent = heroSlideData[0].title;
-                if (descEl) descEl.textContent = heroSlideData[0].desc;
-                if (bgEl && heroSlideData[0].bg) bgEl.style.backgroundImage = `url('${heroSlideData[0].bg}')`;
+            slider.innerHTML = '';
+            heroSlideData.forEach((slide, i) => {
+                const bgStyle = slide.bg ? `background-image: url('${slide.bg}')` : 'background: linear-gradient(135deg, #0d1b2a, #1b4f72)';
+                const div = document.createElement('div');
+                div.className = 'hero-slide';
+                div.innerHTML = `
+                    <div class="hero-slide-bg" style="${bgStyle}"></div>
+                    <div class="hero-slide-overlay"></div>
+                    <div class="hero-slide-content">
+                        <div class="hero-slide-type">${slide.type || ''}</div>
+                        <h1 class="hero-slide-title">${slide.title || ''}</h1>
+                        <p class="hero-slide-desc">${slide.desc || ''}</p>
+                        ${slide.tags && slide.tags.length ? `<div class="hero-slide-tags">${slide.tags.map(t => `<span class="hero-tag">${t}</span>`).join('')}</div>` : ''}
+                    </div>
+                `;
+                if (slide.expType !== undefined) {
+                    div.onclick = () => openExpDetail(slide.expType, slide.expIndex);
+                    div.style.cursor = 'pointer';
+                }
+                slider.appendChild(div);
+            });
+            heroSlideCount = heroSlideData.length;
+            heroCurrentSlide = 0;
+            // 重建dots
+            const dotsContainer = document.getElementById('heroDots');
+            if (dotsContainer) {
+                dotsContainer.innerHTML = '';
+                for (let i = 0; i < heroSlideCount; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
+                    dot.onclick = () => goToSlide(i);
+                    dotsContainer.appendChild(dot);
+                }
             }
+            slider.style.transform = 'translateX(0)';
         }
         
-        function updatePublicAvatar() {
-            const avatarEl = document.getElementById('heroAvatar');
-            if (!avatarEl || !currentAvatar) return;
-            const img = avatarEl.querySelector('img');
-            img.src = currentAvatar;
-            img.style.display = 'block';
-            avatarEl.classList.add('visible');
-        }
-
         function updateContactPage() {
             const contactList = document.getElementById('contactListPage');
             if (!contactList) return;
@@ -8656,6 +8671,10 @@
                 experiencesData.internship.unshift(localData);
             }
             renderAdminExperiences();
+            // 刷新轮播（项目卡可能变了）
+            pickDailyHeroSlides();
+            renderHeroSlider();
+            if (document.getElementById('heroEditor')) renderHeroEditor();
             closeModal();
         }
 
@@ -9271,7 +9290,6 @@
             initTagCloud();
             initTimeline();
             updateContactPage();
-            updatePublicAvatar();
         });
     </script>
 </body>
