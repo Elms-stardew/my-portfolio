@@ -836,14 +836,9 @@
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease;
         }
         .hero-slide-content > * {
-            opacity: 0;
-            transform: translateY(15px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-        }
-        .hero-slide.active .hero-slide-content > *,
-        .hero-slide:first-child .hero-slide-content > * {
             opacity: 1;
             transform: translateY(0);
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
         .hero-slide-content .hero-slide-type { transition-delay: 0.1s; }
         .hero-slide-content .hero-slide-title { transition-delay: 0.2s; }
@@ -5112,7 +5107,10 @@
                         exp_type: item.exp_type || null,
                         exp_index: item.exp_index ?? null
                     }));
-                    pickDailyHeroSlides();
+                    console.log('[轮播] hero_slides加载完成，共', data.length, '条', allHeroSlides.map(s => s.sort_order + ':' + s.slide_type));
+                    // 不在此处调用pickDailyHeroSlides，等experiencesData也加载完再统一调
+                } else {
+                    console.log('[轮播] hero_slides表为空，无数据');
                 }
             } catch (e) { console.log('加载轮播异常', e); }
         }
@@ -5241,7 +5239,7 @@
                     .from('experiences')
                     .select('*')
                     .order('start_date', { ascending: false });
-                if (error) { console.log('加载经历失败', error); return; }
+                if (error) { console.log('[经历] 加载失败', error); return; }
                 if (data && data.length > 0) {
                     const grouped = { internship: [], competition: [], volunteer: [], project: [] };
                     data.forEach(item => {
@@ -5263,8 +5261,11 @@
                         }
                     });
                     experiencesData = grouped;
+                    console.log('[经历] 加载完成', Object.entries(grouped).map(([k,v]) => k + ':' + v.length).join(', '));
                     // 同步到hero_slides（项目卡底图）
                     syncExpToHeroSlides(data);
+                } else {
+                    console.log('[经历] experiences表为空，无数据');
                 }
             } catch (e) { console.log('加载经历异常', e); }
         }
@@ -5407,6 +5408,13 @@
             }
         }
 
+        // ========== 文件名净化（Supabase Storage不支持非ASCII字符）==========
+        function sanitizeFileName(name) {
+            // 保留扩展名，文件主体用时间戳+随机数
+            const ext = name.includes('.') ? '.' + name.split('.').pop().toLowerCase() : '';
+            return Date.now() + '_' + Math.random().toString(36).slice(2, 8) + ext;
+        }
+
         // ========== 文件上传到 Supabase Storage ==========
         async function handleFileUploadAsync(file) {
             if (!file || !supabaseClient) {
@@ -5414,7 +5422,7 @@
                 return null;
             }
             try {
-                const filePath = `files/${Date.now()}_${file.name}`;
+                const filePath = `files/${sanitizeFileName(file.name)}`;
                 const { data, error } = await supabaseClient.storage
                     .from('site-uploads')
                     .upload(filePath, file);
@@ -5428,7 +5436,7 @@
                     .getPublicUrl(filePath);
                 // 记录到数据库
                 await supabaseClient.from('uploaded_files').insert({
-                    file_name: `${Date.now()}_${file.name}`,
+                    file_name: file.name,
                     file_url: urlData.publicUrl,
                     file_size: file.size,
                     bucket_name: 'site-uploads'
@@ -5466,7 +5474,7 @@
             `;
             statusEl.style.display = 'block';
             try {
-                const filePath = `resumes/${Date.now()}_${file.name}`;
+                const filePath = `resumes/${sanitizeFileName(file.name)}`;
                 const { data, error } = await supabaseClient.storage
                     .from('resumes')
                     .upload(filePath, file, { cacheControl: '3600', upsert: false });
@@ -5478,7 +5486,7 @@
                     .getPublicUrl(filePath);
                 // 记录到数据库
                 await supabaseClient.from('uploaded_files').insert({
-                    file_name: `${Date.now()}_${file.name}`,
+                    file_name: file.name,
                     file_url: urlData.publicUrl,
                     file_size: file.size,
                     bucket_name: 'resumes',
@@ -5497,7 +5505,7 @@
         async function uploadExperienceAttachment(file, expId) {
             if (!file || !supabaseClient) return null;
             try {
-                const filePath = `attachments/${expId}/${Date.now()}_${file.name}`;
+                const filePath = `attachments/${expId}/${sanitizeFileName(file.name)}`;
                 const { error } = await supabaseClient.storage
                     .from('site-uploads')
                     .upload(filePath, file);
@@ -6074,14 +6082,20 @@
                 tags: exp.tags || [], expType: exp.expType, expIndex: exp.expIndex
             }));
             heroSlideData = [personalSlide, ...projectSlides];
+            console.log('[轮播] pickDailyHeroSlides：个人卡+', projectSlides.length, '张项目卡（来自', allExps.length, '条经历）');
         }
 
         function initHeroSlider() {
             const slider = document.getElementById('heroSlider');
             const dotsContainer = document.getElementById('heroDots');
+            if (!slider) return;
             
-            // 第一张（个人介绍）已经硬编码在HTML里，从第二张开始生成
-            heroSlideData.slice(1).forEach((data, i) => {
+            // 清空后全量重建（避免硬编码+动态拼接不一致）
+            slider.innerHTML = '';
+            if (dotsContainer) dotsContainer.innerHTML = '';
+            
+            heroSlideData.forEach((data, i) => {
+                const bgStyle = data.bg ? `background-image: url('${data.bg}')` : 'background: linear-gradient(135deg, #0d1b2a, #1b4f72)';
                 const slide = document.createElement('div');
                 slide.className = 'hero-slide';
                 if (data.expType) {
@@ -6089,14 +6103,14 @@
                     slide.onclick = () => openExpDetail(data.expType, data.expIndex);
                 }
                 slide.innerHTML = `
-                    <div class="hero-slide-bg" style="${data.bg ? "background-image: url('" + data.bg + "')" : ''}"></div>
+                    <div class="hero-slide-bg" style="${bgStyle}"></div>
                     <div class="hero-slide-overlay"></div>
                     <div class="hero-slide-content">
-                        <div class="hero-slide-type">${data.type}</div>
-                        <h2 class="hero-slide-title">${data.title}</h2>
-                        <p class="hero-slide-desc">${data.desc}</p>
+                        <div class="hero-slide-type">${data.type || ''}</div>
+                        <h2 class="hero-slide-title">${data.title || ''}</h2>
+                        <p class="hero-slide-desc">${data.desc || ''}</p>
                         <div class="hero-slide-tags">
-                            ${data.tags.map(t => `<span class="hero-slide-tag">${t}</span>`).join('')}
+                            ${(data.tags || []).map(t => `<span class="hero-slide-tag">${t}</span>`).join('')}
                         </div>
                         ${data.expType ? '<div class="hero-slide-cta">查看详情 →</div>' : ''}
                     </div>
@@ -6107,28 +6121,33 @@
             heroSlideCount = heroSlideData.length;
 
             // 生成指示点
-            for (let i = 0; i < heroSlideCount; i++) {
-                const dot = document.createElement('div');
-                dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
-                dot.onclick = () => goToSlide(i);
-                dotsContainer.appendChild(dot);
+            if (dotsContainer) {
+                for (let i = 0; i < heroSlideCount; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
+                    dot.onclick = () => goToSlide(i);
+                    dotsContainer.appendChild(dot);
+                }
             }
 
             // 触摸滑动支持
             let touchStartX = 0;
             let touchEndX = 0;
             const heroEl = document.querySelector('.hero');
-            heroEl.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
-            heroEl.addEventListener('touchend', e => {
-                touchEndX = e.changedTouches[0].screenX;
-                const diff = touchStartX - touchEndX;
-                if (Math.abs(diff) > 50) {
-                    heroSlide(diff > 0 ? 1 : -1);
-                }
-            }, {passive: true});
+            if (heroEl) {
+                heroEl.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+                heroEl.addEventListener('touchend', e => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    const diff = touchStartX - touchEndX;
+                    if (Math.abs(diff) > 50) {
+                        heroSlide(diff > 0 ? 1 : -1);
+                    }
+                }, {passive: true});
+            }
 
             // 自动轮播（8秒）
             startHeroAutoPlay();
+            console.log('[轮播] 初始化完成，共', heroSlideCount, '张，项目卡来自experiencesData');
         }
 
         function heroSlide(dir) {
@@ -8216,7 +8235,7 @@
             // 先尝试上传到Supabase Storage
             if (supabaseClient) {
                 try {
-                    const filePath = `avatars/${Date.now()}_${file.name}`;
+                    const filePath = `avatars/${sanitizeFileName(file.name)}`;
                     const { error } = await supabaseClient.storage.from('avatars').upload(filePath, file);
                     if (!error) {
                         const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(filePath);
@@ -8432,7 +8451,7 @@
             if (!file) return;
             if (supabaseClient) {
                 try {
-                    const filePath = `hero/${Date.now()}_${file.name}`;
+                    const filePath = `hero/${sanitizeFileName(file.name)}`;
                     const { error } = await supabaseClient.storage.from('site-uploads').upload(filePath, file);
                     if (!error) {
                         const { data: urlData } = supabaseClient.storage.from('site-uploads').getPublicUrl(filePath);
@@ -8485,7 +8504,7 @@
             // 尝试上传到Storage
             if (supabaseClient) {
                 try {
-                    const filePath = `hero/${Date.now()}_${file.name}`;
+                    const filePath = `hero/${sanitizeFileName(file.name)}`;
                     const { error } = await supabaseClient.storage.from('site-uploads').upload(filePath, file);
                     if (!error) {
                         const { data: urlData } = supabaseClient.storage.from('site-uploads').getPublicUrl(filePath);
@@ -8879,7 +8898,7 @@
             if (!file) return;
             if (supabaseClient) {
                 try {
-                    const filePath = `experiences/${Date.now()}_${file.name}`;
+                    const filePath = `experiences/${sanitizeFileName(file.name)}`;
                     const { error } = await supabaseClient.storage.from('site-uploads').upload(filePath, file);
                     if (!error) {
                         const { data: urlData } = supabaseClient.storage.from('site-uploads').getPublicUrl(filePath);
@@ -8922,7 +8941,7 @@
             for (const file of files) {
                 if (supabaseClient) {
                     try {
-                        const filePath = `ppt/${Date.now()}_${file.name}`;
+                        const filePath = `ppt/${sanitizeFileName(file.name)}`;
                         const { error } = await supabaseClient.storage.from('site-uploads').upload(filePath, file);
                         if (!error) {
                             const { data: urlData } = supabaseClient.storage.from('site-uploads').getPublicUrl(filePath);
@@ -9608,10 +9627,12 @@
                 const { data, error } = await supabaseClient
                     .from('uploaded_files')
                     .select('*')
-                    .eq('is_portfolio', true)
                     .order('created_at', { ascending: false });
                 if (!error && data) {
-                    portfolioFiles = data;
+                    // 兼容：如果is_portfolio字段存在则过滤，否则视为空列表
+                    portfolioFiles = data.filter(f => f.is_portfolio === true);
+                } else if (error) {
+                    console.log('[作品集] 查询失败', error);
                 }
             } catch(e) { console.log('加载作品集失败', e); }
         }
@@ -9622,7 +9643,7 @@
                 return;
             }
             try {
-                const filePath = `portfolio/${Date.now()}_${file.name}`;
+                const filePath = `portfolio/${sanitizeFileName(file.name)}`;
                 const { error: uploadError } = await supabaseClient.storage
                     .from('site-uploads')
                     .upload(filePath, file);
@@ -9630,16 +9651,33 @@
 
                 const { data: urlData } = supabaseClient.storage.from('site-uploads').getPublicUrl(filePath);
                 const ext = file.name.split('.').pop().toLowerCase();
-                const { data, error } = await supabaseClient.from('uploaded_files').insert({
+                const insertData = {
                     file_name: file.name,
                     file_url: urlData.publicUrl,
                     file_size: file.size,
                     file_type: ext,
                     is_portfolio: true,
                     description: ''
-                }).select('id').single();
-                if (error) { alert('保存失败: ' + error.message); return; }
-                portfolioFiles.unshift(data);
+                };
+                const { data, error } = await supabaseClient.from('uploaded_files').insert(insertData).select('*').single();
+                if (error) {
+                    // 字段可能不存在，逐步降级重试
+                    let retryData = { ...insertData };
+                    let lastError = error;
+                    // 去掉可能不存在的字段逐个重试
+                    const optionalFields = ['is_portfolio', 'description', 'download_count', 'file_type'];
+                    for (const field of optionalFields) {
+                        if (lastError.message && lastError.message.includes(field)) {
+                            delete retryData[field];
+                            const retry = await supabaseClient.from('uploaded_files').insert(retryData).select('*').single();
+                            if (!retry.error) { portfolioFiles.unshift(retry.data); lastError = null; break; }
+                            lastError = retry.error;
+                        }
+                    }
+                    if (lastError) { alert('保存失败: ' + lastError.message); return; }
+                } else {
+                    portfolioFiles.unshift(data);
+                }
                 renderPortfolioList();
                 renderFileSidebar();
                 alert('作品上传成功！');
@@ -9691,12 +9729,19 @@
             // 通用文件列表渲染（文件上传section）
             const tbody = document.getElementById('uploadedFilesList');
             if (!tbody || !supabaseClient) return;
-            supabaseClient.from('uploaded_files').select('*').eq('is_portfolio', false).order('created_at', { ascending: false }).then(({ data }) => {
+            supabaseClient.from('uploaded_files').select('*').order('created_at', { ascending: false }).then(({ data, error }) => {
+                if (error) { console.log('[文件列表] 查询失败', error); tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#e74c3c;">查询失败: ' + error.message + '</td></tr>'; return; }
                 if (!data || data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--gray);">暂无文件</td></tr>';
                     return;
                 }
-                tbody.innerHTML = data.map(f => {
+                // 兼容：如果is_portfolio字段不存在，把所有文件都当作通用文件
+                const files = data.filter(f => !f.is_portfolio);
+                if (files.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--gray);">暂无文件</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = files.map(f => {
                     const sizeStr = f.file_size > 1048576 ? (f.file_size/1048576).toFixed(1) + ' MB' : (f.file_size/1024).toFixed(0) + ' KB';
                     return `<tr>
                         <td>${f.file_name}</td>
