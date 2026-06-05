@@ -575,6 +575,312 @@
             75% { transform: scale(1.01) rotate(-0.5deg); }
         }
 
+        /* 词云+文件专区布局 */
+        .tagcloud-file-row {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        .tagcloud-file-row .octopus-wrapper {
+            flex: 1;
+            min-width: 0;
+        }
+        .file-sidebar {
+            min-width: 200px;
+            max-width: 260px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            flex-shrink: 0;
+        }
+        .file-sidebar-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .file-sidebar-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+        .file-sidebar-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .file-sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: var(--bg);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-decoration: none;
+            color: var(--primary);
+        }
+        .file-sidebar-item:hover {
+            background: var(--accent-light);
+            transform: translateX(3px);
+        }
+        .file-sidebar-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .file-sidebar-icon.pdf { background: #e74c3c; }
+        .file-sidebar-icon.ppt { background: #e67e22; }
+        .file-sidebar-icon.doc { background: #2b7dba; }
+        .file-sidebar-icon.img { background: #27ae60; }
+        .file-sidebar-icon.zip { background: #8e44ad; }
+        .file-sidebar-name {
+            font-size: 0.85rem;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .file-sidebar-empty {
+            font-size: 0.8rem;
+            color: var(--gray);
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        /* 下载密码弹窗 */
+        .download-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .download-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .download-modal {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 360px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        .download-modal-overlay.active .download-modal {
+            transform: translateY(0);
+        }
+        .download-modal h3 {
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+        }
+        .download-modal p {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-bottom: 16px;
+        }
+        .download-modal input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--light-gray);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .download-modal input:focus {
+            border-color: var(--accent);
+        }
+        .download-modal-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .download-modal-btns button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .download-modal-btns .cancel-btn {
+            background: var(--light-gray);
+            color: var(--primary);
+        }
+        .download-modal-btns .confirm-btn {
+            background: var(--accent);
+            color: #fff;
+        }
+        .download-modal-btns .confirm-btn:hover {
+            filter: brightness(1.1);
+        }
+
+        /* 经历详情下载按钮 */
+        .exp-detail-download {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: var(--accent-light);
+            color: var(--accent);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 1px solid transparent;
+        }
+        .exp-detail-download:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        /* 滚动动画 */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .animate-slide-left {
+            opacity: 0;
+            transform: translateX(-40px);
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .animate-slide-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .animate-slide-right {
+            opacity: 0;
+            transform: translateX(40px);
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .animate-slide-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .animate-scale {
+            opacity: 0;
+            transform: scale(0.85);
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .animate-scale.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* 时间轴动画 */
+        .timeline-item {
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* 卡片hover */
+        .card-hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover-lift:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 40px rgba(13, 27, 42, 0.15);
+        }
+
+        /* 词云标签hover弹跳 */
+        .tag-cloud-bounce:hover {
+            animation: tagBounce 0.4s ease;
+        }
+        @keyframes tagBounce {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.15); }
+            60% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+
+        /* 轮播过渡动画 */
+        .hero-slide {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease;
+        }
+        .hero-slide-content > * {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .hero-slide.active .hero-slide-content > *,
+        .hero-slide:first-child .hero-slide-content > * {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .hero-slide-content .hero-slide-type { transition-delay: 0.1s; }
+        .hero-slide-content .hero-slide-title { transition-delay: 0.2s; }
+        .hero-slide-content .hero-slide-desc { transition-delay: 0.3s; }
+        .hero-slide-content .hero-slide-tags { transition-delay: 0.4s; }
+
+        /* 经历卡片hover动画 */
+        .exp-card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .exp-card-hover:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 8px 30px rgba(43, 125, 186, 0.15);
+        }
+
+        /* 动态卡片入场 */
+        .dynamic-card-animate {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .dynamic-card-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 留言卡片入场 */
+        .message-card-animate {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .message-card-animate.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
         /* 词云文字悬停提示 */
         .tag-tooltip-cloud {
             position: absolute;
@@ -3638,6 +3944,10 @@
                 min-height: 350px;
                 padding: 10px;
             }
+            
+            .tagcloud-file-row .octopus-wrapper {
+                min-height: 350px;
+            }
 
             .tag-fab {
                 bottom: 20px;
@@ -3787,6 +4097,14 @@
                 margin: 20px;
                 padding: 30px 20px;
             }
+            .tagcloud-file-row {
+                flex-direction: column;
+            }
+            .file-sidebar {
+                min-width: unset;
+                max-width: unset;
+                width: 100%;
+            }
         }
 
         /* 骨架屏 */
@@ -3806,7 +4124,7 @@
 <body>
     <!-- 导航栏 -->
     <nav class="navbar">
-        <a class="navbar-brand" onclick="showPage('home')">Elm</a>
+        <a class="navbar-brand" onclick="showPage('home')" data-fixed="true">Elm</a>
         <div class="nav-links">
             <span class="nav-link active" onclick="showPage('home')">首页</span>
             <span class="nav-link" onclick="showPage('experience')">经历分区</span>
@@ -3878,7 +4196,7 @@
         </section>
 
         <!-- 标签云 -->
-        <section class="tag-cloud" id="tagCloud">
+        <section class="tag-cloud animate-on-scroll" id="tagCloud">
             <div class="tag-cloud-header">
                 <h2 class="section-title">关于我</h2>
                 <div class="tag-legend">
@@ -3892,10 +4210,18 @@
                     </div>
                 </div>
             </div>
-            <div class="octopus-wrapper">
-                <canvas id="tagCanvas" class="octopus-canvas"></canvas>
-                <div id="tagTooltip" class="tag-tooltip-cloud"></div>
-                <button class="tag-fab" id="tagFab" title="给TA贴个标签">+</button>
+            <div class="tagcloud-file-row">
+                <div class="octopus-wrapper">
+                    <canvas id="tagCanvas" class="octopus-canvas"></canvas>
+                    <div id="tagTooltip" class="tag-tooltip-cloud"></div>
+                    <button class="tag-fab" id="tagFab" title="给TA贴个标签">+</button>
+                </div>
+                <div class="file-sidebar" id="fileSidebar">
+                    <h3 class="file-sidebar-title">作品下载</h3>
+                    <div class="file-sidebar-list" id="fileSidebarList">
+                        <!-- 由JS动态填充 -->
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -3915,7 +4241,7 @@
         </div>
 
         <!-- 时间线 -->
-        <section class="timeline-section" id="timeline">
+        <section class="timeline-section animate-on-scroll" id="timeline">
             <h2 class="section-title">经历足迹</h2>
             <div class="timeline" id="timelineContainer">
                 <!-- 时间线由 JS 动态生成 -->
@@ -3924,7 +4250,7 @@
     </div>
 
     <!-- 页面二：经历分区 -->
-    <div class="page" id="page-experience">
+    <div class="page animate-on-scroll" id="page-experience">
         <div class="experience-page">
             <div class="page-header">
                 <h1>经历分区</h1>
@@ -3999,7 +4325,7 @@
     </div>
 
     <!-- 页面三：个人动态 -->
-    <div class="page" id="page-dynamics">
+    <div class="page animate-on-scroll" id="page-dynamics">
         <div class="dynamics-page">
             <div class="page-header" style="padding: 40px 0 30px; text-align: left;">
                 <h1>个人动态</h1>
@@ -4016,7 +4342,7 @@
     </div>
 
     <!-- 页面四：留言板 -->
-    <div class="page" id="page-guestbook">
+    <div class="page animate-on-scroll" id="page-guestbook">
         <div class="guestbook-page">
             <div class="guestbook-header">
                 <h1>留言板</h1>
@@ -4037,7 +4363,7 @@
     </div>
 
     <!-- 页面五：联系我 -->
-    <div class="page" id="page-contact">
+    <div class="page animate-on-scroll" id="page-contact">
         <div class="contact-page">
             <div class="contact-header">
                 <h1>联系我</h1>
@@ -4053,7 +4379,7 @@
     </div>
 
     <!-- 你和我的距离还差多少 - 问答游戏 -->
-    <div class="page" id="page-quiz">
+    <div class="page animate-on-scroll" id="page-quiz">
         <div class="quiz-page">
             <div class="quiz-header">
                 <h1>你和我的距离还差多少</h1>
@@ -4141,6 +4467,19 @@
     </div>
 
     <!-- 页面六：管理后台 -->
+    <!-- 下载密码验证弹窗 -->
+    <div class="download-modal-overlay" id="downloadModalOverlay">
+        <div class="download-modal">
+            <h3>下载验证</h3>
+            <p>请输入下载密码</p>
+            <input type="password" id="downloadPasswordInput" placeholder="输入密码" onkeydown="if(event.key==='Enter')confirmDownload()">
+            <div class="download-modal-btns">
+                <button class="cancel-btn" onclick="closeDownloadModal()">取消</button>
+                <button class="confirm-btn" onclick="confirmDownload()">确认下载</button>
+            </div>
+        </div>
+    </div>
+
     <div class="page" id="page-admin">
         <div class="admin-page">
             <!-- 登录页 -->
@@ -4178,6 +4517,7 @@
                     <div class="admin-mobile-nav-item" onclick="switchAdminSection('dynamics-admin')">动态管理</div>
                     <div class="admin-mobile-nav-item" onclick="switchAdminSection('messages')">留言管理</div>
                     <div class="admin-mobile-nav-item" onclick="switchAdminSection('upload')">文件上传</div>
+                    <div class="admin-mobile-nav-item" onclick="switchAdminSection('portfolio')">作品集</div>
                     <div class="admin-mobile-nav-item" onclick="switchAdminSection('settings')">设置</div>
                     <div class="admin-mobile-nav-item" onclick="adminLogout()" style="color: #f06464;">退出登录</div>
                 </div>
@@ -4211,6 +4551,9 @@
                     </div>
                     <div class="admin-menu-item" onclick="switchAdminSection('upload')">
                         文件上传
+                    </div>
+                    <div class="admin-menu-item" onclick="switchAdminSection('portfolio')">
+                        作品集
                     </div>
                     <div class="admin-menu-item" onclick="switchAdminSection('settings')">
                         设置
@@ -4454,17 +4797,40 @@
                                     </tr>
                                 </thead>
                                 <tbody id="uploadedFilesList">
-                                    <tr>
-                                        <td>王瑜娜_简历.pdf</td>
-                                        <td>PDF</td>
-                                        <td>245 KB</td>
-                                        <td>2025-05-20</td>
-                                        <td>
-                                            <button class="action-btn edit" onclick="reParseFile()">重新解析</button>
-                                            <button class="action-btn delete">删除</button>
-                                        </td>
-                                    </tr>
+                                    <tr><td colspan="5" style="text-align:center;padding:20px;color:var(--gray);">加载中...</td></tr>
                                 </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 作品集管理 -->
+                    <div class="admin-section" id="section-portfolio">
+                        <div class="admin-header">
+                            <h2>作品集</h2>
+                            <p>上传和管理个人作品文件，支持 PDF/Word/PPT 等，访客可凭密码下载</p>
+                        </div>
+                        <div class="upload-zone" onclick="document.getElementById('portfolioFileInput').click()" style="margin: 20px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                            </svg>
+                            <p>点击上传作品文件</p>
+                            <p style="font-size: 0.8rem; color: var(--light-gray);">支持 PDF、PPT、Word、图片等格式</p>
+                            <input type="file" id="portfolioFileInput" style="display: none;" accept=".pdf,.ppt,.pptx,.doc,.docx,.jpg,.jpeg,.png,.zip" onchange="handlePortfolioUpload(this.files[0])">
+                        </div>
+                        <div class="admin-table" id="portfolioTable" style="margin: 20px;">
+                            <h3 style="padding: 15px 20px;">已上传作品</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>文件名</th>
+                                        <th>描述</th>
+                                        <th>类型</th>
+                                        <th>大小</th>
+                                        <th>下载次数</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="portfolioFilesList"></tbody>
                             </table>
                         </div>
                     </div>
@@ -4650,13 +5016,14 @@
         // 应用网站设置到页面
         function applySiteSettings(settings) {
             if (!settings) return;
-            if (settings.name) {
-                siteProfileData.name = settings.name;
+            // navbar-brand用title（品牌名如Elm），不用name（人名）；data-fixed则不覆盖
+            const brandText = settings.title || settings.name;
+            if (brandText) {
+                siteProfileData.name = brandText;
                 const brand = document.querySelector('.navbar-brand');
-                if (brand) brand.textContent = settings.name;
-                // 填充设置页面
+                if (brand && !brand.dataset.fixed) brand.textContent = brandText;
                 const titleInput = document.getElementById('settingSiteTitle');
-                if (titleInput) titleInput.value = settings.name;
+                if (titleInput) titleInput.value = brandText;
             }
             if (settings.subtitle) {
                 siteProfileData.subtitle = settings.subtitle;
@@ -5027,6 +5394,7 @@
                 }
                 if (data && data.length > 0) {
                     contactData = data.map(item => ({
+                        id: item.id,
                         icon: item.icon_type,
                         name: item.name,
                         value: item.value
@@ -5123,44 +5491,7 @@
             }
         }
 
-        // 头像上传到 avatars bucket
-        async function handleAvatarUpload(input) {
-            if (!input.files[0] || !supabaseClient) {
-                alert('上传功能暂不可用');
-                return;
-            }
-            const file = input.files[0];
-            try {
-                const ext = file.name.split('.').pop();
-                const filePath = `avatars/${Date.now()}.${ext}`;
-                const { error } = await supabaseClient.storage
-                    .from('avatars')
-                    .upload(filePath, file, { cacheControl: '3600', upsert: true });
-                if (error) {
-                    throw error;
-                }
-                const { data: urlData } = supabaseClient.storage
-                    .from('avatars')
-                    .getPublicUrl(filePath);
-                currentAvatar = urlData.publicUrl;
-                siteProfileData.avatar = urlData.publicUrl;
-                // 更新预览
-                const preview = document.getElementById('avatarPreview');
-                if (preview) {
-                    preview.innerHTML = `<img src="${urlData.publicUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
-                }
-                // 更新导航栏
-                const brand = document.querySelector('.navbar-brand');
-                if (brand && siteProfileData.name) {
-                    brand.textContent = siteProfileData.name;
-                }
-                // 保存到网站设置
-                await saveSiteSettings({ avatar_url: urlData.publicUrl });
-                alert('头像上传成功！');
-            } catch (e) {
-                alert('上传失败: ' + e.message);
-            }
-        }
+        // 头像上传功能已移至下方统一定义
 
         // 经历附件上传
         async function uploadExperienceAttachment(file, expId) {
@@ -6674,6 +7005,12 @@
             }
 
             contentEl.innerHTML = contentHtml;
+            
+            // 添加下载区
+            const downloadsHtml = renderExpDetailDownloads(type, index);
+            if (downloadsHtml) {
+                contentEl.insertAdjacentHTML('beforeend', downloadsHtml);
+            }
 
             // 切换到详情页
             showPage('exp-detail');
@@ -7196,7 +7533,7 @@
             
             // 找到对应的桌面端菜单项
             const menuItems = document.querySelectorAll('.admin-menu-item');
-            const sections = ['overview', 'profile', 'tags', 'hero', 'timeline', 'experiences', 'quiz', 'dynamics-admin', 'messages', 'upload', 'settings'];
+            const sections = ['overview', 'profile', 'tags', 'hero', 'timeline', 'experiences', 'quiz', 'dynamics-admin', 'messages', 'upload', 'portfolio', 'settings'];
             const idx = sections.indexOf(section);
             if (idx >= 0 && menuItems[idx]) menuItems[idx].classList.add('active');
             
@@ -7208,9 +7545,20 @@
             document.getElementById('section-' + section).classList.add('active');
             
             // 渲染对应的编辑器
-            if (section === 'hero') {
-                renderHeroEditor();
-            }
+            const renderMap = {
+                overview: updateStatsOverview,
+                hero: renderHeroEditor,
+                tags: renderAdminTags,
+                timeline: renderAdminTimeline,
+                experiences: () => renderAdminExperiences(),
+                quiz: renderAdminQuiz,
+                'dynamics-admin': renderAdminDynamics,
+                messages: renderAdminMessages,
+                portfolio: renderPortfolioList,
+                upload: renderUploadedList,
+                profile: renderContactList
+            };
+            if (renderMap[section]) renderMap[section]();
         }
 
         function switchAdminExpTab(tab) {
@@ -7877,6 +8225,9 @@
                         try { await supabaseClient.from('site_settings').update({ avatar_url: currentAvatar }).eq('id', 1); } catch(e2) {}
                         const preview = document.getElementById('avatarPreview');
                         if (preview) preview.innerHTML = `<img src="${currentAvatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                        // 更新登录页头像
+                        const loginAvatar = document.getElementById('loginAvatar');
+                        if (loginAvatar) loginAvatar.innerHTML = `<img src="${currentAvatar}" alt="头像">`;
                         input.value = '';
                         return;
                     }
@@ -7890,6 +8241,8 @@
                     siteProfileData.avatar = compressedAvatar;
                     const preview = document.getElementById('avatarPreview');
                     if (preview) preview.innerHTML = `<img src="${currentAvatar}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    const loginAvatar = document.getElementById('loginAvatar');
+                    if (loginAvatar) loginAvatar.innerHTML = `<img src="${currentAvatar}" alt="头像">`;
                 });
             };
             reader.readAsDataURL(file);
@@ -7900,7 +8253,7 @@
             const name = document.getElementById('profileName').value.trim();
             const subtitle = document.getElementById('profileSubtitle').value.trim();
             if (!name) { alert('请输入姓名'); return; }
-            document.querySelector('.navbar-brand').textContent = name;
+            // navbar-brand保持title（品牌名Elm），不覆盖
             siteProfileData.name = name;
             siteProfileData.subtitle = subtitle;
             if (heroSlideData.length > 0) {
@@ -7908,9 +8261,9 @@
                 heroSlideData[0].desc = subtitle;
             }
             updateContactPage();
-            // 同步Supabase
+            // 同步Supabase（只更新name和subtitle，不动title品牌名）
             if (supabaseClient) {
-                try { await supabaseClient.from('site_settings').update({ title: name, name: name, subtitle: subtitle }).eq('id', 1); } catch(e) { console.log('保存基本信息失败', e); }
+                try { await supabaseClient.from('site_settings').update({ name: name, subtitle: subtitle }).eq('id', 1); } catch(e) { console.log('保存基本信息失败', e); }
                 if (heroSlideData[0]?.id) {
                     try { await supabaseClient.from('hero_slides').update({ title: name, description: subtitle }).eq('id', heroSlideData[0].id); } catch(e) { console.log('更新轮播失败', e); }
                 }
@@ -8657,12 +9010,21 @@
                 try {
                     if (editType !== undefined) {
                         const item = experiencesData[editType][editIndex];
-                        if (item?.id) await supabaseClient.from('experiences').update(dbRecord).eq('id', item.id);
+                        if (item?.id) {
+                            const { error: updateError } = await supabaseClient.from('experiences').update(dbRecord).eq('id', item.id);
+                            if (updateError) console.log('更新经历DB失败:', updateError.message);
+                        } else {
+                            // 没有id，尝试用title+time匹配
+                            console.log('经历缺少id，尝试upsert:', title);
+                            const { data, error: insertError } = await supabaseClient.from('experiences').insert({ ...dbRecord }).select('id').single();
+                            if (!insertError && data) localData.id = data.id;
+                        }
                     } else {
-                        const { data } = await supabaseClient.from('experiences').insert(dbRecord).select('id').single();
-                        if (data) localData.id = data.id;
+                        const { data, error: insertError } = await supabaseClient.from('experiences').insert(dbRecord).select('id').single();
+                        if (insertError) console.log('新增经历DB失败:', insertError.message);
+                        else if (data) localData.id = data.id;
                     }
-                } catch(e) { console.log('保存经历失败', e); }
+                } catch(e) { console.log('保存经历异常', e); }
             }
 
             if (editType !== undefined) {
@@ -9235,6 +9597,247 @@
         }
 
         // ========== 初始化 ==========
+        // ========== 作品集文件管理 ==========
+        let portfolioFiles = [];
+        let pendingDownloadUrl = null;
+        let pendingDownloadFileId = null;
+
+        async function loadPortfolioFiles() {
+            if (!supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('uploaded_files')
+                    .select('*')
+                    .eq('is_portfolio', true)
+                    .order('created_at', { ascending: false });
+                if (!error && data) {
+                    portfolioFiles = data;
+                }
+            } catch(e) { console.log('加载作品集失败', e); }
+        }
+
+        async function handlePortfolioUpload(file) {
+            if (!file || !supabaseClient) {
+                alert('上传功能暂不可用');
+                return;
+            }
+            try {
+                const filePath = `portfolio/${Date.now()}_${file.name}`;
+                const { error: uploadError } = await supabaseClient.storage
+                    .from('site-uploads')
+                    .upload(filePath, file);
+                if (uploadError) { alert('上传失败: ' + uploadError.message); return; }
+
+                const { data: urlData } = supabaseClient.storage.from('site-uploads').getPublicUrl(filePath);
+                const ext = file.name.split('.').pop().toLowerCase();
+                const { data, error } = await supabaseClient.from('uploaded_files').insert({
+                    file_name: file.name,
+                    file_url: urlData.publicUrl,
+                    file_size: file.size,
+                    file_type: ext,
+                    is_portfolio: true,
+                    description: ''
+                }).select('id').single();
+                if (error) { alert('保存失败: ' + error.message); return; }
+                portfolioFiles.unshift(data);
+                renderPortfolioList();
+                renderFileSidebar();
+                alert('作品上传成功！');
+            } catch(e) {
+                alert('上传异常: ' + e.message);
+            }
+        }
+
+        async function deletePortfolioFile(id) {
+            if (!confirm('确定删除此作品？')) return;
+            try {
+                await supabaseClient.from('uploaded_files').delete().eq('id', id);
+                portfolioFiles = portfolioFiles.filter(f => f.id !== id);
+                renderPortfolioList();
+                renderFileSidebar();
+            } catch(e) { console.log('删除作品失败', e); }
+        }
+
+        async function updatePortfolioDesc(id, desc) {
+            try {
+                await supabaseClient.from('uploaded_files').update({ description: desc }).eq('id', id);
+                const f = portfolioFiles.find(f => f.id === id);
+                if (f) f.description = desc;
+            } catch(e) { console.log('更新描述失败', e); }
+        }
+
+        function renderPortfolioList() {
+            const tbody = document.getElementById('portfolioFilesList');
+            if (!tbody) return;
+            if (portfolioFiles.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--gray);">暂无作品，点击上方区域上传</td></tr>';
+                return;
+            }
+            tbody.innerHTML = portfolioFiles.map(f => {
+                const sizeStr = f.file_size > 1048576 ? (f.file_size/1048576).toFixed(1) + ' MB' : (f.file_size/1024).toFixed(0) + ' KB';
+                const typeBadge = f.file_type?.toUpperCase() || 'FILE';
+                return `<tr>
+                    <td>${f.file_name}</td>
+                    <td><input type="text" value="${f.description || ''}" placeholder="添加描述" style="border:none;background:transparent;width:120px;font-size:0.85rem;color:var(--primary);" onchange="updatePortfolioDesc(${f.id}, this.value)"></td>
+                    <td><span style="background:var(--accent-light);color:var(--accent);padding:2px 8px;border-radius:6px;font-size:0.75rem;">${typeBadge}</span></td>
+                    <td>${sizeStr}</td>
+                    <td>${f.download_count || 0}</td>
+                    <td><button class="action-btn delete" onclick="deletePortfolioFile(${f.id})">删除</button></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderUploadedList() {
+            // 通用文件列表渲染（文件上传section）
+            const tbody = document.getElementById('uploadedFilesList');
+            if (!tbody || !supabaseClient) return;
+            supabaseClient.from('uploaded_files').select('*').eq('is_portfolio', false).order('created_at', { ascending: false }).then(({ data }) => {
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--gray);">暂无文件</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = data.map(f => {
+                    const sizeStr = f.file_size > 1048576 ? (f.file_size/1048576).toFixed(1) + ' MB' : (f.file_size/1024).toFixed(0) + ' KB';
+                    return `<tr>
+                        <td>${f.file_name}</td>
+                        <td>${f.file_type?.toUpperCase() || '-'}</td>
+                        <td>${sizeStr}</td>
+                        <td>${f.created_at ? new Date(f.created_at).toLocaleDateString() : '-'}</td>
+                        <td><button class="action-btn delete" onclick="deleteUploadedFile(${f.id})">删除</button></td>
+                    </tr>`;
+                }).join('');
+            });
+        }
+
+        async function deleteUploadedFile(id) {
+            if (!confirm('确定删除此文件？')) return;
+            try {
+                await supabaseClient.from('uploaded_files').delete().eq('id', id);
+                renderUploadedList();
+            } catch(e) { console.log('删除文件失败', e); }
+        }
+
+        // ========== 首页文件专区 ==========
+        function renderFileSidebar() {
+            const container = document.getElementById('fileSidebarList');
+            if (!container) return;
+            if (portfolioFiles.length === 0) {
+                container.innerHTML = '<div class="file-sidebar-empty">暂无作品</div>';
+                return;
+            }
+            container.innerHTML = portfolioFiles.map(f => {
+                const ext = (f.file_type || 'file').toLowerCase();
+                let iconClass = 'doc';
+                if (['pdf'].includes(ext)) iconClass = 'pdf';
+                else if (['ppt','pptx'].includes(ext)) iconClass = 'ppt';
+                else if (['jpg','jpeg','png','gif','webp'].includes(ext)) iconClass = 'img';
+                else if (['zip','rar','7z'].includes(ext)) iconClass = 'zip';
+                const displayName = f.description || f.file_name.replace(/^\d+_/, '');
+                return `<div class="file-sidebar-item" onclick="requestDownload('${f.file_url}', ${f.id})">
+                    <div class="file-sidebar-icon ${iconClass}">${ext.toUpperCase()}</div>
+                    <span class="file-sidebar-name" title="${f.file_name}">${displayName}</span>
+                </div>`;
+            }).join('');
+        }
+
+        // ========== 下载密码验证 ==========
+        function requestDownload(url, fileId) {
+            pendingDownloadUrl = url;
+            pendingDownloadFileId = fileId;
+            const overlay = document.getElementById('downloadModalOverlay');
+            const input = document.getElementById('downloadPasswordInput');
+            if (overlay) {
+                overlay.classList.add('active');
+                if (input) { input.value = ''; setTimeout(() => input.focus(), 100); }
+            }
+        }
+
+        function closeDownloadModal() {
+            document.getElementById('downloadModalOverlay').classList.remove('active');
+            pendingDownloadUrl = null;
+            pendingDownloadFileId = null;
+        }
+
+        function confirmDownload() {
+            const input = document.getElementById('downloadPasswordInput');
+            if (input && input.value === '888') {
+                closeDownloadModal();
+                // 更新下载计数
+                if (pendingDownloadFileId && supabaseClient) {
+                    supabaseClient.from('uploaded_files').update({ download_count: (portfolioFiles.find(f => f.id === pendingDownloadFileId)?.download_count || 0) + 1 }).eq('id', pendingDownloadFileId).then(() => {
+                        const f = portfolioFiles.find(f => f.id === pendingDownloadFileId);
+                        if (f) f.download_count = (f.download_count || 0) + 1;
+                    }).catch(() => {});
+                }
+                if (pendingDownloadUrl) window.open(pendingDownloadUrl, '_blank');
+            } else {
+                alert('密码错误');
+                if (input) { input.value = ''; input.focus(); }
+            }
+        }
+
+        // ========== 经历详情中的下载区 ==========
+        function renderExpDetailDownloads(expType, expIndex) {
+            const exp = experiencesData[expType]?.[expIndex];
+            if (!exp) return '';
+            // 该经历关联的附件（如果有ppt_images或background_url）
+            const downloads = [];
+            if (exp.background_url) {
+                downloads.push({ name: '项目底图', url: exp.background_url, type: 'img' });
+            }
+            if (exp.pptImages && exp.pptImages.length > 0) {
+                exp.pptImages.forEach((img, i) => {
+                    downloads.push({ name: `幻灯片 ${i+1}`, url: img, type: 'img' });
+                });
+            }
+            // 关联作品集文件
+            if (portfolioFiles.length > 0 && exp.title) {
+                portfolioFiles.forEach(f => {
+                    if (f.description && exp.title.includes(f.description)) {
+                        downloads.push({ name: f.file_name, url: f.file_url, type: f.file_type });
+                    }
+                });
+            }
+            if (downloads.length === 0) return '';
+            return `<div style="margin-top:16px;">
+                <h4 style="font-size:0.9rem;color:var(--gray);margin-bottom:8px;">相关资料</h4>
+                ${downloads.map(d => `<div class="exp-detail-download" onclick="requestDownload('${d.url}', null)">${d.name}</div>`).join('')}
+            </div>`;
+        }
+
+        // ========== 滚动动画 ==========
+        function initScrollAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        // 对于子元素也添加visible
+                        entry.target.querySelectorAll('.timeline-item, .dynamic-card-animate, .message-card-animate').forEach(el => {
+                            setTimeout(() => el.classList.add('visible'), 100);
+                        });
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+            // 观察需要动画的元素
+            document.querySelectorAll('.animate-on-scroll, .animate-slide-left, .animate-slide-right, .animate-scale, .timeline-section, .tag-cloud, .experiences-section, .dynamics-section, .messages-section').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // 给经历卡片和动态卡片添加动画class
+        function addAnimationClasses() {
+            document.querySelectorAll('.exp-card, .exp-tab-content .exp-item').forEach(el => {
+                el.classList.add('exp-card-hover');
+            });
+            document.querySelectorAll('.dynamic-item, .dynamic-card').forEach(el => {
+                el.classList.add('dynamic-card-animate');
+            });
+            document.querySelectorAll('.message-item, .message-card').forEach(el => {
+                el.classList.add('message-card-animate');
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             // 初始化Supabase
             initSupabase();
@@ -9256,7 +9859,8 @@
                 loadDynamics(),
                 loadMessages(),
                 loadQuizQuestions(),
-                loadContacts()
+                loadContacts(),
+                loadPortfolioFiles()
             ]);
             
             // 更新同步状态
@@ -9279,7 +9883,7 @@
                         if (parsed.siteProfile) Object.assign(siteProfileData, parsed.siteProfile);
                         if (siteProfileData.avatar) currentAvatar = siteProfileData.avatar;
                         const brand = document.querySelector('.navbar-brand');
-                        if (brand && siteProfileData.name) brand.textContent = siteProfileData.name;
+                        if (brand && siteProfileData.name && !brand.dataset.fixed) brand.textContent = siteProfileData.name;
                     } catch (e) { console.log('本地数据解析失败', e); }
                 }
             }
@@ -9290,6 +9894,13 @@
             initTagCloud();
             initTimeline();
             updateContactPage();
+            renderFileSidebar();
+            
+            // 初始化动画
+            setTimeout(() => {
+                initScrollAnimations();
+                addAnimationClasses();
+            }, 300);
         });
     </script>
 </body>
